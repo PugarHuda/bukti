@@ -1,0 +1,391 @@
+//! Bukti core: types shared between the zkVM guest and the host, plus the pure
+//! reconstruction logic that runs *inside* the zkVM.
+//!
+//! v2 design (post-QA):
+//! - The guest receives RAW swap legs (token ids, amounts, trade-time prices) — not
+//!   pre-computed PnL — and performs the weighted-average cost-basis reconstruction
+//!   itself, so the proof covers the *interesting* computation, not just summary stats.
+//! - All arithmetic is integer/fixed-point (no floats) for determinism inside the zkVM.
+//!   Money is USD * 1e6 ("e6"); token amounts are token units * 1e6 ("e6"); per-trade
+//!   returns are parts-per-million ("ppm").
+
+use alloy_sol_types::sol;
+use serde::{Deserialize, Serialize};
+
+extern crate alloc;
+use alloc::collections::BTreeMap;
+use alloc::vec::Vec;
+
+sol! {
+    /// Public values committed by the zkVM, ABI-encoded for direct decoding in Solidity.
+    /// `sharpeMilli` is the per-trade Sharpe-style score x1000 (mean/std of per-trade
+    /// returns; see README for why this is not an annualized Sharpe ratio).
+    struct BuktiOutput {
+        address wallet;
+        bytes32 anchorBlockHash;
+        uint64  windowStart;
+        uint64  windowEnd;
+        uint32  numTrades;
+        int64   sharpeMilli;
+        uint32  maxDrawdownBps;
+        int64   roiBps;
+        uint64  volumeUsdE6;
+    }
+}
+
+/// One raw swap leg pair: the wallet disposed of `sold_*` and acquired `bought_*`,
+/// both valued at trade-time (historical) prices supplied by the host witness.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Swap {
+    /// Unix timestamp (seconds) of the swap's block.
+    pub timestamp: u64,
+    /// Stable id of the token sold (host-assigned registry index).
+    pub sold_id: u32,
+    /// Amount sold, in token units * 1e6.
+    pub sold_amount_e6: u64,
+    /// USD price of the sold token at trade time, * 1e6.
+    pub sold_price_e6: u64,
+    /// Whether the sold token is USD cash (stablecoin) for cost-basis purposes.
+    pub sold_is_usd: bool,
+    /// Stable id of the token bought.
+    pub bought_id: u32,
+    /// Amount bought, in token units * 1e6.
+    pub bought_amount_e6: u64,
+    /// USD price of the bought token at trade time, * 1e6.
+    pub bought_price_e6: u64,
+    /// Whether the bought token is USD cash.
+    pub bought_is_usd: bool,
+}
+
+/// The full witness consumed by the zkVM program.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BuktiInput {
+    /// The wallet/agent being scored (20-byte EVM address).
+    pub wallet: [u8; 20],
+    /// Data-provenance anchor: the Mantle block hash the host asserts the swaps were
+    /// read under. MVP trust assumption (relayer-asserted); in-circuit receipt-proof
+    /// verification against this anchor is the roadmap item that removes it.
+    pub anchor_block_hash: [u8; 32],
+    /// Raw swap legs in chronological order.
+    pub swaps: Vec<Swap>,
+}
+
+/// A realized trade derived in-circuit from the swap series.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Trade {
+    pub timestamp: u64,
+    /// Realized PnL in USD * 1e6 (signed).
+    pub pnl_usd_e6: i64,
+    /// Disposal notional in USD * 1e6.
+    pub notional_usd_e6: u64,
+}
+
+/// Computed metrics in the integer form used by [`BuktiOutput`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Metrics {
+    pub window_start: u64,
+    pub window_end: u64,
+    pub num_trades: u32,
+    pub sharpe_milli: i64,
+    pub max_drawdown_bps: u32,
+    pub roi_bps: i64,
+    pub volume_usd_e6: u64,
+}
+
+impl Metrics {
+    pub fn empty() -> Self {
+        Metrics {
+            window_start: 0,
+            window_end: 0,
+            num_trades: 0,
+            sharpe_milli: 0,
+            max_drawdown_bps: 0,
+            roi_bps: 0,
+            volume_usd_e6: 0,
+        }
+    }
+}
+
+const E6: u128 = 1_000_000;
+
+/// USD value (e6) of `amount_e6` token units priced at `price_e6`.
+fn value_usd_e6(amount_e6: u64, price_e6: u64) -> u128 {
+    (amount_e6 as u128) * (price_e6 as u128) / E6
+}
+
+/// Reconstruct realized trades from raw swap legs using weighted-average cost basis.
+/// Runs inside the zkVM: acquiring a non-USD token adds to its basis; disposing of a
+/// non-USD token realizes PnL against the average basis. Disposals beyond tracked
+/// inventory (pre-window holdings, transfers-in) are skipped — the score therefore
+/// covers in-window round-trips only (documented assumption).
+pub fn reconstruct_trades(swaps: &[Swap]) -> Vec<Trade> {
+    // token id -> (qty_e6, cost_usd_e6)
+    let mut positions: BTreeMap<u32, (u128, u128)> = BTreeMap::new();
+    let mut trades: Vec<Trade> = Vec::new();
+
+    for s in swaps {
+        // Acquisition: add to basis at trade-time value.
+        if !s.bought_is_usd && s.bought_amount_e6 > 0 {
+            let v = value_usd_e6(s.bought_amount_e6, s.bought_price_e6);
+            let e = positions.entry(s.bought_id).or_insert((0, 0));
+            e.0 += s.bought_amount_e6 as u128;
+            e.1 += v;
+        }
+        // Disposal: realize PnL vs weighted-average basis.
+        if !s.sold_is_usd && s.sold_amount_e6 > 0 {
+            if let Some(e) = positions.get_mut(&s.sold_id) {
+                if e.0 > 0 {
+                    let close_qty = (s.sold_amount_e6 as u128).min(e.0);
+                    let cost_of_close = e.1 * close_qty / e.0;
+                    let proceeds = value_usd_e6(close_qty as u64, s.sold_price_e6);
+                    let pnl = proceeds as i128 - cost_of_close as i128;
+                    e.1 -= cost_of_close;
+                    e.0 -= close_qty;
+                    trades.push(Trade {
+                        timestamp: s.timestamp,
+                        pnl_usd_e6: clamp_i64(pnl),
+                        notional_usd_e6: clamp_u64(proceeds),
+                    });
+                }
+            }
+        }
+    }
+    trades
+}
+
+/// Standardized risk metrics over a realized trade series. Pure integer math:
+/// - score ("sharpe_milli"): mean(returns_ppm) * 1000 / std(returns_ppm), population std
+///   via integer isqrt. A per-trade Sharpe-style information ratio (not annualized).
+/// - max drawdown: deepest peak-to-trough of the cumulative-PnL equity curve, in bps of
+///   the running peak (normalized by volume while the curve is non-positive).
+/// - roi_bps: total PnL / total volume.
+pub fn compute_metrics(trades: &[Trade]) -> Metrics {
+    if trades.is_empty() {
+        return Metrics::empty();
+    }
+
+    let n = trades.len() as i128;
+    let mut window_start = u64::MAX;
+    let mut window_end = 0u64;
+    let mut total_pnl: i128 = 0;
+    let mut volume: u128 = 0;
+    let mut returns_ppm: Vec<i128> = Vec::with_capacity(trades.len());
+
+    for t in trades {
+        window_start = window_start.min(t.timestamp);
+        window_end = window_end.max(t.timestamp);
+        total_pnl += t.pnl_usd_e6 as i128;
+        volume += t.notional_usd_e6 as u128;
+        let r = if t.notional_usd_e6 > 0 {
+            (t.pnl_usd_e6 as i128) * 1_000_000 / (t.notional_usd_e6 as i128)
+        } else {
+            0
+        };
+        returns_ppm.push(r);
+    }
+
+    // Per-trade score: mean/std of ppm returns, x1000.
+    let mean: i128 = returns_ppm.iter().sum::<i128>() / n;
+    let var: i128 = returns_ppm.iter().map(|r| (r - mean) * (r - mean)).sum::<i128>() / n;
+    let std = isqrt_u128(var as u128) as i128;
+    let sharpe_milli = if std > 0 { clamp_i64(mean * 1000 / std) } else { 0 };
+
+    // Max drawdown of the cumulative-PnL equity curve. We only observe realized PnL
+    // (not account equity), so the USD decline is normalized by max(running peak, total
+    // volume) — volume as a capital proxy. Normalizing by the raw running peak alone
+    // explodes when the peak is near zero (a tiny early profit would yield absurd
+    // drawdown percentages).
+    let mut equity: i128 = 0;
+    let mut peak: i128 = 0;
+    let mut max_dd_bps: u128 = 0;
+    let volume_base = volume.max(1);
+    for t in trades {
+        equity += t.pnl_usd_e6 as i128;
+        if equity > peak {
+            peak = equity;
+        }
+        let base = (peak.max(0) as u128).max(volume_base);
+        let dd = (peak - equity).max(0) as u128;
+        let dd_bps = dd * 10_000 / base;
+        if dd_bps > max_dd_bps {
+            max_dd_bps = dd_bps;
+        }
+    }
+
+    let roi_bps = if volume > 0 { clamp_i64(total_pnl * 10_000 / volume as i128) } else { 0 };
+
+    Metrics {
+        window_start,
+        window_end,
+        num_trades: trades.len() as u32,
+        sharpe_milli,
+        max_drawdown_bps: max_dd_bps.min(u32::MAX as u128) as u32,
+        roi_bps,
+        volume_usd_e6: clamp_u64(volume),
+    }
+}
+
+/// Full in-circuit pipeline: raw swaps -> realized trades -> metrics.
+pub fn compute_metrics_from_swaps(swaps: &[Swap]) -> Metrics {
+    let trades = reconstruct_trades(swaps);
+    compute_metrics(&trades)
+}
+
+/// Integer square root (Newton's method) for u128.
+pub fn isqrt_u128(x: u128) -> u128 {
+    if x < 2 {
+        return x;
+    }
+    let mut a = x;
+    let mut b = (x >> 1) + 1;
+    while b < a {
+        a = b;
+        b = (b + x / b) >> 1;
+    }
+    a
+}
+
+fn clamp_i64(x: i128) -> i64 {
+    x.clamp(i64::MIN as i128, i64::MAX as i128) as i64
+}
+
+fn clamp_u64(x: u128) -> u64 {
+    x.min(u64::MAX as u128) as u64
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn t(ts: u64, pnl_e6: i64, notional_e6: u64) -> Trade {
+        Trade { timestamp: ts, pnl_usd_e6: pnl_e6, notional_usd_e6: notional_e6 }
+    }
+
+    #[test]
+    fn empty_series_is_zero() {
+        assert_eq!(compute_metrics(&[]), Metrics::empty());
+        assert!(reconstruct_trades(&[]).is_empty());
+    }
+
+    #[test]
+    fn isqrt_basics() {
+        assert_eq!(isqrt_u128(0), 0);
+        assert_eq!(isqrt_u128(1), 1);
+        assert_eq!(isqrt_u128(4), 2);
+        assert_eq!(isqrt_u128(15), 3);
+        assert_eq!(isqrt_u128(1_000_000), 1000);
+    }
+
+    #[test]
+    fn constant_returns_have_zero_volatility_and_zero_score() {
+        let trades = [t(1, 100_000_000, 1_000_000_000), t(2, 100_000_000, 1_000_000_000)];
+        let m = compute_metrics(&trades);
+        assert_eq!(m.sharpe_milli, 0); // std = 0 guard
+        assert_eq!(m.roi_bps, 1_000);
+        assert_eq!(m.volume_usd_e6, 2_000_000_000);
+    }
+
+    #[test]
+    fn mixed_returns_integer_score_and_drawdown() {
+        // +5%, -2%, +8% on equal $1000 notional.
+        let trades = [
+            t(10, 50_000_000, 1_000_000_000),
+            t(20, -20_000_000, 1_000_000_000),
+            t(30, 80_000_000, 1_000_000_000),
+        ];
+        let m = compute_metrics(&trades);
+        // returns_ppm = [50000, -20000, 80000]; mean = 36666 (integer div)
+        // var = (13334^2 + 56666^2 + 43334^2)/3 = 1,755,545,629 -> isqrt = 41899
+        // score = 36666*1000/41899 = 875
+        assert_eq!(m.sharpe_milli, 875);
+        // equity 50 -> 30 -> 110; dd = $20 over base max(peak $50, volume $3000) => 66 bps
+        assert_eq!(m.max_drawdown_bps, 66);
+        assert_eq!(m.roi_bps, 366); // 110e6 * 10000 / 3000e6 = 366
+    }
+
+    #[test]
+    fn swaps_reconstruct_round_trip_pnl() {
+        // Buy 10 TOK @ $100 with USDC, sell 10 TOK @ $120 for USDC.
+        let swaps = [
+            Swap {
+                timestamp: 1,
+                sold_id: 0,
+                sold_amount_e6: 1_000_000_000, // 1000 USDC
+                sold_price_e6: 1_000_000,
+                sold_is_usd: true,
+                bought_id: 1,
+                bought_amount_e6: 10_000_000, // 10 TOK
+                bought_price_e6: 100_000_000, // $100
+                bought_is_usd: false,
+            },
+            Swap {
+                timestamp: 2,
+                sold_id: 1,
+                sold_amount_e6: 10_000_000,
+                sold_price_e6: 120_000_000, // $120
+                sold_is_usd: false,
+                bought_id: 0,
+                bought_amount_e6: 1_200_000_000,
+                bought_price_e6: 1_000_000,
+                bought_is_usd: true,
+            },
+        ];
+        let trades = reconstruct_trades(&swaps);
+        assert_eq!(trades.len(), 1);
+        assert_eq!(trades[0].pnl_usd_e6, 200_000_000); // +$200
+        assert_eq!(trades[0].notional_usd_e6, 1_200_000_000); // $1200 proceeds
+
+        let m = compute_metrics_from_swaps(&swaps);
+        assert_eq!(m.num_trades, 1);
+        assert_eq!(m.roi_bps, 1_666); // 200/1200
+        assert_eq!(m.sharpe_milli, 0); // single trade, std = 0
+    }
+
+    #[test]
+    fn disposal_beyond_inventory_is_skipped() {
+        // Selling a token never bought in-window must not fabricate PnL.
+        let swaps = [Swap {
+            timestamp: 1,
+            sold_id: 7,
+            sold_amount_e6: 5_000_000,
+            sold_price_e6: 10_000_000,
+            sold_is_usd: false,
+            bought_id: 0,
+            bought_amount_e6: 50_000_000,
+            bought_price_e6: 1_000_000,
+            bought_is_usd: true,
+        }];
+        assert!(reconstruct_trades(&swaps).is_empty());
+    }
+
+    #[test]
+    fn partial_close_uses_weighted_average_basis() {
+        // Buy 10 @ $100, buy 10 @ $200 (avg $150), sell 10 @ $180 => pnl = +$300.
+        let buy = |ts: u64, qty: u64, px: u64| Swap {
+            timestamp: ts,
+            sold_id: 0,
+            sold_amount_e6: qty * px / 1_000_000,
+            sold_price_e6: 1_000_000,
+            sold_is_usd: true,
+            bought_id: 1,
+            bought_amount_e6: qty,
+            bought_price_e6: px,
+            bought_is_usd: false,
+        };
+        let sell = Swap {
+            timestamp: 3,
+            sold_id: 1,
+            sold_amount_e6: 10_000_000,
+            sold_price_e6: 180_000_000,
+            sold_is_usd: false,
+            bought_id: 0,
+            bought_amount_e6: 1_800_000_000,
+            bought_price_e6: 1_000_000,
+            bought_is_usd: true,
+        };
+        let swaps = [buy(1, 10_000_000, 100_000_000), buy(2, 10_000_000, 200_000_000), sell];
+        let trades = reconstruct_trades(&swaps);
+        assert_eq!(trades.len(), 1);
+        assert_eq!(trades[0].pnl_usd_e6, 300_000_000); // 1800 - 1500
+    }
+}

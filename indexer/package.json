@@ -1,0 +1,20 @@
+{
+  "name": "bukti-indexer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Reconstructs a wallet's realized trade series from raw Mantle DeFi swap logs and writes a Bukti witness (trades.json).",
+  "scripts": {
+    "index": "tsx src/index.ts",
+    "ping": "tsx src/ping.ts",
+    "discover": "tsx src/discover.ts"
+  },
+  "dependencies": {
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "@types/node": "^22.0.0"
+  }
+}
