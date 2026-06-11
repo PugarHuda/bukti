@@ -87,4 +87,67 @@ contract BuktiAttestationTest is Test {
         vm.expectRevert(BuktiAttestation.NotOwner.selector);
         attest.setVerifier(address(0), bytes32(0));
     }
+
+    // ---- QA edge cases ----
+
+    function test_vaultBoundary_exactThresholdApproved_oneBelowRejected() public {
+        GatedVault vault = new GatedVault(address(attest), int64(500));
+
+        // Exactly at threshold (500 >= 500) -> approved.
+        address atLine = address(0x3333333333333333333333333333333333333333);
+        attest.submitAttestation(_encode(atLine, 500), "");
+        vault.approveAgent(atLine);
+        assertTrue(vault.approvedAgent(atLine));
+
+        // One below threshold -> rejected with typed error.
+        address below = address(0x4444444444444444444444444444444444444444);
+        attest.submitAttestation(_encode(below, 499), "");
+        vm.expectRevert(
+            abi.encodeWithSelector(GatedVault.SharpeBelowThreshold.selector, int64(499), int64(500))
+        );
+        vault.approveAgent(below);
+    }
+
+    function test_vaultRejectsAgentWithoutAttestation() public {
+        GatedVault vault = new GatedVault(address(attest), int64(500));
+        vm.expectRevert(GatedVault.NoAttestation.selector);
+        vault.approveAgent(address(0xbadbad));
+    }
+
+    function test_resubmissionOverwritesLatestAttestation() public {
+        attest.submitAttestation(_encode(AGENT, 100), "");
+        attest.submitAttestation(_encode(AGENT, 900), "");
+        (int64 sharpe, bool exists) = attest.getSharpeMilli(AGENT);
+        assertTrue(exists);
+        assertEq(sharpe, int64(900)); // latest wins
+    }
+
+    function test_negativeScoreStoredFaithfully() public {
+        attest.submitAttestation(_encode(AGENT, -1316), "");
+        (int64 sharpe,) = attest.getSharpeMilli(AGENT);
+        assertEq(sharpe, int64(-1316));
+    }
+
+    function test_malformedPublicValuesReverts() public {
+        bytes memory garbage = hex"deadbeef";
+        vm.expectRevert();
+        attest.submitAttestation(garbage, "");
+    }
+
+    function test_invalidProofRejectedByVerifier() public {
+        // SP1MockVerifier asserts proofBytes.length == 0; non-empty proof must revert.
+        bytes memory pv = _encode(AGENT, 630);
+        vm.expectRevert();
+        attest.submitAttestation(pv, hex"01");
+        assertFalse(attest.hasAttestation(AGENT));
+    }
+
+    function test_eventEmittedWithCorrectFields() public {
+        bytes memory pv = _encode(AGENT, 630);
+        vm.expectEmit(true, true, false, true);
+        emit BuktiAttestation.AttestationSubmitted(
+            AGENT, address(this), 630, 4000, 280, 5_000_000_000, bytes32(uint256(0xBEEF))
+        );
+        attest.submitAttestation(pv, "");
+    }
 }

@@ -388,4 +388,86 @@ mod tests {
         assert_eq!(trades.len(), 1);
         assert_eq!(trades[0].pnl_usd_e6, 300_000_000); // 1800 - 1500
     }
+
+    // ---- QA edge cases ----
+
+    #[test]
+    fn extreme_values_saturate_not_panic() {
+        // Near-max u64 notional + extreme pnl must clamp, never overflow/panic.
+        let trades = [t(1, i64::MAX, u64::MAX / 2), t(2, i64::MIN + 1, u64::MAX / 2)];
+        let m = compute_metrics(&trades);
+        assert_eq!(m.num_trades, 2);
+        assert!(m.volume_usd_e6 >= u64::MAX - 2);
+        let _ = (m.sharpe_milli, m.roi_bps, m.max_drawdown_bps);
+    }
+
+    #[test]
+    fn zero_notional_trade_contributes_zero_return() {
+        let trades = [t(1, 50_000_000, 0), t(2, 10_000_000, 1_000_000_000)];
+        let m = compute_metrics(&trades);
+        assert_eq!(m.num_trades, 2);
+        assert_eq!(m.volume_usd_e6, 1_000_000_000);
+    }
+
+    #[test]
+    fn oversell_clamps_to_inventory() {
+        // Buy 5, sell 10: only the 5 tracked units realize PnL.
+        let buy = Swap {
+            timestamp: 1,
+            sold_id: 0, sold_amount_e6: 500_000_000, sold_price_e6: 1_000_000, sold_is_usd: true,
+            bought_id: 1, bought_amount_e6: 5_000_000, bought_price_e6: 100_000_000, bought_is_usd: false,
+        };
+        let sell = Swap {
+            timestamp: 2,
+            sold_id: 1, sold_amount_e6: 10_000_000, sold_price_e6: 120_000_000, sold_is_usd: false,
+            bought_id: 0, bought_amount_e6: 1_200_000_000, bought_price_e6: 1_000_000, bought_is_usd: true,
+        };
+        let trades = reconstruct_trades(&[buy, sell]);
+        assert_eq!(trades.len(), 1);
+        // close 5 @ $120 vs basis $100 => +$100; proceeds for closed qty = $600
+        assert_eq!(trades[0].pnl_usd_e6, 100_000_000);
+        assert_eq!(trades[0].notional_usd_e6, 600_000_000);
+    }
+
+    #[test]
+    fn token_to_token_swap_realizes_and_rebases() {
+        // USDC -> A (buy), A -> B (realize A, basis B at trade-time value), B -> USDC.
+        let buy_a = Swap {
+            timestamp: 1,
+            sold_id: 0, sold_amount_e6: 1_000_000_000, sold_price_e6: 1_000_000, sold_is_usd: true,
+            bought_id: 1, bought_amount_e6: 10_000_000, bought_price_e6: 100_000_000, bought_is_usd: false,
+        };
+        let a_to_b = Swap {
+            timestamp: 2,
+            sold_id: 1, sold_amount_e6: 10_000_000, sold_price_e6: 110_000_000, sold_is_usd: false,
+            bought_id: 2, bought_amount_e6: 11_000_000, bought_price_e6: 100_000_000, bought_is_usd: false,
+        };
+        let sell_b = Swap {
+            timestamp: 3,
+            sold_id: 2, sold_amount_e6: 11_000_000, sold_price_e6: 100_000_000, sold_is_usd: false,
+            bought_id: 0, bought_amount_e6: 1_100_000_000, bought_price_e6: 1_000_000, bought_is_usd: true,
+        };
+        let trades = reconstruct_trades(&[buy_a, a_to_b, sell_b]);
+        assert_eq!(trades.len(), 2);
+        assert_eq!(trades[0].pnl_usd_e6, 100_000_000); // A: +$100
+        assert_eq!(trades[1].pnl_usd_e6, 0); // B: flat vs its $1100 basis
+    }
+
+    #[test]
+    fn window_uses_min_max_even_if_unsorted() {
+        let trades = [t(30, 1_000_000, 100_000_000), t(10, 1_000_000, 100_000_000)];
+        let m = compute_metrics(&trades);
+        assert_eq!(m.window_start, 10);
+        assert_eq!(m.window_end, 30);
+    }
+
+    #[test]
+    fn all_losses_drawdown_normalized_by_volume() {
+        // Equity never positive: dd normalized by volume, bounded sane.
+        let trades = [t(1, -50_000_000, 1_000_000_000), t(2, -50_000_000, 1_000_000_000)];
+        let m = compute_metrics(&trades);
+        // dd = $100 over volume $2000 = 500 bps
+        assert_eq!(m.max_drawdown_bps, 500);
+        assert_eq!(m.roi_bps, -500);
+    }
 }

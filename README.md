@@ -76,12 +76,12 @@ Requires a Linux environment (SP1 needs Linux/WSL2). Toolchain: Rust, [SP1](http
 ```bash
 # 1. zkVM — reconstruct & check metrics inside the circuit
 cargo run --release --bin bukti -- --execute                       # built-in sample
-cargo run --release --bin bukti -- --execute --input trades.json   # real data
+cargo run --release --bin bukti -- --execute --input swaps.json   # real data
 
-# 2. Indexer — build trades.json from real Mantle swaps (no API key)
+# 2. Indexer — build swaps.json from real Mantle swaps (no API key)
 cd indexer && npm install
 npm run discover                                                         # find active wallets
-npm run index -- --wallet 0x<AGENT> --from <BLOCK> --out ../trades.json
+npm run index -- --wallet 0x<AGENT> --from <BLOCK> --out ../swaps.json
 
 # 3. Contracts — test & deploy
 cd contracts && forge test
