@@ -1,4 +1,4 @@
-import { createPublicClient, http, defineChain } from "viem";
+import { createPublicClient, http, defineChain, parseAbiItem } from "viem";
 
 export const mantleSepolia = defineChain({
   id: 5003,
@@ -65,4 +65,52 @@ export async function fetchAttestation(wallet: `0x${string}`): Promise<Attestati
     args: [wallet],
   })) as Attestation;
   return res;
+}
+
+/** Real SP1 Groth16 verifier the attestation contract points at (shown in the proof panel). */
+export const VERIFIER_ADDRESS = "0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A";
+export const VERIFIER_VERSION = "SP1 Groth16 v6.1.0";
+
+const ATTESTATION_EVENT = parseAbiItem(
+  "event AttestationSubmitted(address indexed wallet, address indexed attester, int64 sharpeMilli, uint32 maxDrawdownBps, int64 roiBps, uint64 volumeUsdE6, bytes32 anchorBlockHash)",
+);
+
+/** Contract deploy block on Mantle Sepolia — leaderboard scans from here. */
+const DEPLOY_BLOCK = 39750000n;
+const CHUNK = 9000n; // public RPC getLogs cap is 10k blocks
+
+export interface LeaderboardEntry {
+  wallet: `0x${string}`;
+  sharpeMilli: bigint;
+  maxDrawdownBps: number;
+  roiBps: bigint;
+  volumeUsdE6: bigint;
+  txHash: `0x${string}`;
+}
+
+/** Build the leaderboard straight from on-chain AttestationSubmitted events
+ *  (latest attestation per wallet wins), sorted by score desc. */
+export async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
+  const latest = await client.getBlockNumber();
+  const byWallet = new Map<string, LeaderboardEntry>();
+  for (let from = DEPLOY_BLOCK; from <= latest; from += CHUNK) {
+    const to = from + CHUNK - 1n > latest ? latest : from + CHUNK - 1n;
+    const logs = await client.getLogs({
+      address: ATTESTATION_ADDRESS,
+      event: ATTESTATION_EVENT,
+      fromBlock: from,
+      toBlock: to,
+    });
+    for (const l of logs) {
+      byWallet.set((l.args.wallet as string).toLowerCase(), {
+        wallet: l.args.wallet as `0x${string}`,
+        sharpeMilli: l.args.sharpeMilli as bigint,
+        maxDrawdownBps: Number(l.args.maxDrawdownBps),
+        roiBps: l.args.roiBps as bigint,
+        volumeUsdE6: l.args.volumeUsdE6 as bigint,
+        txHash: l.transactionHash as `0x${string}`,
+      });
+    }
+  }
+  return [...byWallet.values()].sort((a, b) => (b.sharpeMilli > a.sharpeMilli ? 1 : -1));
 }
