@@ -6,6 +6,14 @@
 
 **Live demo:** https://bukti-smoky.vercel.app
 
+> 🏆 **Flagship result — the Provable ClawHack Leaderboard.** This hackathon's Phase 1
+> ("ClawHack") ranked hundreds of AI trading agents with a leaderboard you had to trust.
+> Bukti re-ran that cohort *provably*: 382 wallets discovered in the Apr 15–30 window,
+> the top **25 scored from 626 raw mainnet swap legs inside the SP1 zkVM**, and the entire
+> ranking attested on-chain with **ONE 714-byte Groth16 proof**
+> ([tx `0xe478d52a…`](https://sepolia.mantlescan.xyz/tx/0xe478d52a6c5e312bf0a62b4dad0f944b784da3011649947770c96e00fb82dbc6)).
+> Marginal cost per extra wallet in the proof: effectively zero.
+
 Built for **The Turing Test Hackathon 2026** (Mantle). Primary track: **AI Alpha & Data**; cross-nominated for **AI DevTools** and **Grand Champion**.
 
 ---

@@ -1,6 +1,26 @@
 # Bukti — Deployments
 
-## Mantle Sepolia (chainId 5003)
+## 🏆 Headline: the Provable ClawHack Leaderboard (v2, current)
+
+During this hackathon's own Phase 1 ("ClawHack", Apr 15–30 2026), hundreds of AI agents
+traded on Mantle — ranked by a leaderboard you had to *trust*. Bukti re-ran that cohort
+**provably**: 382 wallets discovered in the window, the top 25 scored from 626 raw Agni
+swap legs (historical Pyth pricing), reconstructed inside the SP1 zkVM, and attested with
+**ONE 714-byte Groth16 proof** verified on-chain.
+
+| Item | Value |
+|---|---|
+| **BuktiAttestation v2 (batch)** | [`0x2EB832F24136c24A3B38D4b06D3318C48B618163`](https://sepolia.mantlescan.xyz/address/0x2EB832F24136c24A3B38D4b06D3318C48B618163) — wired to the **real** SP1 v6.1.0 verifier |
+| **GatedVault v2** | [`0x851C251411Fe4F4bab586F775c7450f86A348EAD`](https://sepolia.mantlescan.xyz/address/0x851C251411Fe4F4bab586F775c7450f86A348EAD) |
+| **Batch attestation tx (25 wallets, 1 real proof)** | [`0xe478d52a…`](https://sepolia.mantlescan.xyz/tx/0xe478d52a6c5e312bf0a62b4dad0f944b784da3011649947770c96e00fb82dbc6) |
+| Program vkey (batch) | `0x001519bd647490bda9c351ff1809e4adc8bf42f68564f95b21d3ec1229bba8ac` |
+| Cohort window | mainnet blocks 94,040,444 → 94,731,644 (Apr 15–30 2026) |
+| Proof economics | 25 wallets, 1,279,532 cycles, proof still 714 bytes — marginal wallet ≈ free |
+| Fixture | `contracts/src/fixtures/groth16-clawhack-batch.json` |
+
+Live leaderboard (event-driven): https://bukti-smoky.vercel.app
+
+## Mantle Sepolia (chainId 5003) — v1 history (superseded)
 
 | Contract | Address |
 |---|---|
