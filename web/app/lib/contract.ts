@@ -11,9 +11,9 @@ export const mantleSepolia = defineChain({
 
 export const client = createPublicClient({ chain: mantleSepolia, transport: http() });
 
-/** BuktiAttestation on Mantle Sepolia (overridable via NEXT_PUBLIC_ATTESTATION_ADDRESS). */
+/** BuktiAttestation v2 (batch) on Mantle Sepolia (overridable via NEXT_PUBLIC_ATTESTATION_ADDRESS). */
 export const ATTESTATION_ADDRESS = (process.env.NEXT_PUBLIC_ATTESTATION_ADDRESS ??
-  "0x7b0A5E9D4A8b1bf2829478e72f62283C6939C816") as `0x${string}`;
+  "0x2EB832F24136c24A3B38D4b06D3318C48B618163") as `0x${string}`;
 
 export const ATTESTATION_ABI = [
   {
@@ -76,7 +76,7 @@ const ATTESTATION_EVENT = parseAbiItem(
 );
 
 /** Contract deploy block on Mantle Sepolia — leaderboard scans from here. */
-const DEPLOY_BLOCK = 39750000n;
+const DEPLOY_BLOCK = 39795000n;
 const CHUNK = 9000n; // public RPC getLogs cap is 10k blocks
 
 export interface LeaderboardEntry {

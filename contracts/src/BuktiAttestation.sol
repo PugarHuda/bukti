@@ -82,38 +82,45 @@ contract BuktiAttestation {
         owner = msg.sender;
     }
 
-    /// @notice Verify an SP1 proof and record the resulting performance attestation.
-    /// @param publicValues ABI-encoded `BuktiOutput` committed by the zkVM.
+    /// @notice Verify ONE SP1 proof attesting a whole batch of wallets, and record every
+    ///         attestation. The zkVM commits `abi.encode(BuktiOutput[])`, so one Groth16
+    ///         proof carries an entire leaderboard.
+    /// @param publicValues ABI-encoded `BuktiOutput[]` committed by the zkVM.
     /// @param proofBytes   The SP1 (Groth16) proof.
-    function submitAttestation(bytes calldata publicValues, bytes calldata proofBytes) external {
+    function submitBatchAttestation(bytes calldata publicValues, bytes calldata proofBytes)
+        external
+    {
         // Reverts if the proof is invalid for this program + these public values.
         ISP1Verifier(verifier).verifyProof(buktiProgramVKey, publicValues, proofBytes);
 
-        BuktiOutput memory o = abi.decode(publicValues, (BuktiOutput));
+        BuktiOutput[] memory outs = abi.decode(publicValues, (BuktiOutput[]));
 
-        _attestations[o.wallet] = Attestation({
-            anchorBlockHash: o.anchorBlockHash,
-            windowStart: o.windowStart,
-            windowEnd: o.windowEnd,
-            numTrades: o.numTrades,
-            sharpeMilli: o.sharpeMilli,
-            maxDrawdownBps: o.maxDrawdownBps,
-            roiBps: o.roiBps,
-            volumeUsdE6: o.volumeUsdE6,
-            attestedAt: uint64(block.timestamp),
-            attester: msg.sender,
-            exists: true
-        });
+        for (uint256 i = 0; i < outs.length; i++) {
+            BuktiOutput memory o = outs[i];
+            _attestations[o.wallet] = Attestation({
+                anchorBlockHash: o.anchorBlockHash,
+                windowStart: o.windowStart,
+                windowEnd: o.windowEnd,
+                numTrades: o.numTrades,
+                sharpeMilli: o.sharpeMilli,
+                maxDrawdownBps: o.maxDrawdownBps,
+                roiBps: o.roiBps,
+                volumeUsdE6: o.volumeUsdE6,
+                attestedAt: uint64(block.timestamp),
+                attester: msg.sender,
+                exists: true
+            });
 
-        emit AttestationSubmitted(
-            o.wallet,
-            msg.sender,
-            o.sharpeMilli,
-            o.maxDrawdownBps,
-            o.roiBps,
-            o.volumeUsdE6,
-            o.anchorBlockHash
-        );
+            emit AttestationSubmitted(
+                o.wallet,
+                msg.sender,
+                o.sharpeMilli,
+                o.maxDrawdownBps,
+                o.roiBps,
+                o.volumeUsdE6,
+                o.anchorBlockHash
+            );
+        }
     }
 
     /// @notice Full attestation for a wallet.

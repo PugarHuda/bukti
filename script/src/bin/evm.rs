@@ -1,15 +1,13 @@
-//! Generate an EVM-compatible (Groth16 / PLONK) Bukti proof and write a Solidity
-//! test fixture. The Groth16 wrap is heavy; on an 8 GB machine generate it via the
-//! Succinct Prover Network (set `SP1_PROVER=network` + `NETWORK_PRIVATE_KEY` in .env)
-//! rather than locally.
+//! Generate an EVM-compatible (Groth16 / PLONK) Bukti BATCH proof and write a Solidity
+//! fixture. One proof attests the whole leaderboard.
 //!
 //! ```shell
-//! RUST_LOG=info cargo run --release --bin evm -- --system groth16
+//! RUST_LOG=info cargo run --release --bin evm -- --system groth16 --input batch.json
 //! ```
 
-use alloy_sol_types::SolType;
+use alloy_sol_types::SolValue;
+use bukti_lib::{BatchEntry, BuktiBatchInput, BuktiOutput, Swap};
 use clap::{Parser, ValueEnum};
-use bukti_lib::{BuktiInput, BuktiOutput, Swap};
 use serde::{Deserialize, Serialize};
 use sp1_sdk::{
     blocking::{ProveRequest, Prover, ProverClient},
@@ -23,7 +21,7 @@ const BUKTI_ELF: Elf = include_elf!("bukti-program");
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct EVMArgs {
-    /// Optional JSON witness file; uses a built-in sample when omitted.
+    /// Optional JSON batch witness file; uses a built-in 2-wallet sample when omitted.
     #[arg(long)]
     input: Option<PathBuf>,
     #[arg(long, value_enum, default_value = "groth16")]
@@ -36,21 +34,17 @@ enum ProofSystem {
     Groth16,
 }
 
-/// Solidity test fixture for verifying Bukti proofs on-chain.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct SP1BuktiFixture {
-    wallet: String,
-    sharpe_milli: i64,
-    max_drawdown_bps: u32,
-    roi_bps: i64,
-    volume_usd_e6: u64,
+struct SP1BuktiBatchFixture {
+    wallets: Vec<String>,
+    scores_milli: Vec<i64>,
     vkey: String,
     public_values: String,
     proof: String,
 }
 
-fn sample_input() -> BuktiInput {
+fn sample_swaps(scale: u64) -> Vec<Swap> {
     let buy = |ts: u64, qty_e6: u64, px_e6: u64| Swap {
         timestamp: ts,
         sold_id: 0,
@@ -73,15 +67,20 @@ fn sample_input() -> BuktiInput {
         bought_price_e6: 1_000_000,
         bought_is_usd: true,
     };
-    BuktiInput {
-        wallet: [0x11u8; 20],
-        anchor_block_hash: [0u8; 32],
-        swaps: vec![
-            buy(1_717_200_000, 10_000_000, 100_000_000),
-            sell(1_717_286_400, 5_000_000, 120_000_000),
-            buy(1_717_372_800, 10_000_000, 110_000_000),
-            sell(1_717_459_200, 7_000_000, 95_000_000),
-            sell(1_717_545_600, 8_000_000, 130_000_000),
+    vec![
+        buy(1_717_200_000, 10_000_000 * scale, 100_000_000),
+        sell(1_717_286_400, 5_000_000 * scale, 120_000_000),
+        buy(1_717_372_800, 10_000_000 * scale, 110_000_000),
+        sell(1_717_459_200, 7_000_000 * scale, 95_000_000),
+        sell(1_717_545_600, 8_000_000 * scale, 130_000_000),
+    ]
+}
+
+fn sample_input() -> BuktiBatchInput {
+    BuktiBatchInput {
+        entries: vec![
+            BatchEntry { wallet: [0x11u8; 20], anchor_block_hash: [0u8; 32], swaps: sample_swaps(1) },
+            BatchEntry { wallet: [0x22u8; 20], anchor_block_hash: [0u8; 32], swaps: sample_swaps(3) },
         ],
     }
 }
@@ -92,7 +91,7 @@ fn main() {
 
     let args = EVMArgs::parse();
 
-    let input: BuktiInput = match &args.input {
+    let input: BuktiBatchInput = match &args.input {
         Some(path) => serde_json::from_str(
             &std::fs::read_to_string(path).expect("failed to read input file"),
         )
@@ -106,7 +105,7 @@ fn main() {
     let mut stdin = SP1Stdin::new();
     stdin.write(&input);
 
-    println!("Proof System: {:?}", args.system);
+    println!("Proof System: {:?} | batch: {} wallets", args.system, input.entries.len());
 
     let proof = match args.system {
         ProofSystem::Plonk => client.prove(&pk, stdin).plonk().run(),
@@ -123,22 +122,18 @@ fn create_proof_fixture(
     system: ProofSystem,
 ) {
     let bytes = proof.public_values.as_slice();
-    let o = BuktiOutput::abi_decode(bytes).unwrap();
+    let outputs: Vec<BuktiOutput> = Vec::<BuktiOutput>::abi_decode(bytes).unwrap();
 
-    let fixture = SP1BuktiFixture {
-        wallet: o.wallet.to_string(),
-        sharpe_milli: o.sharpeMilli,
-        max_drawdown_bps: o.maxDrawdownBps,
-        roi_bps: o.roiBps,
-        volume_usd_e6: o.volumeUsdE6,
+    let fixture = SP1BuktiBatchFixture {
+        wallets: outputs.iter().map(|o| o.wallet.to_string()).collect(),
+        scores_milli: outputs.iter().map(|o| o.sharpeMilli).collect(),
         vkey: vk.bytes32().to_string(),
         public_values: format!("0x{}", hex::encode(bytes)),
         proof: format!("0x{}", hex::encode(proof.bytes())),
     };
 
     println!("Verification Key: {}", fixture.vkey);
-    println!("Public Values: {}", fixture.public_values);
-    println!("Proof Bytes: {}", fixture.proof);
+    println!("Wallets in batch: {}", fixture.wallets.len());
 
     let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../contracts/src/fixtures");
     std::fs::create_dir_all(&fixture_path).expect("failed to create fixture path");

@@ -70,6 +70,22 @@ pub struct BuktiInput {
     pub swaps: Vec<Swap>,
 }
 
+/// One wallet's witness inside a batch.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BatchEntry {
+    pub wallet: [u8; 20],
+    pub anchor_block_hash: [u8; 32],
+    pub swaps: Vec<Swap>,
+}
+
+/// Batch witness: score N wallets inside ONE proof. Per-wallet reconstruction is cheap
+/// (~tens of k cycles); the Groth16 wrap dominates proving cost, so a 30-wallet batch
+/// proves for roughly the price of one.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BuktiBatchInput {
+    pub entries: Vec<BatchEntry>,
+}
+
 /// A realized trade derived in-circuit from the swap series.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Trade {
