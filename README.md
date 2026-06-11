@@ -4,6 +4,8 @@
 
 > Nansen tells you a wallet's PnL. **Bukti proves its Sharpe ratio on-chain.** It reconstructs a wallet/agent's risk-adjusted performance (Sharpe, max drawdown, ROI, volume) from raw Mantle DeFi trades *inside an SP1 zero-knowledge VM*, then verifies the proof on Mantle and stores a tamper-proof, composable attestation — so any vault, lender, or copy-trading protocol can route capital by **proven** track record, not self-reported screenshots.
 
+**Live demo:** https://bukti-smoky.vercel.app
+
 Built for **The Turing Test Hackathon 2026** (Mantle). Primary track: **AI Alpha & Data**; cross-nominated for **AI DevTools** and **Grand Champion**.
 
 ---
