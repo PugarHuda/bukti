@@ -11,9 +11,9 @@ export const mantleSepolia = defineChain({
 
 export const client = createPublicClient({ chain: mantleSepolia, transport: http() });
 
-/** Set after deploying BuktiAttestation to Mantle Sepolia. */
+/** BuktiAttestation on Mantle Sepolia (overridable via NEXT_PUBLIC_ATTESTATION_ADDRESS). */
 export const ATTESTATION_ADDRESS = (process.env.NEXT_PUBLIC_ATTESTATION_ADDRESS ??
-  "") as `0x${string}`;
+  "0x7b0A5E9D4A8b1bf2829478e72f62283C6939C816") as `0x${string}`;
 
 export const ATTESTATION_ABI = [
   {

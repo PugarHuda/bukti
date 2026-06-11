@@ -16,6 +16,15 @@
 - Result: score **−1.316** (×1000 = −1316), max drawdown **1.25%**, ROI **−1.25%**, volume **$25.13**, 5 realized trades
 - Attestation tx: [`0x8b90c36e…`](https://sepolia.mantlescan.xyz/tx/0x8b90c36ef1b09904c39022e56ce0530be8c75f94168bc64c9a1bb93f4ab312f7) · read back via `getSharpeMilli` → `(-1316, true)`
 
+### GatedVault composability demo — live on-chain
+Capital gated by *proven* score (threshold: 500 = 0.5):
+
+| Action | Result |
+|---|---|
+| Sample agent `0x1111…1111` (score **0.533**) attested | tx [`0xe9572a52…`](https://sepolia.mantlescan.xyz/tx/0xe9572a524706f5595611e16ccd2f69f11efd698b1a736208512a90fead943e75) |
+| `approveAgent(0x1111…)` → **APPROVED** ✓ | tx [`0x0fd64966…`](https://sepolia.mantlescan.xyz/tx/0x0fd649667263c9742e73e6e1b11296e86e32fcdab600ecb8698a965424682638), `approvedAgent` → `true` |
+| `approveAgent(0x4cf8…)` (real trader, score **−1.316**) → **REJECTED** | on-chain revert `SharpeBelowThreshold(-1316, 500)` |
+
 ### ERC-8004 integration (canonical registries on Mantle Sepolia)
 Bukti writes its zkVM-reconstructed scores into Mantle's own ERC-8004 trust layer:
 
