@@ -41,6 +41,9 @@ Bukti writes its zkVM-reconstructed scores into Mantle's own ERC-8004 trust laye
 > track records". Bukti is that ZK-based scoring layer, live: zkVM-reconstructed metrics →
 > on-chain attestation → ERC-8004 reputation.
 
+### Verification
+All three contracts are **verified on Mantlescan** (source visible): [BuktiAttestation](https://sepolia.mantlescan.xyz/address/0x7b0A5E9D4A8b1bf2829478e72f62283C6939C816#code) · [GatedVault](https://sepolia.mantlescan.xyz/address/0x5e6b9242Db15959EdCEccBa5C369fca3576fd598#code) · [SP1MockVerifier](https://sepolia.mantlescan.xyz/address/0xE80AF60bF8ca81f711dB1bD16eEF7C823AF7228a#code)
+
 ### Notes
 - The verifier is currently a `SP1MockVerifier` placeholder so the on-chain flow is live and demonstrable end-to-end. Swap to the real SP1 Groth16 verifier (matching SP1 SDK v6.2.4) via `BuktiAttestation.setVerifier(...)` once the Groth16 path is wired through the Succinct Prover Network.
 - Deploy command: `forge script script/Deploy.s.sol:Deploy --rpc-url $MANTLE_SEPOLIA_RPC --private-key $PRIVATE_KEY --broadcast --legacy`
