@@ -53,9 +53,12 @@ An attestation reconstructed from a **real Mantle mainnet trader** (`0x4cf8…23
 
 **ERC-8004 integration, live:** the score is also written into Mantle's canonical ERC-8004 registries on Sepolia — agent **#137** in the [IdentityRegistry](https://sepolia.mantlescan.xyz/address/0x8004A818BFB912233c491871b3d84c89A494BD9e) (agentURI → the attestation tx) with `giveFeedback` in the [ReputationRegistry](https://sepolia.mantlescan.xyz/address/0x8004B663056A597Dffe9eCcC1965A193B7388713) ([tx `0xf44b6d62…`](https://sepolia.mantlescan.xyz/tx/0xf44b6d62e80ab8e6e8f09b7da31f1975b3ea58269d66beb7fb1d3c44480464f7)). Mantle's ERC-8004 announcement calls for "ZK-based" validation and "portable track records" — Bukti is that layer, running. See [DEPLOYMENTS.md](DEPLOYMENTS.md).
 
-> **Current trust status, stated plainly:** the deployed verifier is still a mock
-> placeholder while the Groth16 path is wired to the Succinct Prover Network — the
-> on-chain flow is live, the proof verification swap-in is `setVerifier(...)` away.
+> **A REAL Groth16 proof is verified on-chain.** The attestation contract points at the
+> real [SP1 v6.1.0 Groth16 verifier](https://sepolia.mantlescan.xyz/address/0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A)
+> — the real trader's score above was submitted with a genuine zk proof
+> ([tx `0x9e224886…`](https://sepolia.mantlescan.xyz/tx/0x9e224886bff63bc4d50e9d184b977430cd8ae7744e9ce3f81a124c520635f0b9)),
+> and junk proofs revert with `WrongVerifierSelector`. The proof was generated locally for
+> $0 on an 8 GB machine (28 GB swap, SP1 native-gnark).
 
 ## Repository layout
 
@@ -126,7 +129,7 @@ The zk proof makes the **computation** (raw swap legs → cost-basis PnL → ris
 
 ## Roadmap
 
-- Real SP1 Groth16 verifier on Mantle (matching SP1 SDK version) via the Succinct Prover Network.
+- ~~Real SP1 Groth16 verifier on Mantle~~ ✅ done — real v6.1.0 verifier live, real proof verified on-chain.
 - In-zkVM receipt-Merkle-proof verification for permissionless, no-cooperation reconstruction.
 - On-chain block-hash accumulator for fully trustless historical input.
 - Merchant Moe Liquidity Book (bin) accounting; LP-position PnL; multi-DEX at scale.

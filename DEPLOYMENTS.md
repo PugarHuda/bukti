@@ -5,8 +5,19 @@
 | Contract | Address |
 |---|---|
 | **BuktiAttestation** | [`0x7b0A5E9D4A8b1bf2829478e72f62283C6939C816`](https://sepolia.mantlescan.xyz/address/0x7b0A5E9D4A8b1bf2829478e72f62283C6939C816) |
+| **SP1 Groth16 Verifier v6.1.0 (REAL)** | [`0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A`](https://sepolia.mantlescan.xyz/address/0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A) |
 | GatedVault (composability demo) | [`0x5e6b9242Db15959EdCEccBa5C369fca3576fd598`](https://sepolia.mantlescan.xyz/address/0x5e6b9242Db15959EdCEccBa5C369fca3576fd598) |
-| SP1MockVerifier (placeholder) | [`0xE80AF60bF8ca81f711dB1bD16eEF7C823AF7228a`](https://sepolia.mantlescan.xyz/address/0xE80AF60bF8ca81f711dB1bD16eEF7C823AF7228a) |
+| SP1MockVerifier (superseded placeholder) | [`0xE80AF60bF8ca81f711dB1bD16eEF7C823AF7228a`](https://sepolia.mantlescan.xyz/address/0xE80AF60bF8ca81f711dB1bD16eEF7C823AF7228a) |
+
+### 🔐 REAL Groth16 proof verified on-chain
+The mock era is over — `BuktiAttestation` now points at the **real SP1 v6.1.0 Groth16 verifier**:
+
+| Step | Evidence |
+|---|---|
+| Groth16 proof generated **locally, $0** (8 GB RAM + 28 GB swap, SP1 native-gnark, ~75 min) | `contracts/src/fixtures/groth16-fixture.json` |
+| Verifier rotation (`setVerifier` → real) | tx [`0x42baa6f2…`](https://sepolia.mantlescan.xyz/tx/0x42baa6f2c27eb00e227bc6c36c4062f9fbaf938cbdef6812c73ae068ee13d556) |
+| **Attestation submitted with the REAL proof, verified on-chain** | tx [`0x9e224886…`](https://sepolia.mantlescan.xyz/tx/0x9e224886bff63bc4d50e9d184b977430cd8ae7744e9ce3f81a124c520635f0b9) |
+| Negative control: junk proof **rejected** | revert `WrongVerifierSelector(0xdeadbeef, 0x4388a21c)` |
 
 - Deployer: `0x39D2bae5EAedA9283535dDC98F1991c81eD5Cd7E`
 - Program vkey (v2: in-circuit cost-basis PnL reconstruction, integer math): `0x00dc2fa887b1c394893cfdb809ea60e4d6af5a303ba1ebe8e25f7e3cab8298c9`
@@ -45,6 +56,5 @@ Bukti writes its zkVM-reconstructed scores into Mantle's own ERC-8004 trust laye
 All three contracts are **verified on Mantlescan** (source visible): [BuktiAttestation](https://sepolia.mantlescan.xyz/address/0x7b0A5E9D4A8b1bf2829478e72f62283C6939C816#code) · [GatedVault](https://sepolia.mantlescan.xyz/address/0x5e6b9242Db15959EdCEccBa5C369fca3576fd598#code) · [SP1MockVerifier](https://sepolia.mantlescan.xyz/address/0xE80AF60bF8ca81f711dB1bD16eEF7C823AF7228a#code)
 
 ### Notes
-- The verifier is currently a `SP1MockVerifier` placeholder so the on-chain flow is live and demonstrable end-to-end. Swap to the real SP1 Groth16 verifier (matching SP1 SDK v6.2.4) via `BuktiAttestation.setVerifier(...)` once the Groth16 path is wired through the Succinct Prover Network.
 - Deploy command: `forge script script/Deploy.s.sol:Deploy --rpc-url $MANTLE_SEPOLIA_RPC --private-key $PRIVATE_KEY --broadcast --legacy`
 - Previous iteration (under the working name "ProofSharpe") deployed at `0x481fE34e…` with attestation txs `0xe32278c9…` / `0x76449fb6…` — superseded by this Bukti deployment.
