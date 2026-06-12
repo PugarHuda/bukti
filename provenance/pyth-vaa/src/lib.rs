@@ -14,27 +14,29 @@
 use k256::ecdsa::{RecoveryId, Signature, VerifyingKey};
 use tiny_keccak::{Hasher, Keccak};
 
-/// Wormhole mainnet guardian set #4 (19 guardians), read from the Wormhole core contract
-/// `getGuardianSet(4)` on Ethereum (0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B).
-pub const GUARDIAN_SET_4: [[u8; 20]; 19] = [
+/// Wormhole mainnet guardian set #6 — the current active set (19 guardians), read from the
+/// Wormhole core contract `getGuardianSet(6)` on Ethereum
+/// (0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B). The set index is read from each VAA header,
+/// so production code resolves the right set on-chain; this constant pins the live one.
+pub const GUARDIAN_SET_6: [[u8; 20]; 19] = [
     hexaddr(b"5893B5A76c3f739645648885bDCcC06cd70a3Cd3"),
     hexaddr(b"fF6CB952589BDE862c25Ef4392132fb9D4A42157"),
     hexaddr(b"114De8460193bdf3A2fCf81f86a09765F4762fD1"),
     hexaddr(b"107A0086b32d7A0977926A205131d8731D39cbEB"),
     hexaddr(b"8C82B2fd82FaeD2711d59AF0F2499D16e726f6b2"),
-    hexaddr(b"11b39756C042441BE6D8650b69b54EbE715E2343"),
-    hexaddr(b"54Ce5B4D348fb74B958e8966e2ec3dBd4958a7cd"),
-    hexaddr(b"15e7cAF07C4e3DC8e7C469f92C8Cd88FB8005a20"),
-    hexaddr(b"74a3bf913953D695260D88BC1aA25A4eeE363ef0"),
+    hexaddr(b"42579bFFbCF4276E290aB8E4C162bd4052b97970"),
+    hexaddr(b"938f104AEb5581293216ce97d771e0CB721221B1"),
+    hexaddr(b"18e41674CcF26329cD111406C1D05C6c80b23EdC"),
+    hexaddr(b"9D16870160e703324D057c3361c34C5beFBa2c34"),
     hexaddr(b"000aC0076727b35FBea2dAc28fEE5cCB0fEA768e"),
     hexaddr(b"AF45Ced136b9D9e24903464AE889F5C8a723FC14"),
     hexaddr(b"f93124b7c738843CBB89E864c862c38cddCccF95"),
     hexaddr(b"D2CC37A4dc036a8D232b48f62cDD4731412f4890"),
     hexaddr(b"DA798F6896A3331F64b48c12D1D57Fd9cbe70811"),
-    hexaddr(b"71AA1BE1D36CaFE3867910F99C09e347899C19C3"),
-    hexaddr(b"8192b6E7387CCd768277c17DAb1b7a5027c0b3Cf"),
+    hexaddr(b"D1F64e26238811de5553C40f64af41eE1B6057Cc"),
+    hexaddr(b"3F851Ad586A47ceF8d04748f33ab0D71395f06b4"),
     hexaddr(b"178e21ad2E77AE06711549CFBB1f9c7a9d8096e8"),
-    hexaddr(b"5E1487F35515d02A92753504a8D75471b9f49EdB"),
+    hexaddr(b"7899cEAB1DC961Dae9defDB7A4f521269a5448FC"),
     hexaddr(b"6FbEBc898F403E4773E95feB15E80C9A99c8348d"),
 ];
 

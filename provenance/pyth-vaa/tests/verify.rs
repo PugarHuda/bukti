@@ -18,12 +18,12 @@ fn fixture() -> (Vec<u8>, i64, i32, i64) {
 }
 
 #[test]
-fn parses_accumulator_and_vaa_set_index_is_4() {
+fn parses_accumulator_and_vaa_set_index_is_6() {
     let (bytes, _, _, _) = fixture();
     let acc = parse_accumulator(&bytes).expect("PNAU parse");
     assert!(!acc.updates.is_empty());
     let vaa = parse_vaa(acc.vaa).expect("VAA parse");
-    assert_eq!(vaa.guardian_set_index, 4, "Hermes signs with guardian set 4");
+    assert_eq!(vaa.guardian_set_index, 6, "Hermes signs with guardian set 6");
     assert!(vaa.signatures.len() >= QUORUM, "at least quorum signatures present");
 }
 
@@ -33,7 +33,7 @@ fn verifies_real_guardian_quorum() {
     let acc = parse_accumulator(&bytes).unwrap();
     let vaa = parse_vaa(acc.vaa).unwrap();
     // The heart of it: ≥13 real Wormhole guardians signed this price's Merkle root.
-    verify_guardian_signatures(&vaa, &GUARDIAN_SET_4).expect("guardian quorum verifies");
+    verify_guardian_signatures(&vaa, &GUARDIAN_SET_6).expect("guardian quorum verifies");
 }
 
 #[test]
@@ -46,7 +46,7 @@ fn rejects_tampered_body() {
     vaa_bytes[last] ^= 0xff;
     let vaa = parse_vaa(&vaa_bytes).unwrap();
     assert_eq!(
-        verify_guardian_signatures(&vaa, &GUARDIAN_SET_4),
+        verify_guardian_signatures(&vaa, &GUARDIAN_SET_6),
         Err(VaaError::QuorumNotMet),
         "tampered body must break the guardian signatures"
     );
@@ -55,7 +55,7 @@ fn rejects_tampered_body() {
 #[test]
 fn end_to_end_proves_the_hermes_price() {
     let (bytes, price, expo, pt) = fixture();
-    let feeds = verify_update(&bytes, &GUARDIAN_SET_4).expect("full verification");
+    let feeds = verify_update(&bytes, &GUARDIAN_SET_6).expect("full verification");
     assert_eq!(feeds.len(), 1);
     let f = &feeds[0];
     // The decoded, guardian-signed, Merkle-proven price equals what Hermes reported.

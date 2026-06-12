@@ -30,3 +30,5 @@ contracts/broadcast
 # provenance experiment
 provenance/check-trie/target
 provenance/check-trie/Cargo.lock
+provenance/pyth-vaa/target
+provenance/pyth-vaa/Cargo.lock
