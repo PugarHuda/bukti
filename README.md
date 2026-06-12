@@ -40,6 +40,26 @@ Bukti is that primitive.
           → composable, tamper-proof score  →  read by GatedVault, lenders, copy-trade…
 ```
 
+```mermaid
+flowchart LR
+    subgraph UNTRUSTED["untrusted (anyone can run it)"]
+        A[Raw Mantle swap logs<br/>Agni, mainnet] --> C[Witness builder<br/>+ historical Pyth prices]
+    end
+    subgraph PROVEN["proven (SP1 zkVM, integer math)"]
+        C --> D[Cost-basis PnL<br/>reconstruction]
+        D --> E["score · drawdown · ROI · volume<br/>committed as BuktiOutput[]"]
+    end
+    E --> F[Groth16 proof<br/>714 bytes for 25 wallets]
+    subgraph TRUSTLESS["on-chain (Mantle)"]
+        F --> G[SP1 v6.1.0 verifier<br/>invalid proofs revert]
+        G --> H[BuktiAttestation<br/>vkey-pinned storage + events]
+    end
+    H --> I[GatedVault<br/>capital gate]
+    H --> J[ERC-8004<br/>ReputationRegistry]
+    H --> K[bukti-mcp<br/>AI agents]
+    H --> L[Live leaderboard]
+```
+
 - **The zk proof covers the reconstruction itself, not just summary stats:** the
   weighted-average cost-basis realized-PnL computation *and* the risk metrics run inside
   the zkVM in deterministic integer arithmetic.

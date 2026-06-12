@@ -113,6 +113,18 @@ button.ghost {
 table.trades { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
 table.trades th { text-align: left; color: var(--muted); font-size: 10.5px; text-transform: uppercase; padding: 4px 6px; }
 table.trades td { padding: 5px 6px; border-top: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+.badge {
+  font-size: 10px; font-weight: 700; color: var(--muted); border: 1px solid var(--border);
+  border-radius: 999px; padding: 2px 8px; margin-left: 8px; vertical-align: middle;
+  text-transform: uppercase; letter-spacing: 0.4px;
+}
+.badge.live { color: var(--accent); border-color: var(--accent); }
+
+.chat { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.bubble { border-radius: 12px; padding: 10px 14px; font-size: 13px; line-height: 1.55; max-width: 92%; }
+.bubble.user { background: var(--panel-2); border: 1px solid var(--border); align-self: flex-end; }
+.bubble.agent { background: rgba(61, 220, 151, 0.08); border: 1px solid var(--accent); align-self: flex-start; }
+
 code.snippet {
   display: block; margin-top: 8px; padding: 8px 10px; background: var(--panel-2);
   border: 1px solid var(--border); border-radius: 8px; font-size: 11px; overflow-x: auto;
