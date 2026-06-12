@@ -9,7 +9,7 @@
 sp1_zkvm::entrypoint!(main);
 
 use alloy_sol_types::{private::FixedBytes, SolValue};
-use bukti_lib::{compute_metrics_from_swaps, BuktiBatchInput, BuktiOutput};
+use bukti_lib::{compute_metrics_from_swaps, swaps_merkle_root, BuktiBatchInput, BuktiOutput};
 
 pub fn main() {
     let input = sp1_zkvm::io::read::<BuktiBatchInput>();
@@ -17,6 +17,8 @@ pub fn main() {
     let mut outputs: Vec<BuktiOutput> = Vec::with_capacity(input.entries.len());
     for e in &input.entries {
         let m = compute_metrics_from_swaps(&e.swaps);
+        // Completeness commitment: bind the proof to the FULL, ordered swap set in-circuit.
+        let root = swaps_merkle_root(&e.swaps);
         outputs.push(BuktiOutput {
             wallet: e.wallet.into(),
             anchorBlockHash: FixedBytes::<32>::from(e.anchor_block_hash),
@@ -27,6 +29,8 @@ pub fn main() {
             maxDrawdownBps: m.max_drawdown_bps,
             roiBps: m.roi_bps,
             volumeUsdE6: m.volume_usd_e6,
+            swapsRoot: FixedBytes::<32>::from(root),
+            numSwaps: e.swaps.len() as u32,
         });
     }
 

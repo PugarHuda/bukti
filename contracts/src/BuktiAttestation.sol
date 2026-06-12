@@ -15,6 +15,11 @@ struct BuktiOutput {
     uint32 maxDrawdownBps;
     int64 roiBps;
     uint64 volumeUsdE6;
+    // Completeness commitment (anti-cherry-pick): Merkle root over the FULL ordered swap set
+    // the metrics were computed from, plus its leg count. Dropping a losing leg changes the
+    // root, so a trader cannot prove only a winning subset.
+    bytes32 swapsRoot;
+    uint32 numSwaps;
 }
 
 /// @title Bukti Attestation Registry
@@ -39,6 +44,8 @@ contract BuktiAttestation {
         uint32 maxDrawdownBps; // basis points
         int64 roiBps; // basis points
         uint64 volumeUsdE6; // USD * 1e6
+        bytes32 swapsRoot; // completeness commitment (Merkle root of full swap set)
+        uint32 numSwaps; // swap legs bound into swapsRoot
         uint64 attestedAt; // block.timestamp of submission
         address attester; // who submitted the proof (relayer)
         bool exists;
@@ -106,6 +113,8 @@ contract BuktiAttestation {
                 maxDrawdownBps: o.maxDrawdownBps,
                 roiBps: o.roiBps,
                 volumeUsdE6: o.volumeUsdE6,
+                swapsRoot: o.swapsRoot,
+                numSwaps: o.numSwaps,
                 attestedAt: uint64(block.timestamp),
                 attester: msg.sender,
                 exists: true
@@ -138,6 +147,18 @@ contract BuktiAttestation {
     /// @notice Whether a wallet has any verified attestation.
     function hasAttestation(address wallet) external view returns (bool) {
         return _attestations[wallet].exists;
+    }
+
+    /// @notice Completeness commitment for a wallet: the Merkle root of the FULL swap set the
+    ///         score was computed over, and the number of legs bound into it. A consumer can
+    ///         recompute the root from the public witness and confirm no leg was cherry-picked.
+    function getCompleteness(address wallet)
+        external
+        view
+        returns (bytes32 swapsRoot, uint32 numSwaps, bool exists)
+    {
+        Attestation storage a = _attestations[wallet];
+        return (a.swapsRoot, a.numSwaps, a.exists);
     }
 
     /// @notice Owner: rotate the verifier and/or program vkey.

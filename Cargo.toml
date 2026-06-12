@@ -4,4 +4,5 @@ resolver = "2"
 
 [workspace.dependencies]
 alloy-sol-types = "*"
+alloy-primitives = "*"
 serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }

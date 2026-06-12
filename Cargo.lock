@@ -642,6 +642,7 @@ dependencies = [
 name = "bukti-lib"
 version = "0.1.0"
 dependencies = [
+ "alloy-primitives",
  "alloy-sol-types",
  "serde",
 ]

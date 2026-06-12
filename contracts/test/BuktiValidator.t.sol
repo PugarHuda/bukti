@@ -49,7 +49,9 @@ contract BuktiValidatorTest is Test {
             sharpeMilli: sharpeMilli,
             maxDrawdownBps: 4000,
             roiBps: 280,
-            volumeUsdE6: 5_000_000_000
+            volumeUsdE6: 5_000_000_000,
+            swapsRoot: keccak256(abi.encode("swaps", wallet, sharpeMilli)),
+            numSwaps: 11
         });
         attest.submitBatchAttestation(abi.encode(outs), "");
     }
