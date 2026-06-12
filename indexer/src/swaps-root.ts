@@ -38,8 +38,8 @@ const beU32 = (n: number) => {
   return b;
 };
 
-/** Canonical 50-byte big-endian leaf encoding — must match Rust `swap_leaf`. */
-function swapLeaf(s: Swap): `0x${string}` {
+/** Canonical 50-byte big-endian leaf encoding — must match Rust `append_leaf`. */
+function leafBytes(s: Swap): Uint8Array {
   const buf = new Uint8Array(50);
   let o = 0;
   const put = (a: Uint8Array) => {
@@ -55,23 +55,16 @@ function swapLeaf(s: Swap): `0x${string}` {
   put(beU64(s.bought_amount_e6));
   put(beU64(s.bought_price_e6));
   buf[o++] = s.bought_is_usd ? 1 : 0;
-  return keccak256(buf);
+  return buf;
 }
 
-/** Binary keccak Merkle root, duplicating the last node on odd levels — matches Rust. */
+/** Completeness commitment: single keccak256 over the chronological concatenation of every
+ *  leg's canonical encoding — must match Rust `swaps_commitment`. */
 export function swapsMerkleRoot(swaps: Swap[]): `0x${string}` {
   if (swaps.length === 0) return `0x${"00".repeat(32)}`;
-  let level = swaps.map(swapLeaf);
-  while (level.length > 1) {
-    const next: `0x${string}`[] = [];
-    for (let i = 0; i < level.length; i += 2) {
-      const left = level[i];
-      const right = i + 1 < level.length ? level[i + 1] : level[i];
-      next.push(keccak256(`0x${left.slice(2)}${right.slice(2)}` as `0x${string}`));
-    }
-    level = next;
-  }
-  return level[0];
+  const all = new Uint8Array(swaps.length * 50);
+  swaps.forEach((s, i) => all.set(leafBytes(s), i * 50));
+  return keccak256(all);
 }
 
 function walletHex(w: number[] | string): string {

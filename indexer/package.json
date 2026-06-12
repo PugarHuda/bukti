@@ -8,7 +8,9 @@
     "index": "tsx src/index.ts",
     "ping": "tsx src/ping.ts",
     "discover": "tsx src/discover.ts",
-    "qa:pricing": "tsx src/qa-pricing.ts"
+    "qa:pricing": "tsx src/qa-pricing.ts",
+    "qa:completeness": "tsx src/qa-completeness.ts",
+    "swaps-root": "tsx src/swaps-root.ts"
   },
   "dependencies": {
     "viem": "^2.21.0"

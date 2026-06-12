@@ -15,9 +15,9 @@ struct BuktiOutput {
     uint32 maxDrawdownBps;
     int64 roiBps;
     uint64 volumeUsdE6;
-    // Completeness commitment (anti-cherry-pick): Merkle root over the FULL ordered swap set
-    // the metrics were computed from, plus its leg count. Dropping a losing leg changes the
-    // root, so a trader cannot prove only a winning subset.
+    // Completeness commitment (anti-cherry-pick): a keccak commitment over the FULL ordered
+    // swap set the metrics were computed from, plus its leg count. Dropping/reordering any leg
+    // changes the commitment, so a trader cannot prove only a winning subset.
     bytes32 swapsRoot;
     uint32 numSwaps;
 }
@@ -44,7 +44,7 @@ contract BuktiAttestation {
         uint32 maxDrawdownBps; // basis points
         int64 roiBps; // basis points
         uint64 volumeUsdE6; // USD * 1e6
-        bytes32 swapsRoot; // completeness commitment (Merkle root of full swap set)
+        bytes32 swapsRoot; // completeness commitment (keccak of full ordered swap set)
         uint32 numSwaps; // swap legs bound into swapsRoot
         uint64 attestedAt; // block.timestamp of submission
         address attester; // who submitted the proof (relayer)
@@ -149,9 +149,9 @@ contract BuktiAttestation {
         return _attestations[wallet].exists;
     }
 
-    /// @notice Completeness commitment for a wallet: the Merkle root of the FULL swap set the
-    ///         score was computed over, and the number of legs bound into it. A consumer can
-    ///         recompute the root from the public witness and confirm no leg was cherry-picked.
+    /// @notice Completeness commitment for a wallet: the keccak commitment over the FULL swap
+    ///         set the score was computed over, and the number of legs bound into it. A consumer
+    ///         can recompute it from the public witness and confirm no leg was cherry-picked.
     function getCompleteness(address wallet)
         external
         view

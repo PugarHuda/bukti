@@ -31,10 +31,10 @@ sol! {
         uint32  maxDrawdownBps;
         int64   roiBps;
         uint64  volumeUsdE6;
-        // Completeness commitment (anti-cherry-pick): a Merkle root over the *full*, ordered
-        // swap set the metrics were computed from. Omitting a single losing leg changes the
-        // root — so a trader cannot selectively prove only their winning trades. `numSwaps`
-        // is the leg count bound into that set.
+        // Completeness commitment (anti-cherry-pick): a keccak commitment over the *full*,
+        // ordered swap set the metrics were computed from. Omitting/reordering any leg changes
+        // it — so a trader cannot selectively prove only their winning trades. `numSwaps` is
+        // the leg count bound into that set.
         bytes32 swapsRoot;
         uint32  numSwaps;
     }
@@ -276,10 +276,9 @@ fn clamp_u64(x: u128) -> u64 {
     x.min(u64::MAX as u128) as u64
 }
 
-/// Canonical 50-byte big-endian encoding of one swap leg, hashed into a Merkle leaf.
-/// Every field that affects the reconstruction is bound, so any alteration changes the leaf.
-fn swap_leaf(s: &Swap) -> [u8; 32] {
-    let mut buf = Vec::with_capacity(50);
+/// Append the canonical 50-byte big-endian encoding of one swap leg to `buf`. Every field
+/// that affects the reconstruction is bound, so any alteration changes the commitment.
+fn append_leaf(buf: &mut Vec<u8>, s: &Swap) {
     buf.extend_from_slice(&s.timestamp.to_be_bytes()); // 8
     buf.extend_from_slice(&s.sold_id.to_be_bytes()); // 4
     buf.extend_from_slice(&s.sold_amount_e6.to_be_bytes()); // 8
@@ -289,35 +288,26 @@ fn swap_leaf(s: &Swap) -> [u8; 32] {
     buf.extend_from_slice(&s.bought_amount_e6.to_be_bytes()); // 8
     buf.extend_from_slice(&s.bought_price_e6.to_be_bytes()); // 8
     buf.push(s.bought_is_usd as u8); // 1
-    keccak256(&buf).0
 }
 
-/// Merkle root over the FULL, ordered swap set — the completeness commitment.
+/// Completeness commitment over the FULL, ordered swap set: a single keccak256 over the
+/// chronological concatenation of every leg's canonical encoding.
 ///
-/// Binary keccak Merkle tree, duplicating the last node on odd levels (Bitcoin/standard
-/// convention). The empty set commits to the zero hash. Because the leaves are taken in the
-/// witness's chronological order and every leg is included, dropping or reordering any leg
-/// changes the root: a trader cannot cherry-pick a winning subset and prove it in isolation.
-pub fn swaps_merkle_root(swaps: &[Swap]) -> [u8; 32] {
+/// The empty set commits to the zero hash. Because every leg is included in witness order,
+/// dropping, reordering, or mutating any leg changes the commitment — so a trader cannot
+/// cherry-pick a winning subset and prove it in isolation. (A single hash rather than a
+/// Merkle tree keeps the in-circuit keccak cost ~5x lower so the batch proof fits commodity
+/// hardware; a Merkle tree — enabling succinct per-leg inclusion proofs — is a future
+/// upgrade behind SP1's keccak precompile.)
+pub fn swaps_commitment(swaps: &[Swap]) -> [u8; 32] {
     if swaps.is_empty() {
         return [0u8; 32];
     }
-    let mut level: Vec<[u8; 32]> = swaps.iter().map(swap_leaf).collect();
-    while level.len() > 1 {
-        let mut next: Vec<[u8; 32]> = Vec::with_capacity(level.len().div_ceil(2));
-        let mut i = 0;
-        while i < level.len() {
-            let left = level[i];
-            let right = if i + 1 < level.len() { level[i + 1] } else { level[i] };
-            let mut pair = [0u8; 64];
-            pair[..32].copy_from_slice(&left);
-            pair[32..].copy_from_slice(&right);
-            next.push(keccak256(pair).0);
-            i += 2;
-        }
-        level = next;
+    let mut buf = Vec::with_capacity(swaps.len() * 50);
+    for s in swaps {
+        append_leaf(&mut buf, s);
     }
-    level[0]
+    keccak256(&buf).0
 }
 
 #[cfg(test)]
@@ -675,49 +665,47 @@ mod tests {
     }
 
     #[test]
-    fn merkle_empty_is_zero() {
-        assert_eq!(swaps_merkle_root(&[]), [0u8; 32]);
+    fn commitment_empty_is_zero() {
+        assert_eq!(swaps_commitment(&[]), [0u8; 32]);
     }
 
     #[test]
-    fn merkle_single_leaf_is_deterministic_nonzero() {
+    fn commitment_single_leg_is_deterministic_nonzero() {
         let s = [mkswap(1, 1, 1_000_000)];
-        let r = swaps_merkle_root(&s);
+        let r = swaps_commitment(&s);
         assert_ne!(r, [0u8; 32]);
-        assert_eq!(r, swaps_merkle_root(&s)); // deterministic
+        assert_eq!(r, swaps_commitment(&s)); // deterministic
     }
 
     #[test]
-    fn merkle_dropping_a_leg_changes_root() {
-        // The core anti-cherry-pick property: omit one (e.g. losing) trade -> different root.
+    fn commitment_dropping_a_leg_changes_it() {
+        // The core anti-cherry-pick property: omit one (e.g. losing) trade -> different commitment.
         let full = [mkswap(1, 1, 10), mkswap(2, 2, 20), mkswap(3, 3, 30), mkswap(4, 4, 40)];
         let cherry = [mkswap(1, 1, 10), mkswap(2, 2, 20), mkswap(4, 4, 40)]; // dropped leg #3
-        assert_ne!(swaps_merkle_root(&full), swaps_merkle_root(&cherry));
+        assert_ne!(swaps_commitment(&full), swaps_commitment(&cherry));
     }
 
     #[test]
-    fn merkle_reordering_changes_root() {
+    fn commitment_reordering_changes_it() {
         let a = [mkswap(1, 1, 10), mkswap(2, 2, 20), mkswap(3, 3, 30)];
         let b = [mkswap(2, 2, 20), mkswap(1, 1, 10), mkswap(3, 3, 30)];
-        assert_ne!(swaps_merkle_root(&a), swaps_merkle_root(&b));
+        assert_ne!(swaps_commitment(&a), swaps_commitment(&b));
     }
 
     #[test]
-    fn merkle_mutating_any_field_changes_root() {
+    fn commitment_mutating_any_field_changes_it() {
         let base = [mkswap(1, 1, 10), mkswap(2, 2, 20)];
         let mut mutated = base.clone();
         mutated[1].sold_amount_e6 += 1; // single-unit change in one field
-        assert_ne!(swaps_merkle_root(&base), swaps_merkle_root(&mutated));
+        assert_ne!(swaps_commitment(&base), swaps_commitment(&mutated));
     }
 
     #[test]
-    fn merkle_odd_and_even_levels_are_stable() {
-        // 3 (odd) and 4 (even) leaves both produce a stable, deterministic root.
+    fn commitment_different_lengths_differ() {
         let three = [mkswap(1, 1, 10), mkswap(2, 2, 20), mkswap(3, 3, 30)];
         let four = [mkswap(1, 1, 10), mkswap(2, 2, 20), mkswap(3, 3, 30), mkswap(4, 4, 40)];
-        assert_eq!(swaps_merkle_root(&three), swaps_merkle_root(&three));
-        assert_eq!(swaps_merkle_root(&four), swaps_merkle_root(&four));
-        assert_ne!(swaps_merkle_root(&three), swaps_merkle_root(&four));
+        assert_eq!(swaps_commitment(&three), swaps_commitment(&three));
+        assert_ne!(swaps_commitment(&three), swaps_commitment(&four));
     }
 
     #[test]
