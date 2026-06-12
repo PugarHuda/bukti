@@ -21,83 +21,103 @@ interface Entry { wallet: number[]; swaps: WSwap[] }
 const toAddr = (b: number[]) =>
   "0x" + b.map((x) => x.toString(16).padStart(2, "0")).join("");
 
-const vUsd = (amtE6: number, pxE6: number) => (amtE6 * pxE6) / 1e12; // USD (float ok for display)
+// BigInt port of lib.rs value_usd_e6 — EXACT integer math so displayed headline metrics
+// match the on-chain attested values bit-for-bit (the circuit uses u128 integers).
+const E6 = 1_000_000n;
+const vUsdE6 = (amtE6: bigint, pxE6: bigint) => (amtE6 * pxE6) / E6;
 
-// Mirror of lib's reconstruct_trades (weighted-average cost basis, in-window only).
+// Exact integer reconstruct_trades. Returns pnl/notional in USD*1e6 (e6) BigInt.
 function reconstruct(swaps: WSwap[]) {
-  const pos = new Map<number, { qty: number; cost: number }>();
-  const trades: { ts: number; pnl: number; notional: number }[] = [];
+  const pos = new Map<number, { qty: bigint; cost: bigint }>();
+  const trades: { ts: number; pnlE6: bigint; notionalE6: bigint }[] = [];
   for (const s of swaps) {
     if (!s.bought_is_usd && s.bought_amount_e6 > 0) {
-      const p = pos.get(s.bought_id) ?? { qty: 0, cost: 0 };
-      p.qty += s.bought_amount_e6;
-      p.cost += vUsd(s.bought_amount_e6, s.bought_price_e6);
+      const p = pos.get(s.bought_id) ?? { qty: 0n, cost: 0n };
+      p.qty += BigInt(s.bought_amount_e6);
+      p.cost += vUsdE6(BigInt(s.bought_amount_e6), BigInt(s.bought_price_e6));
       pos.set(s.bought_id, p);
     }
     if (!s.sold_is_usd && s.sold_amount_e6 > 0) {
       const p = pos.get(s.sold_id);
-      if (p && p.qty > 0) {
-        const closeQty = Math.min(s.sold_amount_e6, p.qty);
+      if (p && p.qty > 0n) {
+        const sold = BigInt(s.sold_amount_e6);
+        const closeQty = sold < p.qty ? sold : p.qty;
         const costOfClose = (p.cost * closeQty) / p.qty;
-        const proceeds = vUsd(closeQty, s.sold_price_e6);
+        const proceeds = vUsdE6(closeQty, BigInt(s.sold_price_e6));
         p.cost -= costOfClose;
         p.qty -= closeQty;
-        trades.push({ ts: s.timestamp, pnl: proceeds - costOfClose, notional: proceeds });
+        trades.push({ ts: s.timestamp, pnlE6: proceeds - costOfClose, notionalE6: proceeds });
       }
     }
   }
   return trades;
 }
 
-function metrics(trades: { ts: number; pnl: number; notional: number }[]) {
+function isqrtBig(x: bigint): bigint {
+  if (x < 2n) return x;
+  let a = x, b = (x >> 1n) + 1n;
+  while (b < a) { a = b; b = (b + x / b) >> 1n; }
+  return a;
+}
+
+function metrics(trades: { ts: number; pnlE6: bigint; notionalE6: bigint }[]) {
   if (trades.length === 0)
     return {
-      score: 0, dd: 0, roi: 0, vol: 0, pnl: 0, curve: [] as number[],
+      scoreMilli: 0, ddBps: 0, roiBps: 0, volE6: 0n, pnlE6: 0n, curve: [] as number[],
       winRate: 0, profitFactor: 0, sortino: 0, calmar: 0,
       avgWin: 0, avgLoss: 0, bestStreak: 0, worstStreak: 0,
     };
-  const rets = trades.map((t) => (t.notional > 0 ? t.pnl / t.notional : 0));
-  const mean = rets.reduce((a, b) => a + b, 0) / rets.length;
-  const variance = rets.reduce((a, r) => a + (r - mean) ** 2, 0) / rets.length;
-  const std = Math.sqrt(variance);
-  const score = std > 0 ? mean / std : 0;
-  // Sortino: downside deviation vs 0 target.
-  const downs = rets.filter((r) => r < 0);
-  const ddev = downs.length ? Math.sqrt(downs.reduce((a, r) => a + r * r, 0) / rets.length) : 0;
-  const sortino = ddev > 0 ? mean / ddev : 0;
+  const n = BigInt(trades.length);
 
-  let eq = 0, peak = 0, maxDdBps = 0;
-  const vol = trades.reduce((a, t) => a + t.notional, 0);
+  // ----- HEADLINE metrics: EXACT integer math mirroring lib.rs (matches chain) -----
+  const retsPpm = trades.map((t) =>
+    t.notionalE6 > 0n ? (t.pnlE6 * 1_000_000n) / t.notionalE6 : 0n,
+  );
+  const mean = retsPpm.reduce((a, b) => a + b, 0n) / n;
+  const variance = retsPpm.reduce((a, r) => a + (r - mean) * (r - mean), 0n) / n;
+  const std = isqrtBig(variance < 0n ? 0n : variance);
+  const scoreMilli = std > 0n ? Number((mean * 1000n) / std) : 0;
+
+  let eq = 0n, peak = 0n, maxDdBps = 0n;
+  const volE6 = trades.reduce((a, t) => a + t.notionalE6, 0n);
+  const volBase = volE6 > 1n ? volE6 : 1n;
   const curve: number[] = [0];
   for (const t of trades) {
-    eq += t.pnl;
-    curve.push(eq);
+    eq += t.pnlE6;
+    curve.push(Number(eq) / 1e6);
     if (eq > peak) peak = eq;
-    const base = Math.max(peak, vol, 1e-9);
-    maxDdBps = Math.max(maxDdBps, ((peak - eq) / base) * 10000);
+    const base = peak > 0n ? (peak > volBase ? peak : volBase) : volBase;
+    const dd = ((peak - eq) * 10_000n) / base;
+    if (dd > maxDdBps) maxDdBps = dd;
   }
-  const pnl = eq;
-  const dd = maxDdBps / 100;
-  const roi = vol > 0 ? (pnl / vol) * 100 : 0;
+  const pnlE6 = eq;
+  const totalPnl = trades.reduce((a, t) => a + t.pnlE6, 0n);
+  const roiBps = volE6 > 0n ? Number((totalPnl * 10_000n) / volE6) : 0;
+  const ddBps = Number(maxDdBps);
 
-  // Canonical copy-trading stat block (all from the same proven witness).
-  const wins = trades.filter((t) => t.pnl > 0);
-  const losses = trades.filter((t) => t.pnl < 0);
-  const grossWin = wins.reduce((a, t) => a + t.pnl, 0);
-  const grossLoss = Math.abs(losses.reduce((a, t) => a + t.pnl, 0));
+  // ----- supplementary stat block (display only; float fine) -----
+  const pnl = (t: { pnlE6: bigint }) => Number(t.pnlE6) / 1e6;
+  const wins = trades.filter((t) => t.pnlE6 > 0n);
+  const losses = trades.filter((t) => t.pnlE6 < 0n);
+  const grossWin = wins.reduce((a, t) => a + pnl(t), 0);
+  const grossLoss = Math.abs(losses.reduce((a, t) => a + pnl(t), 0));
   const winRate = (wins.length / trades.length) * 100;
   const profitFactor = grossLoss > 0 ? grossWin / grossLoss : grossWin > 0 ? Infinity : 0;
   const avgWin = wins.length ? grossWin / wins.length : 0;
   const avgLoss = losses.length ? grossLoss / losses.length : 0;
+  const downs = retsPpm.filter((r) => r < 0n).map((r) => Number(r) / 1e6);
+  const meanF = Number(mean) / 1e6;
+  const ddev = downs.length ? Math.sqrt(downs.reduce((a, r) => a + r * r, 0) / trades.length) : 0;
+  const sortino = ddev > 0 ? meanF / ddev : 0;
   let cur = 0, bestStreak = 0, worstStreak = 0;
   for (const t of trades) {
-    if (t.pnl > 0) { cur = cur > 0 ? cur + 1 : 1; bestStreak = Math.max(bestStreak, cur); }
-    else if (t.pnl < 0) { cur = cur < 0 ? cur - 1 : -1; worstStreak = Math.min(worstStreak, cur); }
+    if (t.pnlE6 > 0n) { cur = cur > 0 ? cur + 1 : 1; bestStreak = Math.max(bestStreak, cur); }
+    else if (t.pnlE6 < 0n) { cur = cur < 0 ? cur - 1 : -1; worstStreak = Math.min(worstStreak, cur); }
   }
-  const calmar = dd > 0 ? roi / dd : 0;
+  const calmar = ddBps > 0 ? (roiBps / 100) / (ddBps / 100) : 0;
 
   return {
-    score, dd, roi, vol, pnl, curve,
+    scoreMilli, ddBps, roiBps, volE6, pnlE6, curve,
     winRate, profitFactor: profitFactor === Infinity ? 999 : profitFactor,
     sortino, calmar, avgWin, avgLoss, bestStreak, worstStreak: Math.abs(worstStreak),
   };
@@ -137,12 +157,18 @@ function main() {
       wallet,
       clawhackSwaps: swapCount.get(wallet.toLowerCase()) ?? e.swaps.length,
       legs: e.swaps.length,
-      trades: trades.map((t) => ({ ts: t.ts, pnl: +t.pnl.toFixed(4), notional: +t.notional.toFixed(4) })),
-      score: +m.score.toFixed(3),
-      dd: +m.dd.toFixed(2),
-      roi: +m.roi.toFixed(2),
-      vol: +m.vol.toFixed(2),
-      pnl: +m.pnl.toFixed(4),
+      trades: trades.map((t) => ({
+        ts: t.ts,
+        pnl: +(Number(t.pnlE6) / 1e6).toFixed(4),
+        notional: +(Number(t.notionalE6) / 1e6).toFixed(4),
+      })),
+      // headline metrics in the SAME units the chain stores (exact), plus display copies
+      score: +(m.scoreMilli / 1000).toFixed(3),
+      scoreMilli: m.scoreMilli,
+      dd: +(m.ddBps / 100).toFixed(2),
+      roi: +(m.roiBps / 100).toFixed(2),
+      vol: +(Number(m.volE6) / 1e6).toFixed(2),
+      pnl: +(Number(m.pnlE6) / 1e6).toFixed(4),
       curve: m.curve.map((x) => +x.toFixed(4)),
       winRate: +m.winRate.toFixed(1),
       profitFactor: +m.profitFactor.toFixed(2),

@@ -48,6 +48,28 @@ async function main() {
   const info = text(await client.callTool({ name: "bukti_proof_info", arguments: {} }));
   check("proof_info berisi batch tx", info.clawhackBatchProofTx.includes("0xe478d52a"));
 
+  // ---- adversarial inputs (must be rejected as error, server must not crash) ----
+  // MCP returns invalid-input either as a thrown error OR a result with isError:true.
+  const isRejected = async (wallet: string) => {
+    try {
+      const r: any = await client.callTool({ name: "bukti_get_verified_score", arguments: { wallet } });
+      return r?.isError === true; // schema validation surfaced as an error result
+    } catch {
+      return true; // or thrown
+    }
+  };
+  check("invalid address rejected", await isRejected("not-an-address"));
+  check("short address rejected", await isRejected("0x123"));
+  check("wrong-length hex rejected", await isRejected("0x" + "a".repeat(39)));
+
+  // server still alive after bad inputs?
+  const still = text(await client.callTool({ name: "bukti_get_verified_score", arguments: { wallet: BEST } }));
+  check("server survives bad inputs, still serves valid", still.score === 4.265);
+
+  // compare with one unattested side
+  const cmp2 = text(await client.callTool({ name: "bukti_compare_wallets", arguments: { walletA: BEST, walletB: NOBODY } }));
+  check("compare handles one-unattested side", cmp2.recommendation.toLowerCase().includes("only"));
+
   await client.close();
   console.log(`\n==== MCP E2E: ${pass} pass, ${fail} fail ====`);
   process.exit(fail > 0 ? 1 : 0);

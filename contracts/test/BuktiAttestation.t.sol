@@ -176,6 +176,32 @@ contract BuktiAttestationTest is Test {
         assertFalse(attest.hasAttestation(AGENT));
     }
 
+    function test_duplicateWalletInBatch_lastWins() public {
+        BuktiOutput[] memory outs = new BuktiOutput[](3);
+        outs[0] = _out(AGENT, 100);
+        outs[1] = _out(address(0xA2), 200);
+        outs[2] = _out(AGENT, 777); // same wallet again, later in array
+        attest.submitBatchAttestation(abi.encode(outs), "");
+        (int64 s,) = attest.getSharpeMilli(AGENT);
+        assertEq(s, int64(777)); // last entry wins
+    }
+
+    function test_largeBatchGasIsBounded() public {
+        // 100-wallet batch must process without running out of a sane block budget.
+        uint256 N = 100;
+        BuktiOutput[] memory outs = new BuktiOutput[](N);
+        for (uint256 i = 0; i < N; i++) {
+            outs[i] = _out(address(uint160(0xC000 + i)), int64(int256(i)));
+        }
+        uint256 g0 = gasleft();
+        attest.submitBatchAttestation(abi.encode(outs), "");
+        uint256 used = g0 - gasleft();
+        // ~storage-bound; assert it stays well under a Mantle block (gas is cheap on L2).
+        assertLt(used / N, 120_000); // per-wallet cost bounded
+        (int64 s,) = attest.getSharpeMilli(address(uint160(0xC000 + 99)));
+        assertEq(s, int64(99));
+    }
+
     function test_eventEmittedPerWalletInBatch() public {
         BuktiOutput[] memory outs = new BuktiOutput[](2);
         outs[0] = _out(AGENT, 630);
