@@ -22,6 +22,22 @@ const EXPLORER = "https://sepolia.mantlescan.xyz";
 
 const client = createPublicClient({ transport: http(RPC) });
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Retry transient public-RPC errors so a blip never fails an agent's tool call. */
+async function withRetry<T>(fn: () => Promise<T>, tries = 4): Promise<T> {
+  let last: unknown;
+  for (let i = 0; i < tries; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      last = e;
+      await sleep(500 * (i + 1));
+    }
+  }
+  throw last;
+}
+
 const ATT_ABI = parseAbi([
   "function getAttestation(address wallet) view returns ((bytes32 anchorBlockHash, uint64 windowStart, uint64 windowEnd, uint32 numTrades, int64 sharpeMilli, uint32 maxDrawdownBps, int64 roiBps, uint64 volumeUsdE6, uint64 attestedAt, address attester, bool exists))",
 ]);
@@ -34,9 +50,11 @@ const EV = parseAbiItem(
 );
 
 async function readScore(wallet: `0x${string}`) {
-  const a = await client.readContract({
-    address: ATTEST, abi: ATT_ABI, functionName: "getAttestation", args: [wallet],
-  });
+  const a = await withRetry(() =>
+    client.readContract({
+      address: ATTEST, abi: ATT_ABI, functionName: "getAttestation", args: [wallet],
+    }),
+  );
   if (!a.exists) return null;
   return {
     wallet,
@@ -55,11 +73,13 @@ async function readScore(wallet: `0x${string}`) {
 }
 
 async function scanBoard() {
-  const latest = await client.getBlockNumber();
+  const latest = await withRetry(() => client.getBlockNumber());
   const byWallet = new Map<string, { wallet: string; score: number; roiPct: number; volumeUsd: number }>();
   for (let from = DEPLOY_BLOCK; from <= latest; from += 9000n) {
     const to = from + 8999n > latest ? latest : from + 8999n;
-    const logs = await client.getLogs({ address: ATTEST, event: EV, fromBlock: from, toBlock: to });
+    const logs = await withRetry(() =>
+      client.getLogs({ address: ATTEST, event: EV, fromBlock: from, toBlock: to }),
+    );
     for (const l of logs) {
       byWallet.set((l.args.wallet as string).toLowerCase(), {
         wallet: l.args.wallet as string,
@@ -106,8 +126,8 @@ server.tool(
   async ({ wallet }) => {
     const w = wallet as `0x${string}`;
     const [approved, minMilli, s] = await Promise.all([
-      client.readContract({ address: VAULT, abi: VAULT_ABI, functionName: "approvedAgent", args: [w] }),
-      client.readContract({ address: VAULT, abi: VAULT_ABI, functionName: "minSharpeMilli" }),
+      withRetry(() => client.readContract({ address: VAULT, abi: VAULT_ABI, functionName: "approvedAgent", args: [w] })),
+      withRetry(() => client.readContract({ address: VAULT, abi: VAULT_ABI, functionName: "minSharpeMilli" })),
       readScore(w),
     ]);
     const threshold = Number(minMilli) / 1000;
