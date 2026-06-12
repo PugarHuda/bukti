@@ -51,6 +51,16 @@ scorekeeper that makes that contest *provably fair*: it verifies a human's and a
 track record on the same cryptographic footing — same circuit, same prices, same proof.
 Whoever wins, the scoreboard isn't something either side can fake.
 
+**Proof that moves capital: the BuktiAllocator.** A proof of skill is inert until it routes
+money. `BuktiAllocator` is an index/allocator vault that splits a deposit across agents
+**weighted by their zk-proven score** — capital physically cannot flow to an unproven or
+cherry-picked record. It's live: a 0.01 MNT deposit across the cohort routed **81.8% to the
+proof champion, 18.2% to the runner-up, and 0% to the volume champion** (proven score −1.316).
+This is the on-chain analog of Mantle's own MI4 index — but constituent eligibility is a
+Groth16 proof of risk-adjusted skill, not a committee. *MI4 is proven-beta for institutions;
+Bukti is proven-alpha — the allocation primitive a "verifiable workforce" needs to let agents
+deploy real capital safely.*
+
 ## Why it's different (verified novel)
 - vs **Nansen/Dune**: they compute PnL off-chain and ask you to trust it; ours is a number a
   contract can put in a `require()`.
@@ -78,6 +88,7 @@ zero-knowledge proof. We use SP1 — the same zkVM securing Mantle — and Mantl
 - Real SP1 v6.1.0 Groth16 verifier: `0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A`
 - GatedVault (capital gate): `0x851C251411Fe4F4bab586F775c7450f86A348EAD`
 - BuktiValidator (ERC-8004 ZK validator): `0xda0cEB552af13f5a096D8aA4E5A9FceB9cf6D8D0`
+- BuktiAllocator (capital routed by proof): `0x6DF2F45f9184346C175a94D783F37C77C8f3B8B2`
 - ClawHack batch proof tx: `0xe478d52a6c5e312bf0a62b4dad0f944b784da3011649947770c96e00fb82dbc6`
 - Live ERC-8004 validation tx: `0x780bbaa851bd7789e349a878fd6a8a07410a6efc44e415d8ce9bf01971a0847f`
 - ERC-8004 agent #137 + reputation feedback; live demo + MCP server + ~70 automated tests.

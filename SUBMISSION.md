@@ -71,6 +71,7 @@ winners** — the cohort's volume champion (214 swaps) ranks only #17 by proven 
 | SP1 Groth16 Verifier v6.1.0 (real) | `0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A` |
 | GatedVault | `0x851C251411Fe4F4bab586F775c7450f86A348EAD` |
 | BuktiValidator (ERC-8004 ZK validator) | `0xda0cEB552af13f5a096D8aA4E5A9FceB9cf6D8D0` |
+| BuktiAllocator (capital routed by proof) | `0x6DF2F45f9184346C175a94D783F37C77C8f3B8B2` |
 | ReferenceValidationRegistry | `0x0954E50cBC85836C9E3FC6868d24b6118d974E9d` |
 
 Key txs: ClawHack batch proof `0xe478d52a6c5e312bf0a62b4dad0f944b784da3011649947770c96e00fb82dbc6` ·

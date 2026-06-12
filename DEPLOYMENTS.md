@@ -92,6 +92,22 @@ On mainnet, `BuktiValidator.setRegistry(...)` repoints at Mantle's canonical ERC
 Registry — same `validationResponse(bytes32,uint8)` interface; the reference registry above only
 exists so the bridge is verifiable on testnet today.
 
+### 💸 BuktiAllocator — capital routed by ZK-proven skill (live, verified)
+A proof of skill is inert until it moves money. `BuktiAllocator` splits a deposit across
+candidate agents **weighted by their zk-proven score**; below-gate / net-losing / unproven
+wallets receive zero. It's the on-chain analog of Mantle's MI4 index, but constituent
+eligibility is a Groth16 proof, not a committee. Pull-payment design (recipients `withdraw`).
+
+| Item | Value |
+|---|---|
+| **BuktiAllocator** (Mantlescan-verified, gate 0.5) | [`0x6DF2F45f9184346C175a94D783F37C77C8f3B8B2`](https://sepolia.mantlescan.xyz/address/0x6DF2F45f9184346C175a94D783F37C77C8f3B8B2#code) |
+| `previewAllocation` of 1 MNT across champion / runner-up / volume-champion | weights `[4265, 949, 0]` → `[0.818, 0.182, 0.000]` MNT |
+| **Live allocation tx** (0.01 MNT routed by proof) | [`0x559503d3…`](https://sepolia.mantlescan.xyz/tx/0x559503d328df13df28ba8ee61564046307d69f9341af557a5be0db04f9011db0) |
+| Credited result | champion `0x48f1…` **81.8%**, runner-up `0x0a85…` **18.2%**, volume champion `0x4cf8…` (score −1.316) **0%** |
+
+*MI4 is proven-beta for institutions; BuktiAllocator is proven-alpha — an index whose
+constituents are admitted by a ZK proof of risk-adjusted skill.*
+
 ### Verification
 All three contracts are **verified on Mantlescan** (source visible): [BuktiAttestation](https://sepolia.mantlescan.xyz/address/0x7b0A5E9D4A8b1bf2829478e72f62283C6939C816#code) · [GatedVault](https://sepolia.mantlescan.xyz/address/0x5e6b9242Db15959EdCEccBa5C369fca3576fd598#code) · [SP1MockVerifier](https://sepolia.mantlescan.xyz/address/0xE80AF60bF8ca81f711dB1bD16eEF7C823AF7228a#code)
 
