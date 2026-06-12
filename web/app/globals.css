@@ -120,6 +120,16 @@ table.trades td { padding: 5px 6px; border-top: 1px solid var(--border); font-va
 }
 .badge.live { color: var(--accent); border-color: var(--accent); }
 
+.chip {
+  display: inline-block; font-size: 10px; font-weight: 800; border-radius: 6px;
+  padding: 2px 7px; vertical-align: middle; letter-spacing: 0.3px;
+}
+.chip.tier-S { background: rgba(61,220,151,0.15); color: var(--accent); border: 1px solid var(--accent); }
+.chip.tier-A { background: rgba(74,168,255,0.12); color: var(--accent-2); border: 1px solid var(--accent-2); }
+.chip.tier-B, .chip.tier-C { background: var(--panel); color: var(--muted); border: 1px solid var(--border); }
+.chip.tier-D { background: rgba(255,107,107,0.1); color: var(--danger); border: 1px solid var(--danger); }
+.chip.quad { background: var(--panel); color: var(--text); border: 1px solid var(--border); font-weight: 600; }
+
 .chat { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
 .bubble { border-radius: 12px; padding: 10px 14px; font-size: 13px; line-height: 1.55; max-width: 92%; }
 .bubble.user { background: var(--panel-2); border: 1px solid var(--border); align-self: flex-end; }

@@ -27,6 +27,16 @@ interface BoardRow {
   curve: number[];
   volRank: number;
   proofRank: number;
+  tier: string;
+  quadrant: string;
+  winRate: number;
+  profitFactor: number;
+  sortino: number;
+  calmar: number;
+  avgWin: number;
+  avgLoss: number;
+  bestStreak: number;
+  worstStreak: number;
 }
 interface BoardData {
   meta: {
@@ -255,16 +265,26 @@ export default function Home() {
                         <td colSpan={7}>
                           <div className="dwrap">
                             <div className="dhead">
-                              <span className="mono">{r.wallet}</span>
+                              <span>
+                                <span className="mono">{r.wallet}</span>{" "}
+                                <span className={`chip tier-${r.tier}`}>Tier {r.tier}</span>{" "}
+                                <span className="chip quad">{r.quadrant}</span>
+                              </span>
                               <button className="ghost" onClick={(e) => { e.stopPropagation(); verify(r.wallet); }}>
                                 Read attestation on-chain →
                               </button>
                             </div>
                             <Sparkline pts={r.curve} />
                             <div className="dgrid">
+                              <span>Win rate: <strong>{r.winRate.toFixed(0)}%</strong></span>
+                              <span>Profit factor: <strong>{r.profitFactor >= 999 ? "∞" : r.profitFactor.toFixed(2)}</strong></span>
+                              <span>Sortino: <strong>{r.sortino.toFixed(2)}</strong></span>
+                              <span>Calmar: <strong>{r.calmar.toFixed(2)}</strong></span>
+                              <span>Max drawdown: <strong>{r.dd.toFixed(2)}%</strong></span>
+                              <span>Best/worst streak: <strong>{r.bestStreak}W / {r.worstStreak}L</strong></span>
+                              <span>Avg win/loss: <strong>${r.avgWin.toFixed(3)} / ${r.avgLoss.toFixed(3)}</strong></span>
                               <span>ClawHack swaps: <strong>{r.clawhackSwaps}</strong></span>
                               <span>Realized trades: <strong>{r.trades.length}</strong></span>
-                              <span>Max drawdown: <strong>{r.dd.toFixed(2)}%</strong></span>
                               <span>Volume: <strong>${r.vol.toFixed(2)}</strong></span>
                             </div>
                             {r.trades.length > 0 && (

@@ -165,6 +165,15 @@ Bukti is **trust infrastructure that gets paid when capital moves**:
 - **For investors (Mirana lens):** this is a *pick-and-shovel* position on the agent economy —
   it monetizes every agent's need to prove itself, regardless of which agents win.
 
+## Don't trust us — check
+
+| Claim | Verify it yourself |
+|---|---|
+| 25 wallets attested by ONE real Groth16 proof (2.63M gas total ≈ 105k/wallet) | [batch tx `0xe478d52a…`](https://sepolia.mantlescan.xyz/tx/0xe478d52a6c5e312bf0a62b4dad0f944b784da3011649947770c96e00fb82dbc6) |
+| The verifier rejects invalid proofs | submit any junk proof → revert `WrongVerifierSelector` ([verifier source](https://sepolia.mantlescan.xyz/address/0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A#code)) |
+| Any score, from your terminal | `cast call 0x2EB832F24136c24A3B38D4b06D3318C48B618163 "getSharpeMilli(address)(int64,bool)" <wallet> --rpc-url https://rpc.sepolia.mantle.xyz` |
+| The exact bytes the zkVM committed decode in Solidity | [pinned cross-language test](contracts/test/BuktiAttestation.t.sol) (`test_zkvmBatchEncodingDecodesExactly`) |
+
 ## Trust boundary (stated openly)
 
 The zk proof makes the **computation** (raw swap legs → cost-basis PnL → risk metrics) verifiable and deterministic. What it does **not** yet prove: that the supplied swap legs are authentic, complete, and correctly priced — the anchor block hash is relayer-asserted in the MVP. The roadmap closes this in order: (1) in-circuit receipt-Merkle-proof verification against the anchor's `receiptsRoot` (authenticity), (2) Pyth signed-price verification in-circuit (pricing), (3) an on-chain historical-block-hash accumulator + canonical full-history window policy (completeness, anti-cherry-picking). Known open limitations shared by all on-chain performance metrics: wash-trading can inflate volume, and in-window round-trips only are scored.
