@@ -1,4 +1,4 @@
-import { createPublicClient, http, defineChain, parseAbiItem } from "viem";
+import { createPublicClient, http, fallback, defineChain, parseAbiItem } from "viem";
 
 export const mantleSepolia = defineChain({
   id: 5003,
@@ -9,7 +9,19 @@ export const mantleSepolia = defineChain({
   testnet: true,
 });
 
-export const client = createPublicClient({ chain: mantleSepolia, transport: http() });
+// Multi-endpoint fallback + retry so a flaky/rate-limited public RPC never breaks the
+// live demo (auto-fails-over across endpoints, ranks by latency).
+export const client = createPublicClient({
+  chain: mantleSepolia,
+  transport: fallback(
+    [
+      http("https://rpc.sepolia.mantle.xyz", { retryCount: 2, timeout: 12_000 }),
+      http("https://mantle-sepolia.drpc.org", { retryCount: 2, timeout: 12_000 }),
+      http("https://mantle-sepolia-testnet.rpc.thirdweb.com", { retryCount: 2, timeout: 12_000 }),
+    ],
+    { rank: true },
+  ),
+});
 
 /** BuktiAttestation v2 (batch) on Mantle Sepolia (overridable via NEXT_PUBLIC_ATTESTATION_ADDRESS). */
 export const ATTESTATION_ADDRESS = (process.env.NEXT_PUBLIC_ATTESTATION_ADDRESS ??
