@@ -28,16 +28,16 @@ Bukti is that primitive.
 
 ```
 [Indexer]  raw Mantle swap logs (Agni)  +  Pyth Benchmarks historical prices
-   │        → RAW swap legs (token, amount, trade-time price)  →  swaps.json
+   │        → RAW swap legs per wallet (token, amount, trade-time price)  →  batch.json
    ▼
-[SP1 zkVM guest]  cost-basis PnL reconstruction  →  realized trades
+[SP1 zkVM guest]  cost-basis PnL reconstruction for N wallets  →  realized trades
    │              → score / maxDrawdown / ROI / volume   (pure integer math)
-   │              commit public values {wallet, anchor, metrics}
+   │              commit public values: BuktiOutput[]  (one entry per wallet)
    ▼
-[Succinct Prover Network]  →  Groth16 proof
+[Groth16 proof]  →  714 bytes, attests the WHOLE leaderboard
    ▼
-[Mantle]  SP1 verifier → BuktiAttestation.submitAttestation()
-          → composable, tamper-proof score  →  read by GatedVault, lenders, copy-trade…
+[Mantle]  real SP1 verifier → BuktiAttestation.submitBatchAttestation()
+          → composable, tamper-proof scores  →  GatedVault · ERC-8004 · MCP · leaderboard
 ```
 
 ```mermaid
@@ -70,23 +70,30 @@ flowchart LR
   block-hash accumulator (for fully trustless, provably-complete history) are the
   explicit roadmap — not claimed today.
 
-## Live on Mantle Sepolia (chainId 5003)
+## Live on Mantle Sepolia (chainId 5003) — all source-verified
 
 | Contract | Address |
 |---|---|
-| **BuktiAttestation** | [`0x7b0A5E9D4A8b1bf2829478e72f62283C6939C816`](https://sepolia.mantlescan.xyz/address/0x7b0A5E9D4A8b1bf2829478e72f62283C6939C816) |
-| GatedVault (composability demo) | [`0x5e6b9242Db15959EdCEccBa5C369fca3576fd598`](https://sepolia.mantlescan.xyz/address/0x5e6b9242Db15959EdCEccBa5C369fca3576fd598) |
+| **BuktiAttestation** (batch) | [`0x2EB832F24136c24A3B38D4b06D3318C48B618163`](https://sepolia.mantlescan.xyz/address/0x2EB832F24136c24A3B38D4b06D3318C48B618163) |
+| **SP1 Groth16 Verifier v6.1.0** (real) | [`0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A`](https://sepolia.mantlescan.xyz/address/0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A) |
+| GatedVault (capital gate) | [`0x851C251411Fe4F4bab586F775c7450f86A348EAD`](https://sepolia.mantlescan.xyz/address/0x851C251411Fe4F4bab586F775c7450f86A348EAD) |
 
-An attestation reconstructed from a **real Mantle mainnet trader** (`0x4cf8…23c5`, 11 raw Agni swap legs → 5 realized trades, score **−1.316**, ROI **−1.25%**, real anchor block hash) is stored on-chain: [tx `0x8b90c36e…`](https://sepolia.mantlescan.xyz/tx/0x8b90c36ef1b09904c39022e56ce0530be8c75f94168bc64c9a1bb93f4ab312f7). Yes — the demo wallet *lost* money; the point is the score is reconstructed and provable, not flattering.
+The **25-agent ClawHack leaderboard** was attested with **one real Groth16 proof** verified
+by the SP1 v6.1.0 verifier — junk proofs revert `WrongVerifierSelector`
+([batch tx `0xe478d52a…`](https://sepolia.mantlescan.xyz/tx/0xe478d52a6c5e312bf0a62b4dad0f944b784da3011649947770c96e00fb82dbc6)).
+Several scored wallets *lost* money (negative scores stored faithfully) — the point is the
+ranking is reconstructed and provable, not flattering. The proof was generated locally for
+**$0** on an 8 GB machine.
 
-**ERC-8004 integration, live:** the score is also written into Mantle's canonical ERC-8004 registries on Sepolia — agent **#137** in the [IdentityRegistry](https://sepolia.mantlescan.xyz/address/0x8004A818BFB912233c491871b3d84c89A494BD9e) (agentURI → the attestation tx) with `giveFeedback` in the [ReputationRegistry](https://sepolia.mantlescan.xyz/address/0x8004B663056A597Dffe9eCcC1965A193B7388713) ([tx `0xf44b6d62…`](https://sepolia.mantlescan.xyz/tx/0xf44b6d62e80ab8e6e8f09b7da31f1975b3ea58269d66beb7fb1d3c44480464f7)). Mantle's ERC-8004 announcement calls for "ZK-based" validation and "portable track records" — Bukti is that layer, running. See [DEPLOYMENTS.md](DEPLOYMENTS.md).
+**ERC-8004 integration, live:** scores are also written into Mantle's canonical ERC-8004
+registries on Sepolia — agent **#137** in the [IdentityRegistry](https://sepolia.mantlescan.xyz/address/0x8004A818BFB912233c491871b3d84c89A494BD9e)
+with `giveFeedback` in the [ReputationRegistry](https://sepolia.mantlescan.xyz/address/0x8004B663056A597Dffe9eCcC1965A193B7388713)
+([tx `0xf44b6d62…`](https://sepolia.mantlescan.xyz/tx/0xf44b6d62e80ab8e6e8f09b7da31f1975b3ea58269d66beb7fb1d3c44480464f7)).
+Mantle's ERC-8004 announcement calls for "ZK-based" validation and "portable track
+records" — Bukti is that layer, running. See [DEPLOYMENTS.md](DEPLOYMENTS.md).
 
-> **A REAL Groth16 proof is verified on-chain.** The attestation contract points at the
-> real [SP1 v6.1.0 Groth16 verifier](https://sepolia.mantlescan.xyz/address/0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A)
-> — the real trader's score above was submitted with a genuine zk proof
-> ([tx `0x9e224886…`](https://sepolia.mantlescan.xyz/tx/0x9e224886bff63bc4d50e9d184b977430cd8ae7744e9ce3f81a124c520635f0b9)),
-> and junk proofs revert with `WrongVerifierSelector`. The proof was generated locally for
-> $0 on an 8 GB machine (28 GB swap, SP1 native-gnark).
+> Earlier single-attestation v1 deployment (`0x7b0A5E9D…`, real-proof tx `0x9e224886…`) is
+> documented in DEPLOYMENTS.md and superseded by the batch contract above.
 
 ## For AI agents: bukti-mcp
 
