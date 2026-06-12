@@ -38,6 +38,16 @@ interface BoardRow {
   bestStreak: number;
   worstStreak: number;
 }
+interface CohortStats {
+  profitable: number;
+  unprofitable: number;
+  totalVolumeUsd: number;
+  totalRealizedPnlUsd: number;
+  pctVolumeFromLosers: number;
+  avgRankGap: number;
+  volumeScoreAgreementPct: number;
+  medianScore: number;
+}
 interface BoardData {
   meta: {
     window: string;
@@ -46,8 +56,22 @@ interface BoardData {
     totalLegs: number;
     proofBytes: number;
     batchTx: string;
+    attestationContract?: string;
+    verifier?: string;
+    chain?: string;
+    cohort?: CohortStats;
   };
   rows: BoardRow[];
+}
+
+function download(name: string, obj: unknown) {
+  const blob = new Blob([JSON.stringify(obj, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 function Sparkline({ pts }: { pts: number[] }) {
@@ -183,6 +207,43 @@ export default function Home() {
         </div>
       )}
 
+      {board?.meta.cohort && (
+        <div className="card" style={{ marginBottom: 18 }}>
+          <h2 className="h2">Cohort X-ray — what the proof reveals</h2>
+          <div className="xray">
+            <div className="xstat">
+              <div className="xv bad">{board.meta.cohort.volumeScoreAgreementPct}%</div>
+              <div className="xk">of the time the higher-volume wallet also has the higher proven
+                score — barely better than a coin flip</div>
+            </div>
+            <div className="xstat">
+              <div className="xv">{board.meta.cohort.avgRankGap}</div>
+              <div className="xk">average gap (of 25) between a wallet&apos;s volume rank and its
+                proven rank</div>
+            </div>
+            <div className="xstat">
+              <div className="xv bad">{board.meta.cohort.pctVolumeFromLosers}%</div>
+              <div className="xk">of cohort volume came from wallets that ended net-negative</div>
+            </div>
+            <div className="xstat">
+              <div className="xv">
+                <span className="good">{board.meta.cohort.profitable}</span> /{" "}
+                <span className="bad">{board.meta.cohort.unprofitable}</span>
+              </div>
+              <div className="xk">profitable vs unprofitable (proven)</div>
+            </div>
+          </div>
+          <p className="hint">
+            Volume — the metric ClawHack ranked on — predicts proven skill only{" "}
+            {board.meta.cohort.volumeScoreAgreementPct}% of the time. Every number here is derived
+            from the same witness the on-chain proof attests.{" "}
+            <a onClick={() => download("bukti-clawhack-cohort-report.json", { meta: board.meta, rows: board.rows })} style={{ cursor: "pointer", color: "var(--accent-2)" }}>
+              ⭳ Download full verified report (JSON)
+            </a>
+          </p>
+        </div>
+      )}
+
       <div className="card">
         <div className="row">
           <input
@@ -270,9 +331,14 @@ export default function Home() {
                                 <span className={`chip tier-${r.tier}`}>Tier {r.tier}</span>{" "}
                                 <span className="chip quad">{r.quadrant}</span>
                               </span>
-                              <button className="ghost" onClick={(e) => { e.stopPropagation(); verify(r.wallet); }}>
-                                Read attestation on-chain →
-                              </button>
+                              <span style={{ display: "flex", gap: 8 }}>
+                                <button className="ghost" onClick={(e) => { e.stopPropagation(); download(`bukti-${r.wallet.slice(0, 8)}.json`, { ...r, attestationContract: board?.meta.attestationContract, batchTx: board?.meta.batchTx }); }}>
+                                  ⭳ Report
+                                </button>
+                                <button className="ghost" onClick={(e) => { e.stopPropagation(); verify(r.wallet); }}>
+                                  Read on-chain →
+                                </button>
+                              </span>
                             </div>
                             <Sparkline pts={r.curve} />
                             <div className="dgrid">

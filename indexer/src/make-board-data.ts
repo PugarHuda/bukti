@@ -198,6 +198,35 @@ function main() {
     };
   });
 
+  // ----- Cohort X-ray: aggregate insights a VC actually wants (all proven) -----
+  const totalVol = out.reduce((a, r) => a + r.vol, 0);
+  const totalPnl = out.reduce((a, r) => a + r.pnl, 0);
+  const losers = out.filter((r) => r.pnl < 0);
+  const winners = out.filter((r) => r.pnl > 0);
+  const volFromLosers = losers.reduce((a, r) => a + r.vol, 0);
+  const avgRankGap =
+    out.reduce((a, r) => a + Math.abs(r.volRank - r.proofRank), 0) / out.length;
+  // How often does the higher-volume wallet of a pair also have the higher score?
+  let agree = 0, pairs = 0;
+  for (let i = 0; i < out.length; i++)
+    for (let j = i + 1; j < out.length; j++) {
+      pairs++;
+      const a = out[i], b = out[j];
+      const volHi = a.clawhackSwaps > b.clawhackSwaps ? a : b;
+      const scoreHi = a.score > b.score ? a : b;
+      if (volHi.wallet === scoreHi.wallet) agree++;
+    }
+  const cohortStats = {
+    profitable: winners.length,
+    unprofitable: losers.length,
+    totalVolumeUsd: +totalVol.toFixed(2),
+    totalRealizedPnlUsd: +totalPnl.toFixed(2),
+    pctVolumeFromLosers: +((volFromLosers / Math.max(totalVol, 1e-9)) * 100).toFixed(1),
+    avgRankGap: +avgRankGap.toFixed(1),
+    volumeScoreAgreementPct: +((agree / Math.max(pairs, 1)) * 100).toFixed(0),
+    medianScore: +[...out].sort((a, b) => a.score - b.score)[Math.floor(out.length / 2)].score.toFixed(3),
+  };
+
   const meta = {
     window: "Apr 15–30, 2026 (ClawHack Phase 1)",
     walletsScanned: 382,
@@ -205,8 +234,13 @@ function main() {
     totalLegs: out.reduce((a, r) => a + r.legs, 0),
     proofBytes: 714,
     batchTx: "0xe478d52a6c5e312bf0a62b4dad0f944b784da3011649947770c96e00fb82dbc6",
+    attestationContract: "0x2EB832F24136c24A3B38D4b06D3318C48B618163",
+    verifier: "0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A",
+    chain: "Mantle Sepolia (5003)",
+    cohort: cohortStats,
   };
   writeFileSync("../web/public/board-data.json", JSON.stringify({ meta, rows: out }));
+  console.log("cohort X-ray:", JSON.stringify(cohortStats));
   console.log(`board-data.json: ${out.length} rows`);
   console.log("Top by PROOF:", out.slice(0, 3).map((r) => `${r.wallet.slice(0, 8)} s=${r.score} (vol-rank #${r.volRank})`).join(" | "));
   console.log("Top by VOLUME:", byVolume.slice(0, 3).map((r) => `${r.wallet.slice(0, 8)} swaps=${r.clawhackSwaps} (proof-rank #${scoreRank.get(r.wallet)})`).join(" | "));

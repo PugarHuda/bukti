@@ -96,6 +96,15 @@ table.board tr.sel { background: var(--panel-2); }
   color: var(--text); margin: 0 0 22px;
 }
 
+.xray { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 14px 0 4px; }
+.xstat {
+  background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px 16px;
+}
+.xv { font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.xk { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.45; }
+@media (max-width: 720px) { .xray { grid-template-columns: repeat(2, 1fr); } }
+
 tr.detail td { padding: 0 8px 14px; }
 .dwrap { background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
 .dhead { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
