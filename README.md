@@ -14,7 +14,7 @@
 > ([tx `0xe478d52a…`](https://sepolia.mantlescan.xyz/tx/0xe478d52a6c5e312bf0a62b4dad0f944b784da3011649947770c96e00fb82dbc6)).
 > Marginal cost per extra wallet in the proof: effectively zero.
 
-Built for **The Turing Test Hackathon 2026** (Mantle). Primary track: **AI Alpha & Data**; cross-nominated for **AI DevTools** and **Grand Champion**.
+Built for **The Turing Test Hackathon 2026** (Mantle). See [PITCH.md](PITCH.md) · [SUBMISSION.md](SUBMISSION.md) · [docs/ROADMAP.md](docs/ROADMAP.md). Primary track: **AI Alpha & Data**; cross-nominated for **AI DevTools** and **Grand Champion**.
 
 ---
 
