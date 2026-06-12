@@ -4,13 +4,28 @@ We state our current trust assumptions openly (relayer-asserted anchor, witness-
 prices, no completeness proof). Each has a concrete, sourced path to elimination — most
 on the same SP1 stack we already run.
 
-## 1. Trustless anchor — inherited from the chain itself (2–4 weeks)
-Mantle is becoming the first SP1-proven ZK validity rollup (OP Succinct). Bukti v2
-replaces the relayer-asserted anchor with **[SP1-CC](https://github.com/succinctlabs/sp1-contract-call)**
-(live, audited, in production for EigenDA): MPT state/receipt proofs verified inside the
-circuit against block hashes checked on-chain via `blockhash()` /
-[EIP-2935](https://eips.ethereum.org/EIPS/eip-2935)'s 8191-block ring buffer.
-*The same zkVM that proves our metrics proves the chain they ran on.*
+## 1. Trustless data provenance — in-circuit receipt-inclusion proofs (research, weeks)
+The endgame: prove each swap log is a genuine entry in a real Mantle block by verifying a
+Merkle-Patricia **receipts-trie** proof against `header.receipts_root` *inside the zkVM*,
+binding `receiptsRoot` to a real block hash via `keccak(rlp(header)) == blockHash`. The
+circuit then proves it computed over *authentic* chain data, not a relayer-supplied
+witness — killing the "arithmetic on a spreadsheet" critique entirely.
+
+**We didn't just plan this — we tested it.** `provenance/check-trie/` rebuilds a real
+Mantle block's receipts trie with `alloy-trie` HashBuilder and compares to the on-chain
+`receipts_root`. **Empirical finding (block 96,483,631):** ordinary receipts (type `0x02`,
+legacy) encode correctly, but the block's **type-`0x7e` OP deposit/system receipt** does
+**not** reproduce with standard `op-alloy` types — Mantle is a *modified* OP-stack (MNT gas
+token, EigenDA, custom fee fields), so its receipt RLP differs from canonical OP. So the
+receipts-trie root can't be rebuilt off-the-shelf; closing this needs Mantle's exact
+receipt encoding spec. That's the real blocker, now precisely scoped — not a 2-day task.
+
+Two credible paths once the encoding is pinned:
+- **[SP1-CC](https://github.com/succinctlabs/sp1-contract-call)** (`get_logs` over historical
+  blocks; live, audited, used by EigenDA) — once it understands Mantle's receipt format.
+- Anchor binding via on-chain `blockhash()` / [EIP-2935](https://eips.ethereum.org/EIPS/eip-2935)'s
+  8191-block ring buffer (pending confirmation of Mantle's fork level).
+*The same zkVM (SP1) that secures Mantle via OP-Succinct would prove the chain our metrics ran on.*
 
 ## 2. First Pyth VAA verification inside SP1 (2–3 weeks)
 Pyth prices are attested by Wormhole VAAs — 13-of-19 guardian secp256k1 signatures over a

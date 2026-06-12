@@ -26,3 +26,7 @@ web/.env.local
 contracts/out
 contracts/cache
 contracts/broadcast
+
+# provenance experiment
+provenance/check-trie/target
+provenance/check-trie/Cargo.lock

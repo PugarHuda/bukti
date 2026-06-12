@@ -1,0 +1,20 @@
+[workspace]
+
+[package]
+name = "check-trie"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+alloy-provider = "1"
+alloy-rpc-types-eth = "1"
+alloy-consensus = "1"
+alloy-trie = "0.9"
+alloy-rlp = "0.3"
+alloy-primitives = "1"
+alloy-eips = "1"
+op-alloy-consensus = "0.20"
+op-alloy-rpc-types = "0.20"
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+eyre = "0.6"
