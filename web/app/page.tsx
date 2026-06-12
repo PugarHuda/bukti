@@ -12,7 +12,8 @@ import {
   type LeaderboardEntry,
 } from "./lib/contract";
 
-const SAMPLE = "0x1111111111111111111111111111111111111111";
+// Real ClawHack-cohort top scorer (batch-attested on-chain) — used as the demo hint.
+const SAMPLE = "0x48f1142AFA03A3b710f63c3D9fF56655A58F7b8d";
 const EXPLORER = mantleSepolia.blockExplorers.default.url;
 
 const short = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
@@ -105,7 +106,7 @@ export default function Home() {
         </div>
         {deployed && state === "idle" && !att && (
           <p className="hint">
-            Pick a wallet from the leaderboard below, or try the sample agent{" "}
+            Pick a wallet from the leaderboard below, or try the top ClawHack trader{" "}
             <a onClick={() => verify(SAMPLE)} style={{ cursor: "pointer" }}>
               {short(SAMPLE)}
             </a>
@@ -174,7 +175,7 @@ export default function Home() {
                   <td>{i + 1}</td>
                   <td className="mono">
                     {short(e.wallet)}
-                    {e.wallet.toLowerCase() === SAMPLE ? " (sample)" : ""}
+                    {e.wallet.toLowerCase() === SAMPLE.toLowerCase() ? " 👑" : ""}
                   </td>
                   <td className={Number(e.sharpeMilli) >= 0 ? "good" : "bad"}>
                     {(Number(e.sharpeMilli) / 1000).toFixed(3)}
