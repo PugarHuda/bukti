@@ -72,6 +72,26 @@ Bukti writes its zkVM-reconstructed scores into Mantle's own ERC-8004 trust laye
 > track records". Bukti is that ZK-based scoring layer, live: zkVM-reconstructed metrics →
 > on-chain attestation → ERC-8004 reputation.
 
+### 🧩 ERC-8004 Validation Registry — the ZK validator (live, verified)
+The Validation Registry's specified "ZK-based mechanism" shipped empty. `BuktiValidator` fills
+it: it reads a wallet's zkVM-proven score from `BuktiAttestation` and answers a validation
+request with a 0–100 response — a number only writable *after* a real Groth16 proof verified
+on-chain. Negative/net-losing scores floor at 0; a per-trade information ratio of +5.0 saturates
+at 100.
+
+| Item | Value |
+|---|---|
+| **BuktiValidator** (Mantlescan-verified) | [`0xda0cEB552af13f5a096D8aA4E5A9FceB9cf6D8D0`](https://sepolia.mantlescan.xyz/address/0xda0cEB552af13f5a096D8aA4E5A9FceB9cf6D8D0#code) |
+| **ReferenceValidationRegistry** (stand-in for Mantle's canonical registry; verified) | [`0x0954E50cBC85836C9E3FC6868d24b6118d974E9d`](https://sepolia.mantlescan.xyz/address/0x0954E50cBC85836C9E3FC6868d24b6118d974E9d#code) |
+| Live read: `validationScore(0x48f1…)` (proof champion, score 4.265) | → `(85, true)` — read from the **real** attestation |
+| Live read: `validationScore(0x4cf8…)` (losing trader, score −1.316) | → `(0, true)` |
+| **Live validation tx** (`respondToValidation`, writes 85/100) | [`0x780bbaa8…`](https://sepolia.mantlescan.xyz/tx/0x780bbaa851bd7789e349a878fd6a8a07410a6efc44e415d8ce9bf01971a0847f) |
+| Negative control | `respondToValidation` for an un-proven wallet **reverts** `NoProvenAttestation` |
+
+On mainnet, `BuktiValidator.setRegistry(...)` repoints at Mantle's canonical ERC-8004 Validation
+Registry — same `validationResponse(bytes32,uint8)` interface; the reference registry above only
+exists so the bridge is verifiable on testnet today.
+
 ### Verification
 All three contracts are **verified on Mantlescan** (source visible): [BuktiAttestation](https://sepolia.mantlescan.xyz/address/0x7b0A5E9D4A8b1bf2829478e72f62283C6939C816#code) · [GatedVault](https://sepolia.mantlescan.xyz/address/0x5e6b9242Db15959EdCEccBa5C369fca3576fd598#code) · [SP1MockVerifier](https://sepolia.mantlescan.xyz/address/0xE80AF60bF8ca81f711dB1bD16eEF7C823AF7228a#code)
 

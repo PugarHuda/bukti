@@ -35,9 +35,13 @@ export interface TokenInfo {
   isUsd?: boolean;
 }
 
-// Pyth feed IDs (chain-agnostic), all confirmed live via Hermes.
+// Pyth feed IDs (chain-agnostic), all confirmed live via Hermes (2026-06-12).
 const MNT_USD = "0x4e3037c822d852d79af3ac80e35eb420ee3b870dca49f9344a38ef4773fb0585";
 const ETH_USD = "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace";
+// Mantle-native assets get their OWN feeds, not an ETH/USD proxy — so a Mantle trader's
+// record is priced in Mantle-native terms (mETH carries a staking premium; USDY accrues yield).
+const METH_USD = "0xfbc9c3a716650b6e24ab22ab85b1c0ef4141b18f4590cc0b986e2f9064cf73d6";
+const USDY_USD = "0xe393449f6aff8a4b6d3e1165a7c9ebec103685f3b41e60db4277b5b6d10e7326";
 
 /** token address (lowercased) -> info. */
 export const TOKENS: Record<string, TokenInfo> = {
@@ -45,8 +49,13 @@ export const TOKENS: Record<string, TokenInfo> = {
   "0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9": { symbol: "USDC", decimals: 6, id: 0, bybit: null, pythFeedId: null, isUsd: true },
   "0x201eba5cc46d216ce6dc03f6a759e8e766e956ae": { symbol: "USDT", decimals: 6, id: 0, bybit: null, pythFeedId: null, isUsd: true },
   "0xdeaddeaddeaddeaddeaddeaddeaddeaddead1111": { symbol: "WETH", decimals: 18, id: 2, bybit: "ETHUSDT", pythFeedId: ETH_USD },
-  // mETH priced via ETH/USD as an MVP proxy (carries a small staking premium in reality).
-  "0xcda86a272531e8640cd7f1a92c01839911b90bb0": { symbol: "mETH", decimals: 18, id: 3, bybit: "ETHUSDT", pythFeedId: ETH_USD },
+  // mETH — Mantle's flagship LST ($1B+ mETH/cmETH). Priced via its own Pyth METH/USD feed.
+  "0xcda86a272531e8640cd7f1a92c01839911b90bb0": { symbol: "mETH", decimals: 18, id: 3, bybit: null, pythFeedId: METH_USD },
+  // cmETH — Mantle's restaked mETH. No dedicated Pyth feed; priced via METH/USD (≈1:1 to mETH).
+  "0xe6829d9a7ee3040e1276fa75293bde931859e8fa": { symbol: "cmETH", decimals: 18, id: 4, bybit: null, pythFeedId: METH_USD },
+  // USDY — Ondo's tokenized US Treasuries, a Mantle-native RWA (MI4 constituent). Accrues yield,
+  // so it is NOT treated as $1 cash — priced via its own Pyth USDY/USD feed.
+  "0x5be26527e817998a7206475496fde1e68957c5a6": { symbol: "USDY", decimals: 18, id: 5, bybit: null, pythFeedId: USDY_USD },
 };
 
 /** Bybit public REST for historical 1-minute klines (generous rate limits, no key). */

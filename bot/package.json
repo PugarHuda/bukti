@@ -1,0 +1,20 @@
+{
+  "name": "bukti-bot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Telegram & Discord surfaces for Bukti — query zk-verified, on-chain trading track records on Mantle.",
+  "scripts": {
+    "telegram": "tsx src/telegram.ts",
+    "discord": "tsx src/discord.ts",
+    "test": "tsx src/test-core.ts"
+  },
+  "dependencies": {
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "@types/node": "^22.0.0"
+  }
+}
