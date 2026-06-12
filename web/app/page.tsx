@@ -3,35 +3,75 @@
 import { useEffect, useState } from "react";
 import {
   fetchAttestation,
-  fetchLeaderboard,
   ATTESTATION_ADDRESS,
   VERIFIER_ADDRESS,
   VERIFIER_VERSION,
   mantleSepolia,
   type Attestation,
-  type LeaderboardEntry,
 } from "./lib/contract";
 
-// Real ClawHack-cohort top scorer (batch-attested on-chain) — used as the demo hint.
-const SAMPLE = "0x48f1142AFA03A3b710f63c3D9fF56655A58F7b8d";
 const EXPLORER = mantleSepolia.blockExplorers.default.url;
-
 const short = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
+
+interface BoardRow {
+  wallet: string;
+  clawhackSwaps: number;
+  legs: number;
+  trades: { ts: number; pnl: number; notional: number }[];
+  score: number;
+  dd: number;
+  roi: number;
+  vol: number;
+  pnl: number;
+  curve: number[];
+  volRank: number;
+  proofRank: number;
+}
+interface BoardData {
+  meta: {
+    window: string;
+    walletsScanned: number;
+    walletsProven: number;
+    totalLegs: number;
+    proofBytes: number;
+    batchTx: string;
+  };
+  rows: BoardRow[];
+}
+
+function Sparkline({ pts }: { pts: number[] }) {
+  if (pts.length < 2) return null;
+  const w = 560, h = 96, pad = 6;
+  const min = Math.min(...pts), max = Math.max(...pts);
+  const span = max - min || 1;
+  const x = (i: number) => pad + (i * (w - 2 * pad)) / (pts.length - 1);
+  const y = (v: number) => h - pad - ((v - min) * (h - 2 * pad)) / span;
+  const d = pts.map((v, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+  const zeroY = y(0);
+  const up = pts[pts.length - 1] >= 0;
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className="spark">
+      {min < 0 && max > 0 && (
+        <line x1={pad} x2={w - pad} y1={zeroY} y2={zeroY} className="zero" />
+      )}
+      <path d={d} className={up ? "line good-s" : "line bad-s"} />
+    </svg>
+  );
+}
 
 export default function Home() {
   const [addr, setAddr] = useState("");
   const [att, setAtt] = useState<Attestation | null>(null);
   const [state, setState] = useState<"idle" | "loading" | "empty" | "error">("idle");
   const [err, setErr] = useState("");
-  const [board, setBoard] = useState<LeaderboardEntry[] | null>(null);
-  const [boardErr, setBoardErr] = useState(false);
-
-  const deployed = ATTESTATION_ADDRESS && ATTESTATION_ADDRESS.length === 42;
+  const [board, setBoard] = useState<BoardData | null>(null);
+  const [open, setOpen] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchLeaderboard()
+    fetch("/board-data.json")
+      .then((r) => r.json())
       .then(setBoard)
-      .catch(() => setBoardErr(true));
+      .catch(() => {});
   }, []);
 
   async function verify(target?: string) {
@@ -47,10 +87,7 @@ export default function Home() {
     setAtt(null);
     try {
       const a = await fetchAttestation(a0 as `0x${string}`);
-      if (!a.exists) {
-        setState("empty");
-        return;
-      }
+      if (!a.exists) return setState("empty");
       setAtt(a);
       setState("idle");
     } catch (e) {
@@ -63,6 +100,8 @@ export default function Home() {
   const roi = att ? Number(att.roiBps) / 100 : 0;
   const dd = att ? att.maxDrawdownBps / 100 : 0;
   const vol = att ? Number(att.volumeUsdE6) / 1e6 : 0;
+  const meta = board?.meta;
+  const volChamp = board ? [...board.rows].sort((a, b) => b.clawhackSwaps - a.clawhackSwaps)[0] : null;
 
   return (
     <div className="wrap">
@@ -71,25 +110,32 @@ export default function Home() {
         <span className="zk">zk-verified</span>
       </div>
       <p className="tagline">
-        Nansen tells you a wallet&apos;s PnL. <strong>Bukti proves its risk-adjusted
-        track record on-chain</strong> — reconstructed from raw Mantle DeFi trades inside an
-        SP1 zkVM, so any vault, lender, or copy-trade protocol can route capital by{" "}
-        <strong>verified score</strong>, not self-reported screenshots.
+        During this hackathon&apos;s Phase 1 — <strong>ClawHack</strong> — hundreds of AI agents
+        traded on Mantle, ranked by a leaderboard you had to <em>trust</em>. Bukti re-ran the
+        cohort <strong>provably</strong>: raw mainnet swaps reconstructed inside an SP1 zkVM,
+        the entire ranking attested on-chain with <strong>one Groth16 proof</strong>.
       </p>
 
-      <div className="steps">
-        <div className="step">
-          <span className="n">1</span> Raw swaps pulled from Mantle + historical Pyth prices
+      {meta && (
+        <div className="stats">
+          <div className="stat"><div className="v">{meta.walletsScanned}</div><div className="k">wallets scanned</div></div>
+          <div className="stat"><div className="v">{meta.walletsProven}</div><div className="k">wallets proven</div></div>
+          <div className="stat"><div className="v">{meta.totalLegs}</div><div className="k">raw swap legs</div></div>
+          <div className="stat"><div className="v">1</div><div className="k">Groth16 proof</div></div>
+          <div className="stat"><div className="v">{meta.proofBytes}B</div><div className="k">proof size</div></div>
+          <div className="stat"><div className="v">$0</div><div className="k">proving cost</div></div>
         </div>
-        <div className="step">
-          <span className="n">2</span> Cost-basis PnL &amp; risk metrics reconstructed{" "}
-          <strong>inside the SP1 zkVM</strong>
+      )}
+
+      {volChamp && board && (
+        <div className="insight">
+          💡 <strong>Volume crowns the wrong winners.</strong> The cohort&apos;s volume champion
+          ({short(volChamp.wallet)}, {volChamp.clawhackSwaps} swaps) ranks only{" "}
+          <strong>#{volChamp.proofRank} by proven risk-adjusted score</strong> — while the proof
+          champion ({short(board.rows[0].wallet)}, score {board.rows[0].score.toFixed(2)}) sits at
+          volume rank #{board.rows[0].volRank}.
         </div>
-        <div className="step">
-          <span className="n">3</span> Groth16 proof verified on-chain → composable score +
-          ERC-8004 reputation
-        </div>
-      </div>
+      )}
 
       <div className="card">
         <div className="row">
@@ -100,102 +146,108 @@ export default function Home() {
             onChange={(e) => setAddr(e.target.value.trim())}
             onKeyDown={(e) => e.key === "Enter" && verify()}
           />
-          <button onClick={() => verify()} disabled={state === "loading" || !deployed}>
-            {state === "loading" ? "Verifying…" : "Verify"}
+          <button onClick={() => verify()} disabled={state === "loading"}>
+            {state === "loading" ? "Verifying…" : "Verify on-chain"}
           </button>
         </div>
-        {deployed && state === "idle" && !att && (
-          <p className="hint">
-            Pick a wallet from the leaderboard below, or try the top ClawHack trader{" "}
-            <a onClick={() => verify(SAMPLE)} style={{ cursor: "pointer" }}>
-              {short(SAMPLE)}
-            </a>
-          </p>
-        )}
-
         {att && (
           <>
             <div className="metrics">
-              <div className="metric">
-                <div className="k">Bukti Score (per-trade)</div>
-                <div className={`v ${sharpe >= 0 ? "good" : "bad"}`}>{sharpe.toFixed(3)}</div>
-              </div>
-              <div className="metric">
-                <div className="k">Max Drawdown</div>
-                <div className="v">{dd.toFixed(2)}%</div>
-              </div>
-              <div className="metric">
-                <div className="k">ROI</div>
-                <div className={`v ${roi >= 0 ? "good" : "bad"}`}>{roi.toFixed(2)}%</div>
-              </div>
-              <div className="metric">
-                <div className="k">Volume (USD)</div>
-                <div className="v">${vol.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-              </div>
+              <div className="metric"><div className="k">Bukti Score (per-trade)</div><div className={`v ${sharpe >= 0 ? "good" : "bad"}`}>{sharpe.toFixed(3)}</div></div>
+              <div className="metric"><div className="k">Max Drawdown</div><div className="v">{dd.toFixed(2)}%</div></div>
+              <div className="metric"><div className="k">ROI</div><div className={`v ${roi >= 0 ? "good" : "bad"}`}>{roi.toFixed(2)}%</div></div>
+              <div className="metric"><div className="k">Volume (USD)</div><div className="v">${vol.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div></div>
             </div>
-            <div className="proven">✓ Proven in SP1 zkVM · {att.numTrades} realized trades</div>
-            <div className="meta">
-              anchor block hash: {att.anchorBlockHash}
-              <br />
-              attester: {att.attester}
-            </div>
+            <div className="proven">✓ Proven in SP1 zkVM · {att.numTrades} realized trades · read live from Mantle</div>
           </>
         )}
-
-        {state === "empty" && (
-          <p className="state">No verified attestation for this address yet.</p>
-        )}
+        {state === "empty" && <p className="state">No verified attestation for this address yet.</p>}
         {state === "error" && <p className="state err">{err}</p>}
       </div>
 
       <div className="card" style={{ marginTop: 18 }}>
-        <h2 className="h2">On-chain leaderboard</h2>
+        <h2 className="h2">The Provable ClawHack Leaderboard</h2>
         <p className="hint" style={{ marginTop: 2 }}>
-          Built live from <code>AttestationSubmitted</code> events — every row is a wallet whose
-          score was verified on-chain.
+          Every row is attested by{" "}
+          <a href={`${EXPLORER}/tx/${meta?.batchTx ?? ""}`} target="_blank" rel="noreferrer">
+            one on-chain Groth16 proof ↗
+          </a>
+          . Click a row for the reconstructed equity curve &amp; trades (derived from the proof&apos;s
+          public witness).
         </p>
-        {board === null && !boardErr && <p className="state">Scanning Mantle Sepolia…</p>}
-        {boardErr && <p className="state err">Could not scan events (RPC busy) — refresh.</p>}
-        {board && board.length === 0 && <p className="state">No attestations yet.</p>}
-        {board && board.length > 0 && (
+        {!board && <p className="state">Loading…</p>}
+        {board && (
           <table className="board">
             <thead>
               <tr>
-                <th>#</th>
+                <th>Proof #</th>
                 <th>Wallet</th>
                 <th>Score</th>
                 <th>ROI</th>
-                <th>Volume</th>
-                <th>Proof</th>
+                <th>PnL</th>
+                <th>Vol rank</th>
+                <th>Δ</th>
               </tr>
             </thead>
             <tbody>
-              {board.map((e, i) => (
-                <tr key={e.wallet} onClick={() => verify(e.wallet)} style={{ cursor: "pointer" }}>
-                  <td>{i + 1}</td>
-                  <td className="mono">
-                    {short(e.wallet)}
-                    {e.wallet.toLowerCase() === SAMPLE.toLowerCase() ? " 👑" : ""}
-                  </td>
-                  <td className={Number(e.sharpeMilli) >= 0 ? "good" : "bad"}>
-                    {(Number(e.sharpeMilli) / 1000).toFixed(3)}
-                  </td>
-                  <td className={Number(e.roiBps) >= 0 ? "good" : "bad"}>
-                    {(Number(e.roiBps) / 100).toFixed(2)}%
-                  </td>
-                  <td>${(Number(e.volumeUsdE6) / 1e6).toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
-                  <td>
-                    <a
-                      href={`${EXPLORER}/tx/${e.txHash}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      onClick={(ev) => ev.stopPropagation()}
+              {board.rows.map((r) => {
+                const delta = r.volRank - r.proofRank;
+                return (
+                  <>
+                    <tr
+                      key={r.wallet}
+                      onClick={() => setOpen(open === r.wallet ? null : r.wallet)}
+                      style={{ cursor: "pointer" }}
+                      className={open === r.wallet ? "sel" : ""}
                     >
-                      tx ↗
-                    </a>
-                  </td>
-                </tr>
-              ))}
+                      <td>{r.proofRank}{r.proofRank === 1 ? " 👑" : ""}</td>
+                      <td className="mono">{short(r.wallet)}</td>
+                      <td className={r.score >= 0 ? "good" : "bad"}>{r.score.toFixed(3)}</td>
+                      <td className={r.roi >= 0 ? "good" : "bad"}>{r.roi.toFixed(2)}%</td>
+                      <td className={r.pnl >= 0 ? "good" : "bad"}>${r.pnl.toFixed(2)}</td>
+                      <td>#{r.volRank}</td>
+                      <td className={delta > 0 ? "good" : delta < 0 ? "bad" : ""}>
+                        {delta > 0 ? `▲${delta}` : delta < 0 ? `▼${-delta}` : "—"}
+                      </td>
+                    </tr>
+                    {open === r.wallet && (
+                      <tr className="detail" key={r.wallet + "-d"}>
+                        <td colSpan={7}>
+                          <div className="dwrap">
+                            <div className="dhead">
+                              <span className="mono">{r.wallet}</span>
+                              <button className="ghost" onClick={(e) => { e.stopPropagation(); verify(r.wallet); }}>
+                                Read attestation on-chain →
+                              </button>
+                            </div>
+                            <Sparkline pts={r.curve} />
+                            <div className="dgrid">
+                              <span>ClawHack swaps: <strong>{r.clawhackSwaps}</strong></span>
+                              <span>Realized trades: <strong>{r.trades.length}</strong></span>
+                              <span>Max drawdown: <strong>{r.dd.toFixed(2)}%</strong></span>
+                              <span>Volume: <strong>${r.vol.toFixed(2)}</strong></span>
+                            </div>
+                            {r.trades.length > 0 && (
+                              <table className="trades">
+                                <thead><tr><th>Time (UTC)</th><th>Realized PnL</th><th>Notional</th></tr></thead>
+                                <tbody>
+                                  {r.trades.slice(-6).map((t, i) => (
+                                    <tr key={i}>
+                                      <td>{new Date(t.ts * 1000).toISOString().slice(5, 16).replace("T", " ")}</td>
+                                      <td className={t.pnl >= 0 ? "good" : "bad"}>${t.pnl.toFixed(3)}</td>
+                                      <td>${t.notional.toFixed(2)}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                );
+              })}
             </tbody>
           </table>
         )}
@@ -208,30 +260,29 @@ export default function Home() {
           <a href={`${EXPLORER}/address/${ATTESTATION_ADDRESS}#code`} target="_blank" rel="noreferrer">
             {short(ATTESTATION_ADDRESS)} ↗
           </a>{" "}
-          (verified source)
-          <br />
-          On-chain verifier:{" "}
+          (verified source) · On-chain verifier:{" "}
           <a href={`${EXPLORER}/address/${VERIFIER_ADDRESS}#code`} target="_blank" rel="noreferrer">
             {short(VERIFIER_ADDRESS)} ↗
           </a>{" "}
-          — <strong>{VERIFIER_VERSION}</strong>, a real Groth16 verifier: invalid proofs revert.
-          <br />
-          Reputation rail: scores are also written to Mantle&apos;s canonical{" "}
-          <a
-            href={`${EXPLORER}/address/0x8004B663056A597Dffe9eCcC1965A193B7388713`}
-            target="_blank"
-            rel="noreferrer"
-          >
+          — <strong>{VERIFIER_VERSION}</strong> (invalid proofs revert with{" "}
+          <code>WrongVerifierSelector</code>). Scores also written to Mantle&apos;s canonical{" "}
+          <a href={`${EXPLORER}/address/0x8004B663056A597Dffe9eCcC1965A193B7388713`} target="_blank" rel="noreferrer">
             ERC-8004 ReputationRegistry ↗
           </a>
           .
+          <br />
+          Verify it yourself:{" "}
+          <code className="snippet">
+            cast call {short(ATTESTATION_ADDRESS)} &quot;getSharpeMilli(address)(int64,bool)&quot; &lt;wallet&gt; --rpc-url
+            https://rpc.sepolia.mantle.xyz
+          </code>
         </div>
       </div>
 
       <footer>
         Built on Mantle for The Turing Test Hackathon 2026. The zk proof covers the full
         reconstruction (raw swaps → cost-basis PnL → risk metrics) in deterministic integer math;
-        data provenance is anchored to a Mantle block hash.
+        equity curves &amp; trade lists are derived from the proof&apos;s public witness.
       </footer>
     </div>
   );

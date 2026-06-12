@@ -79,6 +79,44 @@ table.board th {
 table.board td { padding: 9px 8px; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
 table.board tbody tr:hover { background: var(--panel-2); }
 table.board a { color: var(--accent-2); text-decoration: none; }
+table.board tr.sel { background: var(--panel-2); }
+
+.stats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 0 0 14px; }
+.stat {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px 10px; text-align: center;
+}
+.stat .v { font-size: 20px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
+.stat .k { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; margin-top: 3px; }
+@media (max-width: 680px) { .stats { grid-template-columns: repeat(3, 1fr); } }
+
+.insight {
+  background: rgba(74, 168, 255, 0.08); border: 1px solid var(--accent-2);
+  border-radius: 12px; padding: 13px 16px; font-size: 13.5px; line-height: 1.55;
+  color: var(--text); margin: 0 0 22px;
+}
+
+tr.detail td { padding: 0 8px 14px; }
+.dwrap { background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+.dhead { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+button.ghost {
+  background: transparent; border: 1px solid var(--accent-2); color: var(--accent-2);
+  border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 600;
+}
+.spark { width: 100%; height: 96px; display: block; }
+.spark .line { fill: none; stroke-width: 2; }
+.spark .good-s { stroke: var(--accent); }
+.spark .bad-s { stroke: var(--danger); }
+.spark .zero { stroke: var(--border); stroke-dasharray: 4 4; stroke-width: 1; }
+.dgrid { display: flex; gap: 18px; flex-wrap: wrap; color: var(--muted); font-size: 12.5px; margin: 8px 0; }
+.dgrid strong { color: var(--text); }
+table.trades { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
+table.trades th { text-align: left; color: var(--muted); font-size: 10.5px; text-transform: uppercase; padding: 4px 6px; }
+table.trades td { padding: 5px 6px; border-top: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+code.snippet {
+  display: block; margin-top: 8px; padding: 8px 10px; background: var(--panel-2);
+  border: 1px solid var(--border); border-radius: 8px; font-size: 11px; overflow-x: auto;
+}
 
 .metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 22px; }
 .metric {
