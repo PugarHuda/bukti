@@ -1,0 +1,22 @@
+{
+  "name": "bukti-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP server exposing Bukti's zk-verified trading track records to AI agents — so agents check PROOF before trusting a trader.",
+  "bin": { "bukti-mcp": "src/server.ts" },
+  "scripts": {
+    "start": "tsx src/server.ts",
+    "test": "tsx src/test-client.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "viem": "^2.21.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "@types/node": "^22.0.0"
+  }
+}

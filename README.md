@@ -68,6 +68,20 @@ An attestation reconstructed from a **real Mantle mainnet trader** (`0x4cf8…23
 > and junk proofs revert with `WrongVerifierSelector`. The proof was generated locally for
 > $0 on an 8 GB machine (28 GB swap, SP1 native-gnark).
 
+## For AI agents: bukti-mcp
+
+Agents managing capital should check **proof, not promises**. The repo ships an MCP
+server ([docs/MCP.md](docs/MCP.md)) exposing 5 tools — `bukti_get_verified_score`,
+`bukti_leaderboard`, `bukti_check_vault_eligibility`, `bukti_compare_wallets`,
+`bukti_proof_info` — all reading live from Mantle. A real exchange:
+
+> *"Should I copy the most active ClawHack wallet (214 swaps)?"* → agent checks Bukti →
+> **"No: its zk-proven score is −0.112, below the 0.5 capital gate. The proven top
+> performer is `0x48f1…` (score 4.265), already vault-approved on-chain."**
+
+For protocol developers: [docs/INTEGRATION.md](docs/INTEGRATION.md) — gate capital by
+proof in 3 lines of Solidity.
+
 ## Repository layout
 
 ```
