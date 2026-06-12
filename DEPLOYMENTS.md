@@ -105,6 +105,29 @@ eligibility is a Groth16 proof, not a committee. Pull-payment design (recipients
 | **Live allocation tx** (0.01 MNT routed by proof) | [`0x559503d3…`](https://sepolia.mantlescan.xyz/tx/0x559503d328df13df28ba8ee61564046307d69f9341af557a5be0db04f9011db0) |
 | Credited result | champion `0x48f1…` **81.8%**, runner-up `0x0a85…` **18.2%**, volume champion `0x4cf8…` (score −1.316) **0%** |
 
+### 🧾 BuktiAttestation v3 — in-circuit completeness commitment (anti-cherry-pick, live)
+The single biggest critique of any track-record proof is *"did they only prove their winning
+trades?"* v3 closes it **in-circuit**: the guest computes a keccak commitment over the FULL,
+ordered swap set each score is reconstructed from, and commits it (`swapsRoot` + `numSwaps`)
+alongside the metrics. Drop, reorder, or mutate any leg and the commitment — and therefore the
+on-chain attestation — changes. The whole 25-wallet batch (with completeness) was **re-proven
+with one real Groth16 proof** and verified on-chain by the same real SP1 v6.1.0 verifier.
+
+| Item | Value |
+|---|---|
+| **BuktiAttestation v3** (Mantlescan-verified) | [`0x03fA99f0dE08F182b2880Ee12a2194DBF00a0Dbf`](https://sepolia.mantlescan.xyz/address/0x03fA99f0dE08F182b2880Ee12a2194DBF00a0Dbf#code) |
+| Program vkey (v3: + completeness) | `0x00212161eb76a8307b832f85fc6cd8147c2d4f550adba590f496f77291590a10` |
+| **Batch attestation tx** (25 wallets, real Groth16, with completeness) | [`0x39183a61…`](https://sepolia.mantlescan.xyz/tx/0x39183a61c94f3af6616aad33fa01225dc2b877c6a3119c02f7d38513cee54f1c) |
+| In-circuit cost | 3.36M cycles (in-circuit == host), proof still 356 bytes |
+| **Independent verification** | `npm --prefix indexer run qa:completeness 0x03fA99f0…` → **25/25 on-chain roots match the public witness** |
+| Anti-cherry-pick property | recompute the commitment from `batch.json` with `indexer/src/swaps-root.ts` (a second-language TS mirror) — all 25 roots match byte-for-byte |
+
+Trade-off: a single keccak commitment (not a Merkle tree) keeps in-circuit keccak ~5x cheaper
+so the batch proof fits commodity hardware (the full Merkle tree pushed it to 11.3M cycles and
+OOM'd an 8 GB box). A Merkle tree — enabling succinct per-leg inclusion proofs — is a documented
+upgrade behind SP1's keccak precompile. v2 (`0x2EB832F2…`) remains the live leaderboard's
+attestation; v3 is the completeness-enhanced canonical.
+
 *MI4 is proven-beta for institutions; BuktiAllocator is proven-alpha — an index whose
 constituents are admitted by a ZK proof of risk-adjusted skill.*
 

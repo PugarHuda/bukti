@@ -68,6 +68,7 @@ winners** — the cohort's volume champion (214 swaps) ranks only #17 by proven 
 | Contract | Address |
 |---|---|
 | BuktiAttestation v2 (batch) | `0x2EB832F24136c24A3B38D4b06D3318C48B618163` |
+| BuktiAttestation v3 (+ completeness commitment) | `0x03fA99f0dE08F182b2880Ee12a2194DBF00a0Dbf` |
 | SP1 Groth16 Verifier v6.1.0 (real) | `0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A` |
 | GatedVault | `0x851C251411Fe4F4bab586F775c7450f86A348EAD` |
 | BuktiValidator (ERC-8004 ZK validator) | `0xda0cEB552af13f5a096D8aA4E5A9FceB9cf6D8D0` |
