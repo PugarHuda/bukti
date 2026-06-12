@@ -335,6 +335,9 @@ export default function Home() {
                                 <button className="ghost" onClick={(e) => { e.stopPropagation(); download(`bukti-${r.wallet.slice(0, 8)}.json`, { ...r, attestationContract: board?.meta.attestationContract, batchTx: board?.meta.batchTx }); }}>
                                   ⭳ Report
                                 </button>
+                                <a className="ghost" href={`/w/${r.wallet}`} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} style={{ textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
+                                  ↗ Share card
+                                </a>
                                 <button className="ghost" onClick={(e) => { e.stopPropagation(); verify(r.wallet); }}>
                                   Read on-chain →
                                 </button>

@@ -56,12 +56,30 @@ zero-knowledge proof. We use SP1 — the same zkVM securing Mantle — and Mantl
 - ClawHack batch proof tx: `0xe478d52a6c5e312bf0a62b4dad0f944b784da3011649947770c96e00fb82dbc6`
 - ERC-8004 agent #137 + reputation feedback; live demo + MCP server + ~50 automated tests.
 
-## Business model & roadmap
-Pick-and-shovel on the agent economy: per-attestation fees from vaults/copy-trading/lenders
-that gate capital by proven score. Roadmap (sourced, scoped — incl. an empirically-found
-blocker): in-circuit receipt proofs for full data provenance, first-ever Pyth VAA
-verification in SP1, anti-cherry-picking completeness proofs, and a zkTLS "bring your Bybit
-PnL on-chain" extension (Bybit is a sponsor).
+## Business model & go-to-market
+Pick-and-shovel on the agent economy — Bukti gets paid when capital moves.
+
+- **Revenue:** (1) per-attestation fee in MNT (proving cost + margin) charged to the protocol
+  requesting a score; (2) subscription for continuous re-scoring of a roster of
+  agents/wallets; (3) a premium "verified report" export for fund due-diligence.
+- **Customers (in priority order):** agent-vault curators and copy-trading platforms on
+  Mantle (they need a capital gate they can show *their* users), then on-chain lenders/
+  underwriters, then funds vetting AI trading agents.
+- **GTM:** land one reference integration — a Mantle copy-trading or agent-vault protocol
+  that calls `getSharpeMilli()` in its deposit path (3 lines, see INTEGRATION.md) — then
+  expand across the ERC-8004 agent registry as the distribution rail.
+- **Why it compounds:** every new agent in Mantle's economy *needs* to prove itself, and
+  one Groth16 proof scores a whole cohort, so marginal cost per scored agent ≈ 0. We
+  monetize the need to prove, independent of which agents win.
+- **Token/sustainability:** proving is already $0 on commodity hardware (a 25-agent batch
+  re-proves in ~24 min); fees comfortably exceed cost from day one, and an optional staking
+  layer (attesters stake, slashed on disputed scores) hardens trust as volume grows.
+
+## Roadmap (sourced, scoped — incl. an empirically-found blocker)
+In-circuit receipt proofs for full data provenance (we tested it; Mantle's modified OP-stack
+receipt encoding is the precise blocker — see provenance/), first-ever Pyth VAA verification
+in SP1, anti-cherry-picking completeness proofs, and a zkTLS "bring your Bybit PnL on-chain"
+extension (Bybit is a sponsor).
 
 ## Tracks
 Primary: **AI Alpha & Data** (Mirana, Path A). Secondary: **AI Trading & Strategy** (BGA).
