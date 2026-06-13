@@ -21,7 +21,7 @@ layer for ERC-8004 on Mantle. *Catch-a-cheater: two agents, same +312% — Bukti
 - 🌐 Live demo: https://bukti-smoky.vercel.app
 - 📦 Repo (open-source): https://github.com/PugarHuda/bukti
 - 🎬 Demo video: **[PASTE after recording]**
-- 📄 Pitch: [PITCH.md](PITCH.md) · Architecture & verification: [DEPLOYMENTS.md](DEPLOYMENTS.md) · [docs/](docs)
+- 📄 Pitch: [PITCH.md](PITCH.md) · Business: [docs/BUSINESS.md](docs/BUSINESS.md) · Architecture: [DEPLOYMENTS.md](DEPLOYMENTS.md) · [docs/](docs)
 
 ## Description (paste into the form)
 Every AI trading agent claims a great track record; none can prove it. Dashboards are
@@ -75,10 +75,12 @@ winners** — the cohort's volume champion (214 swaps) ranks only #17 by proven 
 | GatedVault | `0x851C251411Fe4F4bab586F775c7450f86A348EAD` |
 | BuktiValidator (ERC-8004 ZK validator) | `0xda0cEB552af13f5a096D8aA4E5A9FceB9cf6D8D0` |
 | BuktiAllocator (capital routed by proof) | `0x6DF2F45f9184346C175a94D783F37C77C8f3B8B2` |
+| **BuktiProvenance** (proves a swap log is genuine Mantle chain data) | `0xa4d6d9932B19f9B03D0439264F1188F39F8522f0` |
 | ReferenceValidationRegistry | `0x0954E50cBC85836C9E3FC6868d24b6118d974E9d` |
 
 Key txs: ClawHack batch proof `0xe478d52a6c5e312bf0a62b4dad0f944b784da3011649947770c96e00fb82dbc6` ·
-ERC-8004 reputation feedback `0xf44b6d62e80ab8e6e8f09b7da31f1975b3ea58269d66beb7fb1d3c44480464f7` ·
+completeness re-proof `0x39183a61c94f3af6616aad33fa01225dc2b877c6a3119c02f7d38513cee54f1c` ·
+**provenance proof** (swap = genuine chain data) `0x92537a756a28692e5b084fcb751cac993fd1a0491fe7ce613880e00c989cf8e6` ·
 ERC-8004 ZK validation `0x780bbaa851bd7789e349a878fd6a8a07410a6efc44e415d8ce9bf01971a0847f`
 
 ## 20 Project Deployment Award checklist
@@ -90,13 +92,40 @@ ERC-8004 ZK validation `0x780bbaa851bd7789e349a878fd6a8a07410a6efc44e415d8ce9bf0
 - [ ] Demo video ≥ 2 min — **record & paste link**
 - [x] Open-source repo + README: https://github.com/PugarHuda/bukti
 
-## X post (Community Voting) — paste
-> Most AI trading agents *claim* a track record. None can *prove* it.
->
-> Meet Bukti: we re-ranked @0xMantle's own ClawHack cohort PROVABLY — 25 agents,
-> reconstructed from raw mainnet swaps inside an SP1 zkVM, the whole leaderboard attested
-> on-chain with ONE 714-byte Groth16 proof. For \$0.
->
-> Volume crowns the wrong winners. Proof doesn't. 👇
-> https://bukti-smoky.vercel.app
-> #MantleAIHackathon
+## X thread (Community Voting) — paste-ready (7 tweets)
+
+**1/** Two AI agents both claim a +312% track record. One is real. One is fabricated.
+A screenshot can't tell them apart. Neither can a ZK proof of the PnL *math*.
+Meet Bukti — the one verifier that can. 🧵 #MantleAIHackathon
+https://bukti-smoky.vercel.app/dashboard/authenticity
+
+**2/** The problem: every trading agent claims a great record, none can prove it. Screenshots
+are edited, dashboards say "trust me," on-chain "reputation" is self-reported.
+Capital flows to liars.
+
+**3/** Bukti reconstructs a wallet's risk-adjusted track record from raw @0xMantle swaps
+*inside an SP1 zero-knowledge VM*, and attests it on-chain with a real Groth16 proof.
+The proof is the product — a number a smart contract can `require()`.
+
+**4/** The moat nobody else has: we prove every trade is **genuine Mantle chain data**.
+We cracked Mantle's receipt encoding + anchor the block hash via EIP-2935 — so a fabricated
+record literally cannot pass. Live on-chain. That's why we catch the fake.
+
+**5/** We re-ran @0xMantle's own ClawHack cohort PROVABLY: 25 agents, 626 raw swaps, the whole
+leaderboard attested with ONE 714-byte Groth16 proof, for \$0. The insight VCs remember:
+**volume crowns the wrong winners** — the volume champion ranks #17 by proven skill.
+
+**6/** And a proof is useless until it moves money: BuktiAllocator routes capital by proven
+score — 81.8% to the champion, **0%** to the volume champion who actually lost money.
+Plus an ERC-8004 ZK validator, an x402 proof-gate, an embeddable score badge, an MCP server.
+
+**7/** Don't trust us — verify our real Groth16 proof yourself, live in your browser. ✅
+**Proof-of-Real-PnL — the chain-authenticity layer for the agent economy.** Built on Mantle.
+🔗 https://bukti-smoky.vercel.app · code: https://github.com/PugarHuda/bukti
+#MantleAIHackathon
+
+---
+*(Single-tweet fallback):*
+> Two agents claim +312%. One's lying. Bukti proves which — because it proves the trades are
+> real @0xMantle chain data, not a screenshot. zkVM-reconstructed, Groth16-verified on-chain, $0.
+> Proof-of-Real-PnL. 👇 https://bukti-smoky.vercel.app #MantleAIHackathon
