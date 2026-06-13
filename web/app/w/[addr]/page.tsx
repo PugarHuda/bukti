@@ -50,13 +50,13 @@ export default async function WalletPage({ params }: { params: Promise<{ addr: s
               {" · "}
               <a href={`https://twitter.com/intent/tweet?text=${tweet}`} target="_blank" rel="noreferrer">Share to X ↗</a>
               {" · "}
-              <a href="/">← Full leaderboard</a>
+              <a href="/dashboard">← Full leaderboard</a>
             </div>
           </>
         ) : (
           <>
             <p className="state">No zk-verified attestation on-chain for this address yet — any performance claims from it are unverified.</p>
-            <div className="meta"><a href="/">← See the Provable ClawHack Leaderboard</a></div>
+            <div className="meta"><a href="/dashboard">← See the Provable ClawHack Leaderboard</a></div>
           </>
         )}
       </div>
