@@ -128,6 +128,26 @@ OOM'd an 8 GB box). A Merkle tree — enabling succinct per-leg inclusion proofs
 upgrade behind SP1's keccak precompile. v2 (`0x2EB832F2…`) remains the live leaderboard's
 attestation; v3 is the completeness-enhanced canonical.
 
+### 🔗 BuktiProvenance — a real swap proven genuine Mantle chain data (live, verified)
+The data-provenance trust boundary, **closed and proven on-chain**. A dedicated SP1 guest proves
+in-circuit that a real Agni Swap log is genuine Mantle chain data: `keccak(header)==blockHash`
+(trusted via EIP-2935) → `receiptsRoot` → MPT inclusion of the receipt → the receipt contains the
+pool's Swap log. The crack: Mantle's type-0x7e deposit receipt is 4-field
+`0x7e‖RLP([status,cumGas,bloom,logs])` (no nonce/version) — reproduces `receiptsRoot` 5/5 on live
+blocks (`npm --prefix indexer run receipt-trie`).
+
+| Item | Value |
+|---|---|
+| **BuktiProvenance** (Mantlescan-verified) | [`0xa4d6d9932B19f9B03D0439264F1188F39F8522f0`](https://sepolia.mantlescan.xyz/address/0xa4d6d9932B19f9B03D0439264F1188F39F8522f0#code) |
+| Program vkey (provenance guest) | `0x0097e4e52d31ce05e658c0b44a5225f3cfd629241de0d506cf7e69ad6a907c67` |
+| **Proof submitted on-chain** (real Groth16, 960k cycles, in-circuit==host) | [`0x92537a75…`](https://sepolia.mantlescan.xyz/tx/0x92537a756a28692e5b084fcb751cac993fd1a0491fe7ce613880e00c989cf8e6) |
+| `getProven(blockHash, 1)` | pool `0x54169896…` (Agni), topic0 `0x19b47279…` (Swap), txIndex 1, **included = true** |
+| Proven block | Mantle mainnet, header hash `0xd1772fd5…`, receiptsRoot `0x669d0b75…` |
+| Trust anchor | EIP-2935 (live on Mantle/Arsia) — block hash readable on-chain at `0x0F792be4…` |
+
+Reproduce off-chain: `npm --prefix indexer run log-inclusion` (LOG_INCLUSION_OK) ·
+`npm --prefix indexer run header-hash` (5/5). In-circuit core tested in `provenance/log-proof/`.
+
 *MI4 is proven-beta for institutions; BuktiAllocator is proven-alpha — an index whose
 constituents are admitted by a ZK proof of risk-adjusted skill.*
 
