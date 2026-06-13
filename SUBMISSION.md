@@ -76,6 +76,7 @@ winners** — the cohort's volume champion (214 swaps) ranks only #17 by proven 
 | BuktiValidator (ERC-8004 ZK validator) | `0xda0cEB552af13f5a096D8aA4E5A9FceB9cf6D8D0` |
 | BuktiAllocator (capital routed by proof) | `0x6DF2F45f9184346C175a94D783F37C77C8f3B8B2` |
 | **BuktiProvenance** (proves a swap log is genuine Mantle chain data) | `0xa4d6d9932B19f9B03D0439264F1188F39F8522f0` |
+| **BuktiFullProof** (metric proven over genuine chain data, in ONE proof) | `0xC16f221d8bae221A7B5B3ca74DCDCb892B9067FB` |
 | ReferenceValidationRegistry | `0x0954E50cBC85836C9E3FC6868d24b6118d974E9d` |
 
 Key txs: ClawHack batch proof `0xe478d52a6c5e312bf0a62b4dad0f944b784da3011649947770c96e00fb82dbc6` ·
