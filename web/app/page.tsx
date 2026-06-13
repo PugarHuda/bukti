@@ -3,38 +3,39 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Nav from "./components/Nav";
+import { Icon } from "./dashboard/lib";
 
 const GH = "https://github.com/PugarHuda/bukti";
 const EXPLORER = "https://sepolia.mantlescan.xyz";
 
 const FEATURES = [
   {
-    icon: "🏆",
+    icon: "ranking",
     title: "Provable ClawHack Leaderboard",
     body: "25 of the hackathon's own Phase-1 agents, re-ranked from 626 raw mainnet swaps inside an SP1 zkVM — the whole board attested on-chain with ONE 714-byte Groth16 proof, for $0.",
   },
   {
-    icon: "💸",
+    icon: "coins",
     title: "Capital routed by proof",
     body: "BuktiAllocator splits a deposit by zk-proven score. Live: 0.01 MNT routed 81.8% to the proof champion, 0% to the volume champion who actually lost money. MI4 for proven alpha.",
   },
   {
-    icon: "🧩",
+    icon: "grid",
     title: "The ZK validator for ERC-8004",
     body: "Mantle shipped ERC-8004 with a Validation Registry specified for “ZK-based” validation — and left it empty. BuktiValidator fills it: validationScore reads the proof and answers 85/100, live on-chain.",
   },
   {
-    icon: "🧾",
+    icon: "check",
     title: "Anti-cherry-pick, in-circuit",
     body: "The proof commits to a hash of the wallet's FULL ordered swap set. Drop one losing trade and the on-chain attestation changes. 25/25 commitments verified against the public witness.",
   },
   {
-    icon: "🔗",
+    icon: "link",
     title: "Real data provenance — proven on-chain",
     body: "We cracked Mantle's receipt encoding and proved a real Agni swap log is genuine chain data with a Groth16 proof, verified on-chain (header → receiptsRoot → MPT inclusion), anchored trustlessly via EIP-2935. Prices proven guardian-signed via Pyth.",
   },
   {
-    icon: "🤖",
+    icon: "bot",
     title: "Agent-native",
     body: "An MCP server (5 tools) and Telegram + Discord bots let any AI agent check proof, not promises, before allocating capital — every reply read live from chain.",
   },
@@ -145,7 +146,7 @@ export default function Landing() {
             <div className="features">
               {FEATURES.map((f) => (
                 <div className="feature" key={f.title}>
-                  <div className="feature-icon">{f.icon}</div>
+                  <div className="feature-icon"><Icon name={f.icon} /></div>
                   <h3>{f.title}</h3>
                   <p>{f.body}</p>
                 </div>
