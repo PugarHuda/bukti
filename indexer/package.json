@@ -13,7 +13,8 @@
     "swaps-root": "tsx src/swaps-root.ts",
     "receipt-trie": "tsx src/receipt-trie.ts",
     "log-inclusion": "tsx src/log-inclusion.ts",
-    "header-hash": "tsx src/header-hash.ts"
+    "header-hash": "tsx src/header-hash.ts",
+    "wash-sybil": "tsx src/wash-sybil.ts"
   },
   "dependencies": {
     "@ethereumjs/rlp": "^10.1.2",

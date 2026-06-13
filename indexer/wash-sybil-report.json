@@ -1,0 +1,17 @@
+{
+  "cohort": 25,
+  "rawSwaps": 626,
+  "feeBps": 5,
+  "worsenedByFee": 4,
+  "totalFeeDragUsd": 4.0067,
+  "spearmanVolVsScore": -0.277,
+  "churnWallets": 0,
+  "volChampion": {
+    "wallet": "0x4cf89f51e090d6dcddbbbe5a458a01e9061823c5",
+    "volUsd": 1613.16,
+    "proofRank": 17
+  },
+  "sameBlockColocatedLegs": 30,
+  "oppositeDirectionPairs": 4,
+  "verdict": "WASH_RESISTANT"
+}
