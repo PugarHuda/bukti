@@ -17,7 +17,8 @@
     "wash-sybil": "tsx src/wash-sybil.ts",
     "mark-to-market": "tsx src/mark-to-market.ts",
     "price-guard": "tsx src/price-guard.ts",
-    "identity-bind": "tsx src/identity-bind.ts"
+    "identity-bind": "tsx src/identity-bind.ts",
+    "funder-graph": "tsx src/funder-graph.ts"
   },
   "dependencies": {
     "@ethereumjs/rlp": "^10.1.2",

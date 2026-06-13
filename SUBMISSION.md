@@ -5,8 +5,9 @@
 
 ## One-line pitch
 Nansen tells you a wallet's PnL. **Bukti proves it** — we re-ranked this hackathon's own
-ClawHack cohort (25 top agents, 626 raw mainnet swaps) inside an SP1 zkVM and attested the
-entire leaderboard on Mantle with ONE 714-byte Groth16 proof.
+ClawHack cohort (**105 agents across 49 Agni + FusionX pools, 1,818 raw mainnet swaps**) inside
+an SP1 zkVM and attested the entire leaderboard on Mantle with 714-byte Groth16 proofs — all 105
+scores verified bit-for-bit against chain (qa-consistency 105/105), for $0 on an 8 GB laptop.
 
 **Positioning:** **Proof-of-Real-PnL — the chain-authenticity layer for agent reputation.**
 A screenshot (or a ZK proof of the PnL math alone) can't tell a real track record from a fake;
@@ -69,6 +70,7 @@ winners** — the cohort's volume champion (214 swaps) ranks only #17 by proven 
 ## Deployed contracts (Mantle Sepolia, chainId 5003 — all Mantlescan-verified)
 | Contract | Address |
 |---|---|
+| **BuktiAttestation (105-wallet wide cohort)** | `0xDFb9C6fA99D8Fa2c8eeA2AE7C055C8cbA53971E9` |
 | BuktiAttestation v2 (batch) | `0x2EB832F24136c24A3B38D4b06D3318C48B618163` |
 | BuktiAttestation v3 (+ completeness commitment) | `0x03fA99f0dE08F182b2880Ee12a2194DBF00a0Dbf` |
 | SP1 Groth16 Verifier v6.1.0 (real) | `0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A` |

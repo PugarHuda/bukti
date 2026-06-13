@@ -23,7 +23,7 @@ export default function Overview() {
     <>
       <div className="ds-page-head">
         <h1 className="ds-page-title">Overview</h1>
-        <p className="ds-page-sub">The Provable ClawHack cohort — 25 agents re-ranked by zk-proven score, attested on Mantle.</p>
+        <p className="ds-page-sub">The Provable ClawHack cohort — 105 agents across 49 Agni + FusionX pools, re-ranked by zk-proven score, attested on Mantle.</p>
       </div>
 
       {meta && (

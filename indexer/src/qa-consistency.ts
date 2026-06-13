@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 import { createPublicClient, http, parseAbi } from "viem";
 
 const client = createPublicClient({ transport: http("https://rpc.sepolia.mantle.xyz") });
-const ATTEST = "0x2EB832F24136c24A3B38D4b06D3318C48B618163" as const;
+const ATTEST = "0xDFb9C6fA99D8Fa2c8eeA2AE7C055C8cbA53971E9" as const; // wide 105-wallet cohort
 const ABI = parseAbi(["function getSharpeMilli(address) view returns (int64, bool)"]);
 
 async function main() {
