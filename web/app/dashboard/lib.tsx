@@ -62,6 +62,30 @@ export function Sparkline({ pts }: { pts: number[] }) {
   );
 }
 
+/** Volume-rank vs proof-rank scatter — visually proves "volume crowns the wrong winners":
+ *  points on the diagonal = volume predicted skill; points far off it = the gameable gap. */
+export function VolumeVsProof({ rows }: { rows: BoardRow[] }) {
+  const W = 520, H = 360, pad = 38, n = rows.length || 25;
+  const sx = (r: number) => pad + ((r - 1) / (n - 1)) * (W - 2 * pad);
+  const sy = (r: number) => pad + ((r - 1) / (n - 1)) * (H - 2 * pad);
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", maxWidth: 520, display: "block" }}>
+      {/* diagonal: where volume rank == proof rank */}
+      <line x1={pad} y1={pad} x2={W - pad} y2={H - pad} stroke="var(--line-2)" strokeWidth="1" strokeDasharray="4 4" />
+      <text x={W - pad} y={H - pad + 24} textAnchor="end" fontSize="10" fill="var(--faint)" fontFamily="var(--mono)">volume rank →</text>
+      <text x={pad - 8} y={pad - 12} fontSize="10" fill="var(--faint)" fontFamily="var(--mono)">↑ proof rank</text>
+      <text x={W / 2} y={pad - 12} textAnchor="middle" fontSize="10" fill="var(--faint)" fontFamily="var(--mono)">on the line = volume predicts skill</text>
+      {rows.map((r) => (
+        <g key={r.wallet}>
+          <circle cx={sx(r.volRank)} cy={sy(r.proofRank)} r={4.5} fill={r.score >= 0 ? "var(--accent)" : "var(--neg)"} fillOpacity="0.85">
+            <title>{`${r.wallet.slice(0, 8)}… · vol #${r.volRank} → proof #${r.proofRank} · score ${r.score.toFixed(3)}`}</title>
+          </circle>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
 /** Minimal 1.5px line icons (no emoji). */
 export function Icon({ name }: { name: string }) {
   const p = { fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useBoard, short } from "./lib";
+import { useBoard, short, VolumeVsProof } from "./lib";
 
 export default function Overview() {
   const { board, live } = useBoard();
@@ -62,6 +62,18 @@ export default function Overview() {
           <Link href="/dashboard/leaderboard" className="ghost">View full leaderboard →</Link>
         </div>
       </div>
+
+      {board && board.rows.length > 0 && (
+        <div className="card" style={{ marginTop: 4, marginBottom: 16 }}>
+          <div className="card-head"><h2 className="card-title">Volume vs proven skill</h2><span className="badge">data</span></div>
+          <div className="card-pad" style={{ display: "flex", gap: 20, alignItems: "center", flexWrap: "wrap" }}>
+            <VolumeVsProof rows={board.rows} />
+            <p className="hint" style={{ flex: 1, minWidth: 200 }}>
+              Each dot is an agent: <strong>volume rank</strong> (x) vs <strong>proven-score rank</strong> (y). If volume predicted skill, every dot would sit on the dashed line. It doesn&apos;t — the scatter <em>is</em> the gameability of volume-based leaderboards. Green = profitable, red = net-losing (all proven on-chain).
+            </p>
+          </div>
+        </div>
+      )}
 
       {cohort && (
         <div className="xray" style={{ marginTop: 4 }}>
