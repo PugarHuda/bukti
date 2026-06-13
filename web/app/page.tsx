@@ -17,7 +17,7 @@ const FEATURES = [
   {
     icon: "coins",
     title: "Capital routed by proof",
-    body: "BuktiAllocator splits a deposit by zk-proven score. Live demo: 0.01 MNT routed 81.8% to the proven leader of the set, 0% to a high-volume wallet that actually lost money. MI4 for proven alpha.",
+    body: "BuktiAllocator splits a deposit by zk-proven score. Live demo: 0.01 MNT routed 82% to the proven leader of the set, 0% to a high-volume wallet that actually lost money. MI4 for proven alpha.",
   },
   {
     icon: "grid",
@@ -46,7 +46,7 @@ const CONTRACTS = [
   { label: "BuktiAttestation v3 (+completeness)", addr: "0x03fA99f0dE08F182b2880Ee12a2194DBF00a0Dbf" },
   { label: "SP1 v6.1.0 Groth16 verifier", addr: "0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A" },
   { label: "BuktiValidator (ERC-8004)", addr: "0xda0cEB552af13f5a096D8aA4E5A9FceB9cf6D8D0" },
-  { label: "BuktiAllocator", addr: "0x6DF2F45f9184346C175a94D783F37C77C8f3B8B2" },
+  { label: "BuktiAllocator", addr: "0xa2D2E87367A5cEB1c10B02952fD1e5d375b4b5B9" },
   { label: "BuktiProvenance (swap-log proof)", addr: "0xa4d6d9932B19f9B03D0439264F1188F39F8522f0" },
 ];
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useBoard, short, VolumeVsProof } from "./lib";
+import { useBoard, short, VolumeVsProof, CopyAddr } from "./lib";
 
 export default function Overview() {
   const { board, live } = useBoard();
@@ -14,7 +14,7 @@ export default function Overview() {
     { v: meta.walletsScanned, k: "scanned" },
     { v: meta.walletsProven, k: "proven" },
     { v: meta.totalLegs, k: "swap legs" },
-    { v: "1", k: "Groth16 proof" },
+    { v: "4", k: "Groth16 proofs" },
     { v: `${meta.proofBytes}B`, k: "proof size" },
     { v: "$0", k: "proving cost" },
   ] : [];
@@ -49,7 +49,7 @@ export default function Overview() {
             {top.map((r) => (
               <tr key={r.wallet}>
                 <td>{r.proofRank}</td>
-                <td className="mono">{short(r.wallet)}</td>
+                <td><CopyAddr addr={r.wallet} /></td>
                 <td className={`num ${r.score >= 0 ? "good" : "bad"}`}>{r.score.toFixed(3)}</td>
                 <td className={`num ${r.roi >= 0 ? "good" : "bad"}`}>{r.roi.toFixed(2)}%</td>
                 <td className="num">#{r.volRank}</td>

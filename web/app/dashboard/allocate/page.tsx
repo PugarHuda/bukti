@@ -6,19 +6,19 @@ import { useBoard, short } from "../lib";
 import { mantleSepolia } from "../../lib/contract";
 
 const EXPLORER = mantleSepolia.blockExplorers.default.url;
-const ALLOCATOR = "0x6DF2F45f9184346C175a94D783F37C77C8f3B8B2";
-const ALLOC_TX = "0x559503d328df13df28ba8ee61564046307d69f9341af557a5be0db04f9011db0";
-// proof champion, runner-up, and the losing volume champion (score -1.316) — these are the
-// canonical proven wallets the live BuktiAllocator was deployed against (known scores below).
+const ALLOCATOR = "0xa2D2E87367A5cEB1c10B02952fD1e5d375b4b5B9"; // bound to the 105-wallet attestation
+const ALLOC_TX = "0x5c8db66770d97717424c728384e26195332c72bfb6e69a84b65fbbdd3ad52803";
+// Straight from the live leaderboard: the proof champion, a mid proven trader, and the volume
+// champion (77 swaps) whose net-losing score gates it to 0%. All three are in the 105 cohort.
 const CANDIDATES = [
-  "0x48f1142afa03a3b710f63c3d9ff56655a58f7b8d",
-  "0x0a8577eb450bd1e926325986f2b00d127120342a",
-  "0x4cf89f51e090d6dcddbbbe5a458a01e9061823c5",
+  "0xe860d04da18b968efcbbbee4133ec12fe0f14dc3",
+  "0xa29ad6ea6209502e53518d17b5b75c76cc74966c",
+  "0xc0db4a2fee7c7f9a148d2e1dd598506b1f3b60bd",
 ];
 const DEMO_SCORES: Record<string, number> = {
-  "0x48f1142afa03a3b710f63c3d9ff56655a58f7b8d": 4.265,
-  "0x0a8577eb450bd1e926325986f2b00d127120342a": 0.949,
-  "0x4cf89f51e090d6dcddbbbe5a458a01e9061823c5": -1.316,
+  "0xe860d04da18b968efcbbbee4133ec12fe0f14dc3": 4.685,
+  "0xa29ad6ea6209502e53518d17b5b75c76cc74966c": 0.997,
+  "0xc0db4a2fee7c7f9a148d2e1dd598506b1f3b60bd": -0.077,
 };
 
 const client = createPublicClient({ transport: http("https://rpc.sepolia.mantle.xyz") });
@@ -96,7 +96,7 @@ export default function AllocatePage() {
 
       <div className="card card-pad">
         <p className="hint" style={{ margin: 0 }}>
-          The losing volume champion (score −1.316) is gated out — <strong>0%</strong>, even at high volume. A real 0.01 MNT allocation already ran on-chain:{" "}
+          The volume champion (77 swaps, score −0.077) is gated out — <strong>0%</strong>, despite the most activity. A real 0.01 MNT allocation already ran on-chain:{" "}
           <a href={`${EXPLORER}/tx/${ALLOC_TX}`} target="_blank" rel="noreferrer">allocation tx ↗</a> ·{" "}
           <a href={`${EXPLORER}/address/${ALLOCATOR}#code`} target="_blank" rel="noreferrer">BuktiAllocator ↗</a>.
           It&apos;s the on-chain analog of Mantle&apos;s MI4 index — but constituents are admitted by a Groth16 proof, not a committee.

@@ -8,7 +8,7 @@ const CONTRACTS = [
   ["BuktiAttestation (105-wallet cohort)", "0xDFb9C6fA99D8Fa2c8eeA2AE7C055C8cbA53971E9", "a wallet's proven score"],
   ["BuktiProvenance", "0xa4d6d9932B19f9B03D0439264F1188F39F8522f0", "is this swap genuine chain data?"],
   ["BuktiFullProof", "0xC16f221d8bae221A7B5B3ca74DCDCb892B9067FB", "metric proven over genuine data"],
-  ["BuktiAllocator", "0x6DF2F45f9184346C175a94D783F37C77C8f3B8B2", "capital split by proof"],
+  ["BuktiAllocator", "0xa2D2E87367A5cEB1c10B02952fD1e5d375b4b5B9", "capital split by proof"],
   ["BuktiValidator (ERC-8004)", "0xda0cEB552af13f5a096D8aA4E5A9FceB9cf6D8D0", "ZK validation responses"],
   ["GatedVault", "0x851C251411Fe4F4bab586F775c7450f86A348EAD", "proof-gated deposits"],
   ["SP1 Groth16 Verifier v6.1.0", "0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A", "verify any Bukti proof"],

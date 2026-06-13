@@ -5,6 +5,27 @@ import { fetchLeaderboard } from "../lib/contract";
 
 export const short = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
 
+/** Click-to-copy wallet address — copies the FULL address, shows a transient ✓.
+ *  stopPropagation so it never triggers a parent row's expand handler. */
+export function CopyAddr({ addr }: { addr: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      className={`copyaddr ${copied ? "copied" : ""}`}
+      title={copied ? "Copied!" : `Copy ${addr}`}
+      onClick={(e) => {
+        e.stopPropagation();
+        navigator.clipboard?.writeText(addr);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1100);
+      }}
+    >
+      <span className="mono">{short(addr)}</span>
+      <span className="copyaddr-ic">{copied ? "✓" : "⧉"}</span>
+    </button>
+  );
+}
+
 export interface BoardRow {
   wallet: string; clawhackSwaps: number; legs: number;
   trades: { ts: number; pnl: number; notional: number }[];

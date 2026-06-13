@@ -178,6 +178,13 @@ code { font-family: var(--mono); }
 .lb-n { font-family: var(--mono); font-size: 10.5px; opacity: 0.7; }
 .lb-search { font-family: var(--mono); font-size: 12.5px; padding: 6px 11px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--text); width: 160px; }
 .lb-search:focus { outline: none; border-color: var(--accent); }
+.copyaddr { background: none; border: none; padding: 0; margin: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; color: inherit; font: inherit; }
+.copyaddr .mono { font-family: var(--mono); }
+.copyaddr .copyaddr-ic { font-size: 11px; color: var(--faint); opacity: 0; transition: opacity 0.12s, color 0.12s; }
+.copyaddr:hover .copyaddr-ic { opacity: 1; }
+.copyaddr:hover .mono { color: var(--accent); }
+.copyaddr.copied .copyaddr-ic { opacity: 1; color: var(--accent); }
+.copyaddr.copied .mono { color: var(--accent); }
 
 /* ---------- Dashboard shell (multi-page) ---------- */
 .ds-shell { display: flex; min-height: 100vh; }

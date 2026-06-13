@@ -120,8 +120,8 @@ const SLIDES: Slide[] = [
         <div className="trust-grid">
           <div className="tg ok"><b>PROVEN</b><span>metric · completeness · swap-log authenticity</span></div>
           <div className="tg ok"><b>TRUSTLESS</b><span>block-hash anchor (EIP-2935)</span></div>
-          <div className="tg mit"><b>MITIGATED (running code)</b><span>wash-trading · open-position MtM · identity-binding · oracle confidence</span></div>
-          <div className="tg open"><b>HONEST GAP</b><span>funder-graph anti-sybil · external audit</span></div>
+          <div className="tg mit"><b>MITIGATED (running code)</b><span>wash-trading · open-position MtM · identity-binding · oracle confidence · funder-graph anti-sybil</span></div>
+          <div className="tg open"><b>HONEST GAP</b><span>third-party audit</span></div>
         </div>
         <p className="punch">Wash-trading is <strong>solved by construction</strong> — a fee-aware score makes volume-pumping self-defeating. <span className="muted mono">npm run wash-sybil</span></p>
       </>
@@ -134,7 +134,7 @@ const SLIDES: Slide[] = [
         <div className="kicker mono">07 — A proof is useless until it moves money</div>
         <h2>One attestation, a whole ecosystem reads it.</h2>
         <div className="compose-grid">
-          <div className="cg"><b className="mono">BuktiAllocator</b><p>Routes capital by proven score — <span className="accent">81.8%</span> to the proven leader of the set, <span className="neg">0%</span> to a high-volume wallet that lost money.</p></div>
+          <div className="cg"><b className="mono">BuktiAllocator</b><p>Routes capital by proven score — <span className="accent">82%</span> to the proven leader of the set, <span className="neg">0%</span> to a high-volume wallet that lost money.</p></div>
           <div className="cg"><b className="mono">ERC-8004 validator</b><p>Fills Mantle&apos;s ZK Validation Registry for financial performance.</p></div>
           <div className="cg"><b className="mono">x402 proof-gate</b><p>HTTP 402 unless a wallet&apos;s proven score clears the bar.</p></div>
           <div className="cg"><b className="mono">MCP + badge + bot</b><p>Agents check proof, not promises — every reply read live from chain.</p></div>

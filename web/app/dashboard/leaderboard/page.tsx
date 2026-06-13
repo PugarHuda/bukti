@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useBoard, short, download, printReport, Sparkline } from "../lib";
+import { useBoard, short, download, printReport, Sparkline, CopyAddr } from "../lib";
 import { mantleSepolia } from "../../lib/contract";
 
 const EXPLORER = mantleSepolia.blockExplorers.default.url;
@@ -73,7 +73,7 @@ export default function LeaderboardPage() {
                   <>
                     <tr key={r.wallet} onClick={() => setOpen(open === r.wallet ? null : r.wallet)} className={open === r.wallet ? "sel" : ""}>
                       <td>{r.proofRank}{r.proofRank === 1 ? " ★" : ""}</td>
-                      <td className="mono">{short(r.wallet)}</td>
+                      <td><CopyAddr addr={r.wallet} /></td>
                       <td className={`num ${r.score >= 0 ? "good" : "bad"}`}>{r.score.toFixed(3)}</td>
                       <td className={`num ${r.roi >= 0 ? "good" : "bad"}`}>{r.roi.toFixed(2)}%</td>
                       <td className={`num ${r.pnl >= 0 ? "good" : "bad"}`}>${r.pnl.toFixed(2)}</td>
