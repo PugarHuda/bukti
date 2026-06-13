@@ -11,12 +11,14 @@ export default function LeaderboardPage() {
   const { board, live } = useBoard();
   const [open, setOpen] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
+  const [tier, setTier] = useState("any");
   const [q, setQ] = useState("");
   const [howOpen, setHowOpen] = useState(false);
 
   const all = board?.rows ?? [];
   const rows = all.filter((r) => {
     if (q && !r.wallet.toLowerCase().includes(q.toLowerCase())) return false;
+    if (tier !== "any" && r.tier !== tier) return false;
     if (filter === "proven") return r.score > 0;
     if (filter === "losing") return r.score < 0;
     if (filter === "unscored") return r.score === 0;
@@ -58,7 +60,16 @@ export default function LeaderboardPage() {
               <button key={c.k} className={`lb-chip ${filter === c.k ? "on" : ""}`} onClick={() => setFilter(c.k)}>{c.label} <span className="lb-n">{n(c.k)}</span></button>
             ))}
           </div>
-          <input className="lb-search" placeholder="search 0x…" value={q} onChange={(e) => setQ(e.target.value.trim())} />
+          <div className="lb-right">
+            <select className="lb-tier" value={tier} onChange={(e) => setTier(e.target.value)} title="Filter by Ethos-style tier">
+              <option value="any">Tier: any</option>
+              <option value="S">Tier S (≥ 2.0)</option>
+              <option value="A">Tier A (≥ 0.75)</option>
+              <option value="B">Tier B (≥ 0.25)</option>
+              <option value="C">Tier C (≥ 0)</option>
+            </select>
+            <input className="lb-search" placeholder="search 0x…" value={q} onChange={(e) => setQ(e.target.value.trim())} />
+          </div>
         </div>
 
         {!board && <div className="card-pad"><span className="state">Loading…</span></div>}
@@ -89,6 +100,7 @@ export default function LeaderboardPage() {
                               <span style={{ display: "flex", gap: 8 }}>
                                 <button className="ghost" onClick={(e) => { e.stopPropagation(); printReport(r, board.meta); }}>Report (PDF)</button>
                                 <button className="ghost" onClick={(e) => { e.stopPropagation(); download(`bukti-${r.wallet.slice(0, 8)}.json`, { ...r, attestationContract: board.meta.attestationContract, batchTx: board.meta.batchTx }); }}>JSON</button>
+                                <a className="ghost" href={`/dashboard/wallet/${r.wallet}`} onClick={(e) => e.stopPropagation()} style={{ textDecoration: "none" }}>Details →</a>
                                 <a className="ghost" href={`/w/${r.wallet}`} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} style={{ textDecoration: "none" }}>Share card ↗</a>
                               </span>
                             </div>

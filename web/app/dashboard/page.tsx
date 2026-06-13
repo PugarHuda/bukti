@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useBoard, short, VolumeVsProof, CopyAddr } from "./lib";
+import { useBoard, short, VolumeVsProof, CopyAddr, ScoreHistogram } from "./lib";
 
 export default function Overview() {
   const { board, live } = useBoard();
@@ -70,6 +70,18 @@ export default function Overview() {
             <VolumeVsProof rows={board.rows} />
             <p className="hint" style={{ flex: 1, minWidth: 200 }}>
               Each dot is an agent: <strong>volume rank</strong> (x) vs <strong>proven-score rank</strong> (y). If volume predicted skill, every dot would sit on the dashed line. It doesn&apos;t — the scatter <em>is</em> the gameability of volume-based leaderboards. Green = profitable, red = net-losing (all proven on-chain).
+            </p>
+          </div>
+        </div>
+      )}
+
+      {board && board.rows.length > 0 && (
+        <div className="card" style={{ marginTop: 4, marginBottom: 16 }}>
+          <div className="card-head"><h2 className="card-title">Proven-score distribution</h2><span className="badge">{board.rows.length} agents</span></div>
+          <div className="card-pad" style={{ display: "flex", gap: 22, alignItems: "center", flexWrap: "wrap" }}>
+            <ScoreHistogram rows={board.rows} />
+            <p className="hint" style={{ flex: 1, minWidth: 220 }}>
+              The cohort&apos;s shape in one view: a big spike at <strong>0</strong> — wallets with fewer than two closed round-trips, so no provable skill yet — flanked by a thin <span className="good">green</span> tail of genuinely skilled traders and a heavier <span className="bad">red</span> tail of net-losers. <strong>Proof separates signal from noise.</strong>
             </p>
           </div>
         </div>

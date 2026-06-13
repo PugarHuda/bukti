@@ -5,6 +5,33 @@ import { fetchLeaderboard } from "../lib/contract";
 
 export const short = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
 
+/** Histogram of proven-score distribution across the cohort — the spike at 0 (no provable
+ *  skill yet) and the thin positive tail tell the story at a glance. */
+export function ScoreHistogram({ rows }: { rows: BoardRow[] }) {
+  const buckets = [
+    { label: "≤ −1", cls: "neg", f: (s: number) => s <= -1 },
+    { label: "−1…0", cls: "neg", f: (s: number) => s > -1 && s < 0 },
+    { label: "0", cls: "zero", f: (s: number) => s === 0 },
+    { label: "0…½", cls: "pos", f: (s: number) => s > 0 && s < 0.5 },
+    { label: "½…1", cls: "pos", f: (s: number) => s >= 0.5 && s < 1 },
+    { label: "1…2", cls: "pos", f: (s: number) => s >= 1 && s < 2 },
+    { label: "≥ 2", cls: "pos", f: (s: number) => s >= 2 },
+  ];
+  const counts = buckets.map((b) => rows.filter((r) => b.f(r.score)).length);
+  const max = Math.max(...counts, 1);
+  return (
+    <div className="hist">
+      {buckets.map((b, i) => (
+        <div className="hist-col" key={b.label} title={`${counts[i]} wallets · score ${b.label}`}>
+          <div className="hist-n">{counts[i]}</div>
+          <div className="hist-bar-wrap"><div className={`hist-bar ${b.cls}`} style={{ height: `${(counts[i] / max) * 100}%` }} /></div>
+          <div className="hist-x">{b.label}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /** Click-to-copy wallet address — copies the FULL address, shows a transient ✓.
  *  stopPropagation so it never triggers a parent row's expand handler. */
 export function CopyAddr({ addr }: { addr: string }) {
