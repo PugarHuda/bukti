@@ -658,11 +658,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "bukti-program-prov"
+version = "0.1.0"
+dependencies = [
+ "alloy-sol-types",
+ "bukti-prov-lib",
+ "serde",
+ "sp1-zkvm",
+]
+
+[[package]]
+name = "bukti-prov-lib"
+version = "0.1.0"
+dependencies = [
+ "alloy-sol-types",
+ "serde",
+ "tiny-keccak",
+]
+
+[[package]]
 name = "bukti-script"
 version = "0.1.0"
 dependencies = [
  "alloy-sol-types",
  "bukti-lib",
+ "bukti-prov-lib",
  "clap",
  "dotenv",
  "hex",

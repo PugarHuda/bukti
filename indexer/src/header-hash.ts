@@ -30,7 +30,7 @@ const qty = (h: string) => {
   return Uint8Array.from(out);
 };
 
-function headerRlp(h: any): Uint8Array {
+export function headerRlp(h: any): Uint8Array {
   const fields = [
     bytes(h.parentHash),
     bytes(h.sha3Uncles),
@@ -79,7 +79,9 @@ async function main() {
   console.log(`\n${pass === blocks.length ? "HEADER_HASH_OK" : "HEADER_HASH_FAIL"}: ${pass}/${blocks.length} Mantle block hashes reproduced from header RLP`);
   process.exit(pass === blocks.length ? 0 : 1);
 }
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+if (process.argv[1]?.endsWith("header-hash.ts")) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

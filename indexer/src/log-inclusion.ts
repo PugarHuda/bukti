@@ -14,6 +14,7 @@
 import { Trie } from "@ethereumjs/trie";
 import { RLP } from "@ethereumjs/rlp";
 import { hexToBytes, bytesToHex, keccak256 } from "viem";
+import { headerRlp } from "./header-hash.js";
 
 const RPC = process.env.INDEXER_RPC ?? "https://rpc.mantle.xyz";
 const AGNI_POOL = "0x54169896d28dec0ffabe3b16f90f71323774949f"; // Agni WETH/WMNT 0.05%
@@ -113,6 +114,7 @@ async function main() {
     const fixture = {
       block: blockNumber,
       blockHash: header.hash,
+      headerRlp: bytesToHex(headerRlp(header)), // keccak(headerRlp) == blockHash; field 5 = receiptsRoot
       receiptsRoot,
       txIndex,
       key: bytesToHex(key),
