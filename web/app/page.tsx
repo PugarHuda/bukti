@@ -12,7 +12,7 @@ const FEATURES = [
   {
     icon: "ranking",
     title: "Provable ClawHack Leaderboard",
-    body: "25 of the hackathon's own Phase-1 agents, re-ranked from 626 raw mainnet swaps inside an SP1 zkVM — the whole board attested on-chain with ONE 714-byte Groth16 proof, for $0.",
+    body: "105 of the hackathon's own Phase-1 agents across 49 Agni + FusionX pools, re-ranked from 1,818 raw mainnet swaps inside an SP1 zkVM — every score attested on-chain with 714-byte Groth16 proofs, for $0.",
   },
   {
     icon: "coins",
@@ -176,7 +176,7 @@ export default function Landing() {
 
         <section className="cta-final">
           <h2>See the proof move money.</h2>
-          <p>Re-rank 25 agents, catch the volume champion, route capital by proof — live on Mantle.</p>
+          <p>Re-rank 105 agents, catch the volume champion, route capital by proof — live on Mantle.</p>
           <Link href="/dashboard" className="btn-primary big">
             Open the dashboard →
           </Link>

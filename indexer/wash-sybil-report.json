@@ -1,17 +1,17 @@
 {
-  "cohort": 25,
-  "rawSwaps": 626,
+  "cohort": 105,
+  "rawSwaps": 1818,
   "feeBps": 5,
-  "worsenedByFee": 4,
-  "totalFeeDragUsd": 4.0067,
-  "spearmanVolVsScore": -0.277,
+  "worsenedByFee": 6,
+  "totalFeeDragUsd": 43.4707,
+  "spearmanVolVsScore": -0.058,
   "churnWallets": 0,
   "volChampion": {
-    "wallet": "0x4cf89f51e090d6dcddbbbe5a458a01e9061823c5",
-    "volUsd": 1613.16,
-    "proofRank": 17
+    "wallet": "0x8a3d5e0527bed7c9b9e1fe3ea49ad03d4238b920",
+    "volUsd": 37921.11,
+    "proofRank": 89
   },
-  "sameBlockColocatedLegs": 30,
-  "oppositeDirectionPairs": 4,
+  "sameBlockColocatedLegs": 27,
+  "oppositeDirectionPairs": 1,
   "verdict": "WASH_RESISTANT"
 }

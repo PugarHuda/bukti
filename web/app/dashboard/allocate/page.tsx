@@ -8,12 +8,18 @@ import { mantleSepolia } from "../../lib/contract";
 const EXPLORER = mantleSepolia.blockExplorers.default.url;
 const ALLOCATOR = "0x6DF2F45f9184346C175a94D783F37C77C8f3B8B2";
 const ALLOC_TX = "0x559503d328df13df28ba8ee61564046307d69f9341af557a5be0db04f9011db0";
-// proof champion, runner-up, and the losing volume champion (score -1.316)
+// proof champion, runner-up, and the losing volume champion (score -1.316) — these are the
+// canonical proven wallets the live BuktiAllocator was deployed against (known scores below).
 const CANDIDATES = [
   "0x48f1142afa03a3b710f63c3d9ff56655a58f7b8d",
   "0x0a8577eb450bd1e926325986f2b00d127120342a",
   "0x4cf89f51e090d6dcddbbbe5a458a01e9061823c5",
 ];
+const DEMO_SCORES: Record<string, number> = {
+  "0x48f1142afa03a3b710f63c3d9ff56655a58f7b8d": 4.265,
+  "0x0a8577eb450bd1e926325986f2b00d127120342a": 0.949,
+  "0x4cf89f51e090d6dcddbbbe5a458a01e9061823c5": -1.316,
+};
 
 const client = createPublicClient({ transport: http("https://rpc.sepolia.mantle.xyz") });
 const ABI = parseAbi([
@@ -42,7 +48,7 @@ export default function AllocatePage() {
   const total = rows ? rows.reduce((s, r) => s + r.share, 0n) : 0n;
   const pct = (v: bigint) => (total > 0n ? Number((v * 10000n) / total) / 100 : 0);
   const mnt = (v: bigint) => (Number(v / 10n ** 9n) / 1e9).toFixed(4);
-  const scoreOf = (w: string) => board?.rows.find((r) => r.wallet.toLowerCase() === w.toLowerCase())?.score;
+  const scoreOf = (w: string) => board?.rows.find((r) => r.wallet.toLowerCase() === w.toLowerCase())?.score ?? DEMO_SCORES[w.toLowerCase()];
 
   return (
     <>

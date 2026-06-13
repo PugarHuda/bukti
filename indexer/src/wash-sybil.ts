@@ -75,7 +75,7 @@ function score(trades: { pnlE6: bigint; notionalE6: bigint }[]) {
 function rank(map: Map<string, number>, w: string) { return (map.get(w) ?? 0); }
 
 async function main() {
-  const b = JSON.parse(readFileSync("./batch-state.json", "utf8"));
+  const b = JSON.parse(readFileSync(process.argv[2] ?? "./batch-state.json", "utf8"));
   const entries: Record<string, Sw[]> = b.entries;
   const legs: Leg[] = b.legs;
   const cohort = Object.keys(entries).filter((w) => Array.isArray(entries[w]) && entries[w].length);

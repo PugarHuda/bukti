@@ -68,7 +68,7 @@ function scoreMilli(trades: { pnlE6: bigint; notionalE6: bigint }[], extraPnlE6 
 }
 
 async function main() {
-  const b = JSON.parse(readFileSync("./batch-state.json", "utf8"));
+  const b = JSON.parse(readFileSync(process.argv[2] ?? "./batch-state.json", "utf8"));
   const entries: Record<string, Sw[]> = b.entries;
   const cohort = Object.keys(entries).filter((w) => Array.isArray(entries[w]) && entries[w].length);
 
