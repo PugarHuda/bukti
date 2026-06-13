@@ -1,0 +1,68 @@
+{
+  "cohort": 25,
+  "walletsWithOpenInventory": 23,
+  "scoreMovers": 18,
+  "netUnrealizedUsd": -37.238,
+  "hiddenLosses": [
+    {
+      "wallet": "0x99bb2996bcc38555e794d8fcaf99924b8d4c13ed",
+      "unrealizedUsd": -12.6798,
+      "realized": -0.004,
+      "markToMarket": -0.059
+    },
+    {
+      "wallet": "0x4cf89f51e090d6dcddbbbe5a458a01e9061823c5",
+      "unrealizedUsd": -9.0504,
+      "realized": -0.112,
+      "markToMarket": -0.12
+    },
+    {
+      "wallet": "0x0a9041026facb39775209bb16c0e39b9b51f65f2",
+      "unrealizedUsd": -6.1222,
+      "realized": -1.341,
+      "markToMarket": -0.632
+    },
+    {
+      "wallet": "0xa79c12bcf11133af01b6b20f16f8aafaecdebc93",
+      "unrealizedUsd": -5.981,
+      "realized": -0.51,
+      "markToMarket": -0.546
+    },
+    {
+      "wallet": "0x256efafed786d24163bedf15d583ea5dbdb4757c",
+      "unrealizedUsd": -1.824,
+      "realized": -0.301,
+      "markToMarket": -0.358
+    },
+    {
+      "wallet": "0xe743a49f04f2f77eb2d3b753ae3ad599de8cea84",
+      "unrealizedUsd": -1.5953,
+      "realized": 0,
+      "markToMarket": 0
+    },
+    {
+      "wallet": "0xb403c3cc132abd2668dc7d28456e6fb7c68bbbc2",
+      "unrealizedUsd": -1.228,
+      "realized": -1.407,
+      "markToMarket": -1.541
+    },
+    {
+      "wallet": "0x78126dac3a2c08479d2196741da77f56ca8cfb88",
+      "unrealizedUsd": -0.8757,
+      "realized": 0,
+      "markToMarket": 0
+    },
+    {
+      "wallet": "0x2ca8b6f515806eab68010abeb48fd83f7f8ce65a",
+      "unrealizedUsd": -0.7999,
+      "realized": -0.328,
+      "markToMarket": -0.51
+    },
+    {
+      "wallet": "0xf70da97812cb96acdf810712aa562db8dfa3dbef",
+      "unrealizedUsd": -0.7338,
+      "realized": -1.133,
+      "markToMarket": -1.251
+    }
+  ]
+}

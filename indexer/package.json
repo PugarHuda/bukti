@@ -14,7 +14,10 @@
     "receipt-trie": "tsx src/receipt-trie.ts",
     "log-inclusion": "tsx src/log-inclusion.ts",
     "header-hash": "tsx src/header-hash.ts",
-    "wash-sybil": "tsx src/wash-sybil.ts"
+    "wash-sybil": "tsx src/wash-sybil.ts",
+    "mark-to-market": "tsx src/mark-to-market.ts",
+    "price-guard": "tsx src/price-guard.ts",
+    "identity-bind": "tsx src/identity-bind.ts"
   },
   "dependencies": {
     "@ethereumjs/rlp": "^10.1.2",

@@ -114,6 +114,9 @@ code { font-family: var(--mono); }
 }
 .ds-logo { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; color: var(--text); display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px 22px; }
 .ds-rail-nav { display: flex; flex-direction: column; gap: 1px; }
+.ds-rail-group { display: flex; flex-direction: column; gap: 1px; }
+.ds-rail-group + .ds-rail-group { margin-top: 14px; }
+.ds-rail-section { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); opacity: 0.65; padding: 0 12px 6px; }
 .ds-rail-item {
   position: relative; color: var(--muted); font-size: 13.5px; font-weight: 500;
   padding: 9px 12px; border-radius: 7px; display: flex; align-items: center; gap: 11px;
