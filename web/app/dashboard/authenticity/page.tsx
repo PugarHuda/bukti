@@ -12,6 +12,16 @@ const BLOCKHASH = "0xd1772fd573f194e0def6c52cd6c8a411f164be15ff2e17dc0f87478cb79
 const REAL = "0xe860d04da18b968efcbbbee4133ec12fe0f14dc3";
 const FAKE = "0x000000000000000000000000000000000000dEaD";
 const CLAIM = "+312%"; // the identical headline both "agents" advertise
+// The forensic checks Bukti runs against the chain — shown upfront, then resolved ✓/✗ on verify.
+const CHECKS_A = [
+  "On-chain attestation exists for this wallet",
+  "Swap log proven in a real Mantle block (receipt-trie + EIP-2935 anchor)",
+  "Groth16 proof accepted by the real SP1 verifier on-chain",
+];
+const CHECKS_B = [
+  "On-chain attestation exists for this wallet",
+  "Swap log proven in a real Mantle block",
+];
 
 const client = createPublicClient({ transport: http("https://rpc.sepolia.mantle.xyz") });
 const PROV_ABI = parseAbi([
@@ -60,13 +70,21 @@ export default function AuthenticityPage() {
         <p className="ds-page-sub">
           Two agents advertise the same {CLAIM} track record. One is real, one is fabricated. A screenshot —
           or even a ZK proof of the PnL <em>math</em> — can&apos;t tell them apart. Bukti can, because it proves the
-          trades are <strong>genuine Mantle chain data</strong>, not just internally consistent.
+          trades are <strong>genuine Mantle chain data</strong>, not just internally consistent. The buttons below
+          run a <strong>live on-chain investigation</strong> — not a mock-up.
         </p>
       </div>
 
+      <div className="card card-pad cheat-dossier">
+        <span className="evidence-tag">Case note</span>
+        <p>The advertised <b>+312%</b> is the marketing claim. Bukti never takes it at face value — it reconstructs the
+        <b> real</b> on-chain record and proves the trades happened. <b>Agent A</b> resolves to a genuinely proven
+        wallet (its real metric is a Sharpe score, shown on verify); <b>Agent B</b> has nothing on chain to reconstruct.</p>
+      </div>
+
       <div className="cheat-grid">
-        <AgentCard name="Agent A" sub="claims +312% · willing to be checked" addr={REAL} res={a} onVerify={verifyReal} />
-        <AgentCard name="Agent B" sub="claims +312% · &ldquo;trust me&rdquo;" addr={FAKE} res={b} onVerify={verifyFake} fake />
+        <AgentCard name="Agent A" sub="claims +312% · willing to be checked" addr={REAL} res={a} onVerify={verifyReal} checks={CHECKS_A} />
+        <AgentCard name="Agent B" sub="claims +312% · &ldquo;trust me&rdquo;" addr={FAKE} res={b} onVerify={verifyFake} fake checks={CHECKS_B} />
       </div>
 
       <div className="card card-pad cheat-note">
@@ -84,24 +102,35 @@ export default function AuthenticityPage() {
   );
 }
 
-function AgentCard({ name, sub, addr, res, onVerify, fake }: { name: string; sub: string; addr: string; res: Result; onVerify: () => void; fake?: boolean }) {
+function AgentCard({ name, sub, addr, res, onVerify, fake, checks }: { name: string; sub: string; addr: string; res: Result; onVerify: () => void; fake?: boolean; checks: string[] }) {
+  const running = res === "running";
   const done = res && res !== "running";
   const verdict = done ? (res as { verdict: string }).verdict : null;
+  const steps = done ? (res as { steps: Step[] }).steps : [];
   return (
     <div className={`card cheat-card ${verdict === "real" ? "real" : verdict === "fake" ? "fake" : ""}`}>
       <div className="card-pad">
         <div className="cheat-head">
           <div>
-            <div className="cheat-name">{name}</div>
+            <div className="cheat-name">{name} {verdict && <span className={`stamp ${verdict === "real" ? "proven" : "fake"}`} style={{ marginLeft: 4, verticalAlign: "middle" }}>{verdict === "real" ? "Proven" : "Unverified"}</span>}</div>
             <div className="cheat-sub">{sub}</div>
           </div>
           <div className="cheat-claim">+312%</div>
         </div>
         <div className="mono cheat-addr">{addr.slice(0, 10)}…{addr.slice(-6)}</div>
 
+        {/* forensic checklist — pending upfront, resolved on verify */}
+        <ul className="cheat-steps">
+          {checks.map((label, i) => {
+            const s = steps[i];
+            const state = running ? "run" : s ? (s.ok ? "ok" : "no") : "pending";
+            return <li key={i} className={state}>{state === "ok" ? "✓" : state === "no" ? "✗" : state === "run" ? "◴" : "○"} {s?.label ?? label}</li>;
+          })}
+        </ul>
+
         {!done && (
-          <button className="go cheat-btn" onClick={onVerify} disabled={res === "running"}>
-            {res === "running" ? "Verifying on-chain…" : "Verify with Bukti"}
+          <button className="go cheat-btn" onClick={onVerify} disabled={running}>
+            {running ? "Investigating on-chain…" : "Verify with Bukti"}
           </button>
         )}
 
@@ -110,13 +139,8 @@ function AgentCard({ name, sub, addr, res, onVerify, fake }: { name: string; sub
             <div className={`cheat-verdict ${verdict}`}>
               {verdict === "real" ? "✓ PROVEN REAL" : "✗ UNVERIFIED — claim cannot be trusted"}
             </div>
-            <ul className="cheat-steps">
-              {(res as { steps: Step[] }).steps.map((s, i) => (
-                <li key={i} className={s.ok ? "ok" : "no"}>{s.ok ? "✓" : "✗"} {s.label}</li>
-              ))}
-            </ul>
             {verdict === "real" && (res as { score?: number }).score !== undefined && (
-              <div className="hint">Proven score {(res as { score: number }).score.toFixed(3)} · backed by a real on-chain Groth16 proof.</div>
+              <div className="hint">Reconstructed from chain: proven Sharpe-style score <strong>{(res as { score: number }).score.toFixed(3)}</strong> — backed by a real on-chain Groth16 proof, not the advertised {CLAIM}.</div>
             )}
             {verdict === "fake" && <div className="hint">No on-chain attestation, no chain-authenticity proof. A {CLAIM} claim with nothing behind it.</div>}
           </>

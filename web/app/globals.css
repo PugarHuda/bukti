@@ -318,6 +318,12 @@ code.snippet { display: block; margin-top: 12px; padding: 11px 13px; background:
 .cheat-steps li { font-size: 12.5px; color: var(--muted); }
 .cheat-steps li.ok { color: var(--text); }
 .cheat-steps li.no { color: var(--neg); }
+.cheat-steps li.pending { color: var(--faint); }
+.cheat-steps li.run { color: var(--muted); }
+.cheat-card .cheat-steps { margin-top: 14px; }
+.cheat-dossier { margin-bottom: 16px; }
+.cheat-dossier p { margin: 8px 0 0; font-size: 13px; line-height: 1.55; color: var(--muted); }
+.cheat-dossier b { color: var(--text); }
 .cheat-note { margin-top: 0; }
 .cheat-cmp { display: flex; flex-direction: column; gap: 10px; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
 .cheat-cmp strong { color: var(--text); font-weight: 600; }
