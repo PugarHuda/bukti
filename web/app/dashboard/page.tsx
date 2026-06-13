@@ -71,11 +71,31 @@ export default function Dashboard() {
   const [liveOk, setLiveOk] = useState<"checking" | "live" | "cache">("checking");
   const [copilot, setCopilot] = useState<{ q: string; a: string } | null>(null);
   const [copilotBusy, setCopilotBusy] = useState(false);
+  const [active, setActive] = useState("overview");
 
   useEffect(() => {
     fetch("/board-data.json").then((r) => r.json()).then(setBoard).catch(() => {});
     fetchLeaderboard().then((rows) => setLiveOk(rows.length >= 25 ? "live" : "cache")).catch(() => setLiveOk("cache"));
   }, []);
+
+  // scroll-spy: highlight the sidebar item for the section in view
+  useEffect(() => {
+    const ids = ["overview", "leaderboard", "xray", "copilot", "proof"];
+    const obs = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && setActive(e.target.id)),
+      { rootMargin: "-25% 0px -65% 0px" },
+    );
+    ids.forEach((id) => { const el = document.getElementById(id); if (el) obs.observe(el); });
+    return () => obs.disconnect();
+  }, [board]);
+
+  const SECTIONS = [
+    { id: "overview", ic: "▦", label: "Overview" },
+    { id: "leaderboard", ic: "🏆", label: "Leaderboard" },
+    { id: "xray", ic: "📊", label: "Cohort X-ray" },
+    { id: "copilot", ic: "🤖", label: "Agent copilot" },
+    { id: "proof", ic: "🔗", label: "Proof layer" },
+  ];
 
   async function askCopilot(wallet: string, label: string) {
     setCopilotBusy(true);
@@ -135,13 +155,13 @@ export default function Dashboard() {
     <div className="dash-shell">
       <aside className="dash-sidebar">
         <Link href="/" className="ds-brand">Bukti<span className="zk">zk</span></Link>
-        <div className="ds-nav">
-          <a href="#overview">▦ Overview</a>
-          <a href="#leaderboard">🏆 Leaderboard</a>
-          <a href="#verify">🔎 Verify wallet</a>
-          <a href="#copilot">🤖 Agent copilot</a>
-          <a href="#proof">🔗 Proof layer</a>
-        </div>
+        <nav className="ds-nav">
+          {SECTIONS.map((s) => (
+            <a key={s.id} href={`#${s.id}`} className={active === s.id ? "on" : ""} onClick={() => setActive(s.id)}>
+              <span className="ic">{s.ic}</span> {s.label}
+            </a>
+          ))}
+        </nav>
         <div className="ds-foot">
           <span className={`ds-live ${liveOk}`}>
             <span className="dot" /> {liveOk === "live" ? "live on Mantle" : liveOk === "cache" ? "witness cache" : "connecting…"}
@@ -257,7 +277,7 @@ export default function Dashboard() {
 
           <div className="dm-col-side">
             {cohort && (
-              <div className="panel">
+              <div className="panel" id="xray">
                 <div className="panel-head"><h2>Cohort X-ray</h2></div>
                 <div className="xray2">
                   <div className="xstat"><div className="xv bad">{cohort.volumeScoreAgreementPct}%</div><div className="xk">volume ↔ proven-skill agreement (coin-flip)</div></div>
