@@ -56,9 +56,13 @@ async function swapWitness(blockNumber: number, txHash: string) {
 async function main() {
   const N = Number(process.argv[2] ?? 3);
   const head = Number(await rpc("eth_blockNumber", []));
-  const from = "0x" + (head - 9000).toString(16);
-  const logs = await rpc("eth_getLogs", [{ address: POOL, topics: [SWAP_TOPIC0], fromBlock: from, toBlock: "latest" }]);
-  if (logs.length < N) throw new Error(`only ${logs.length} swaps in window; widen range`);
+  let logs: any[] = [];
+  for (let hi = head; hi > head - 180000 && logs.length < N; hi -= 9000) {
+    const lo = hi - 8999;
+    const chunk = await rpc("eth_getLogs", [{ address: POOL, topics: [SWAP_TOPIC0], fromBlock: "0x" + lo.toString(16), toBlock: "0x" + hi.toString(16) }]);
+    logs = [...chunk, ...logs];
+  }
+  if (logs.length < N) throw new Error(`only ${logs.length} swaps in 180k blocks; lower N`);
   const picked = logs.slice(-N);
   const swaps = [];
   let vol = 0n;

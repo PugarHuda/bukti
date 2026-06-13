@@ -49,13 +49,16 @@ function encodeReceipt(r: any): Uint8Array {
 }
 
 async function main() {
-  // 1. find a recent Agni Swap log
+  // 1. find a recent Agni Swap log — scan back in 9000-block chunks (RPC range cap) until found
   const head = Number(await rpc("eth_blockNumber", []));
-  const from = "0x" + (head - 9000).toString(16);
-  const logs = await rpc("eth_getLogs", [
-    { address: AGNI_POOL, topics: [SWAP_TOPIC0], fromBlock: from, toBlock: "latest" },
-  ]);
-  if (!logs.length) throw new Error("no recent Agni swap in window; widen range");
+  let logs: any[] = [];
+  for (let hi = head; hi > head - 90000 && !logs.length; hi -= 9000) {
+    const lo = hi - 8999;
+    logs = await rpc("eth_getLogs", [
+      { address: AGNI_POOL, topics: [SWAP_TOPIC0], fromBlock: "0x" + lo.toString(16), toBlock: "0x" + hi.toString(16) },
+    ]);
+  }
+  if (!logs.length) throw new Error("no Agni swap found in the last 90k blocks");
   const log = logs[logs.length - 1];
   const blockNumber = Number(log.blockNumber);
   const txHash = log.transactionHash;
