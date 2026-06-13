@@ -1,0 +1,10 @@
+[package]
+version = "0.1.0"
+name = "bukti-program-full"
+edition = "2021"
+
+[dependencies]
+alloy-sol-types = { workspace = true }
+sp1-zkvm = { version = "6.0.1" }
+bukti-prov-lib = { path = "../prov-lib" }
+serde = { workspace = true }

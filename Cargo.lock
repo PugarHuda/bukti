@@ -658,6 +658,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "bukti-program-full"
+version = "0.1.0"
+dependencies = [
+ "alloy-sol-types",
+ "bukti-prov-lib",
+ "serde",
+ "sp1-zkvm",
+]
+
+[[package]]
 name = "bukti-program-prov"
 version = "0.1.0"
 dependencies = [

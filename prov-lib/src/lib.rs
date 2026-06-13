@@ -231,6 +231,100 @@ fn key_to_index(key: &[u8]) -> u32 {
     be(payload) as u32
 }
 
+sol! {
+    /// Public values for the FULL integration proof: a metric (USD volume) computed entirely
+    /// over swaps that are EACH proven to be genuine Mantle chain data — in one Groth16 proof.
+    struct FullOutput {
+        uint32  numSwaps;          // trades proven genuine chain data
+        uint64  totalVolumeUsdE6;  // sum of |amount0| (USDT, 6dec = USD*1e6) over the proven logs
+        bytes32 firstBlockHash;    // anchor (EIP-2935-checkable) of the first proven swap
+        bool    allIncluded;       // always true on a valid proof (guest panics otherwise)
+    }
+}
+
+/// Witness for the full proof: N swap-inclusion proofs.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FullInput {
+    pub swaps: Vec<ProvenanceInput>,
+}
+
+/// Decode `|amount0|` (USDT, 6-decimals = USD·1e6) from the proven receipt's Agni Swap log.
+/// amount0 is the first 32 bytes of the log's data field, a two's-complement int256.
+pub fn swap_notional_e6(leaf: &[u8], pool: &[u8; 20], topic0: &[u8; 32]) -> Result<u64, ProvError> {
+    let body = if leaf.first().map(|&t| t < 0x80).unwrap_or(false) { &leaf[1..] } else { leaf };
+    let fs = list_items(body)?;
+    if fs.len() < 4 || !fs[3].is_list {
+        return Err(ProvError::BadNode);
+    }
+    for log in items(fs[3].payload)? {
+        if !log.is_list {
+            continue;
+        }
+        let parts = items(log.payload)?;
+        if parts.len() < 3 {
+            continue;
+        }
+        let topics = items(parts[1].payload)?;
+        let t0 = topics.first().map(|t| t.payload);
+        if parts[0].payload == pool && t0 == Some(&topic0[..]) {
+            let data = parts[2].payload;
+            if data.len() < 32 {
+                return Err(ProvError::BadNode);
+            }
+            let mut b = [0u8; 32];
+            b.copy_from_slice(&data[..32]);
+            // abs via two's-complement negation when the sign bit is set
+            if b[0] & 0x80 != 0 {
+                let mut carry = 1u16;
+                for x in b.iter_mut().rev() {
+                    let v = (!*x as u16) + carry;
+                    *x = v as u8;
+                    carry = v >> 8;
+                }
+            }
+            // USDT amounts fit u64; the magnitude must live in the low 8 bytes
+            if b[..24].iter().any(|&x| x != 0) {
+                return Err(ProvError::BadNode);
+            }
+            let mut mag: u64 = 0;
+            for &x in &b[24..] {
+                mag = (mag << 8) | x as u64;
+            }
+            return Ok(mag);
+        }
+    }
+    Err(ProvError::LogAbsent)
+}
+
+/// THE FULL INTEGRATION: prove every swap is genuine Mantle chain data (header→receiptsRoot→MPT
+/// inclusion→Swap log) AND compute the USD-volume metric from amounts decoded in-circuit from
+/// those proven logs. The metric's inputs are now proven, not witness-asserted. One proof.
+pub fn verify_full(input: &FullInput) -> Result<FullOutput, ProvError> {
+    use alloy_sol_types::private::FixedBytes;
+    let mut total: u64 = 0;
+    let mut first = [0u8; 32];
+    for (i, s) in input.swaps.iter().enumerate() {
+        if keccak(&s.header_rlp) != s.block_hash {
+            return Err(ProvError::HeaderHashMismatch);
+        }
+        let receipts_root = header_receipts_root(&s.header_rlp)?;
+        let leaf = verify_inclusion(&receipts_root, &s.proof, &s.key)?;
+        if !receipt_has_log(&leaf, &s.pool, &s.topic0)? {
+            return Err(ProvError::LogAbsent);
+        }
+        total = total.saturating_add(swap_notional_e6(&leaf, &s.pool, &s.topic0)?);
+        if i == 0 {
+            first = s.block_hash;
+        }
+    }
+    Ok(FullOutput {
+        numSwaps: input.swaps.len() as u32,
+        totalVolumeUsdE6: total,
+        firstBlockHash: FixedBytes::<32>::from(first),
+        allIncluded: true,
+    })
+}
+
 /// Full provenance check. Returns the committed output; the caller (guest) should treat any
 /// `Err` as unprovable (panic), so the only provable statement is a real, included swap log.
 pub fn verify_provenance(input: &ProvenanceInput) -> Result<ProvenanceOutput, ProvError> {
