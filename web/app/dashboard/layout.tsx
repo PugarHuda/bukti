@@ -8,6 +8,7 @@ const NAV = [
   { href: "/dashboard", label: "Overview", icon: "grid" },
   { href: "/dashboard/authenticity", label: "Catch a cheater", icon: "alert" },
   { href: "/dashboard/leaderboard", label: "Leaderboard", icon: "ranking" },
+  { href: "/dashboard/allocate", label: "Capital by proof", icon: "coins" },
   { href: "/dashboard/verify", label: "Verify wallet", icon: "search" },
   { href: "/dashboard/agent", label: "Agent copilot", icon: "bot" },
   { href: "/dashboard/proof", label: "Proof layer", icon: "shield" },
