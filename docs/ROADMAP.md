@@ -1,35 +1,34 @@
-# Bukti Roadmap — closing the trust boundary, step by step
+# Bukti Roadmap — the trust boundary is mostly closed
 
-We state our current trust assumptions openly (relayer-asserted anchor, witness-supplied
-prices, no completeness proof). Each has a concrete, sourced path to elimination — most
-on the same SP1 stack we already run.
+Most of what was "roadmap" is now **done and live**. What remains is integration + frontier
+extensions, all on the same SP1 stack.
 
-## 1. Trustless data provenance — in-circuit receipt-inclusion proofs (research, weeks)
-The endgame: prove each swap log is a genuine entry in a real Mantle block by verifying a
-Merkle-Patricia **receipts-trie** proof against `header.receipts_root` *inside the zkVM*,
-binding `receiptsRoot` to a real block hash via `keccak(rlp(header)) == blockHash`. The
-circuit then proves it computed over *authentic* chain data, not a relayer-supplied
-witness — killing the "arithmetic on a spreadsheet" critique entirely.
+## 1. ✅ DONE & LIVE — Trustless data provenance (in-circuit receipt-inclusion)
+The endgame is reached: a real Agni swap log is **proven on-chain** to be genuine Mantle chain
+data — `keccak(rlp(header)) == blockHash` → `receiptsRoot` → Merkle-Patricia **receipts-trie**
+inclusion → the receipt contains the Swap log. Live: **BuktiProvenance**
+`0xa4d6d9932B19f9B03D0439264F1188F39F8522f0`, proof tx `0x92537a75…`, `getProven → included=true`.
 
-**We didn't just plan this — we tested it.** `provenance/check-trie/` rebuilds a real
-Mantle block's receipts trie with `alloy-trie` HashBuilder and compares to the on-chain
-`receipts_root`. **Empirical finding (block 96,483,631):** ordinary receipts (type `0x02`,
-legacy) encode correctly, but the block's **type-`0x7e` OP deposit/system receipt** does
-**not** reproduce with standard `op-alloy` types — Mantle is a *modified* OP-stack (MNT gas
-token, EigenDA, custom fee fields), so its receipt RLP differs from canonical OP. So the
-receipts-trie root can't be rebuilt off-the-shelf; closing this needs Mantle's exact
-receipt encoding spec. That's the real blocker, now precisely scoped — not a 2-day task.
+**The blocker is cracked.** The original `provenance/check-trie/` finding was that op-alloy
+couldn't reproduce Mantle's `receiptsRoot` because of the type-`0x7e` deposit receipt. We
+reverse-engineered it empirically: **Mantle encodes the deposit receipt with only the 4 base
+consensus fields — `0x7e‖RLP([status, cumGas, bloom, logs])`, no depositNonce, no
+depositReceiptVersion** (it forked before OP's Canyon receipt-hashing change). With that fix our
+rebuild reproduces `receiptsRoot` **5/5 across live blocks**, and the in-circuit MPT verifier is
+tested in `provenance/log-proof/` (5/5). The trust anchor is solved too: **EIP-2935 is live on
+Mantle (Arsia)** — the historical block hash is readable on-chain, no relayer. Self-contained on
+Mantle, with no coprocessor dependency. Remaining: fold it into the batch metrics circuit + re-prove.
 
-Two credible paths once the encoding is pinned:
-- **[SP1-CC](https://github.com/succinctlabs/sp1-contract-call)** (`get_logs` over historical
-  blocks; live, audited, used by EigenDA) — once it understands Mantle's receipt format.
-- Anchor binding via on-chain `blockhash()` / [EIP-2935](https://eips.ethereum.org/EIPS/eip-2935)'s
-  8191-block ring buffer (pending confirmation of Mantle's fork level).
-*The same zkVM (SP1) that secures Mantle via OP-Succinct would prove the chain our metrics ran on.*
+## 2. ✅ BUILT — First Pyth VAA verification inside SP1 (integration pending)
+**Done and tested:** `provenance/pyth-vaa/` parses a Pyth accumulator update + Wormhole VAA,
+verifies the **13-of-19 guardian secp256k1 quorum** over the keccak body, the price's Merkle
+inclusion, and decodes the price — **4/4 tests against a real Hermes update** (reproduces the
+exact price Hermes reports; a tampered body breaks the quorum). To our knowledge, the first
+guardian-signature + Pyth-accumulator verification in zkVM-compatible Rust. Remaining: fold into
+the live circuit behind SP1 precompiles + re-prove.
 
-## 2. First Pyth VAA verification inside SP1 (2–3 weeks)
-Pyth prices are attested by Wormhole VAAs — 13-of-19 guardian secp256k1 signatures over a
-keccak256 body, plus a per-price Merkle proof. SP1 ships
+Background: Pyth prices are attested by Wormhole VAAs — 13-of-19 guardian secp256k1 signatures
+over a keccak256 body, plus a per-price Merkle proof. SP1 ships
 [secp256k1-recover and keccak precompiles](https://blog.succinct.xyz/succinctshipsprecompiles/),
 making in-circuit VAA verification a low-single-digit-millions-of-cycles add-on. **No
 public prior art of Pyth VAA verification in SP1/RISC Zero exists as of June 2026** —
@@ -37,8 +36,10 @@ this would be a first. Historical prices become cryptographically authentic inst
 witness-asserted. (Forward path: Pyth Lazer payloads carry a single ECDSA signature —
 trivial in-circuit.)
 
-## 3. Anti-cherry-picking by construction (2–6 weeks)
-Two complementary proofs make the record provably *complete*, not a highlight reel:
+## 3. ✅ LIVE — Anti-cherry-picking commitment (v3) + stronger constructions (roadmap)
+**Shipped:** BuktiAttestation v3 commits, in-circuit, a keccak hash of the wallet's FULL ordered
+swap set (`swapsRoot`) — dropping or reordering any leg changes the on-chain attestation. 25/25
+verified against the public witness. Stronger *exhaustiveness* proofs are the next step:
 - **Nonce-delta exhaustiveness**: MPT account proofs at the window's boundary blocks give
   `nonce(end) − nonce(start)` = the exact count of outgoing txs; the circuit then proves
   inclusion of exactly that many — no omitted trades.
@@ -46,12 +47,18 @@ Two complementary proofs make the record provably *complete*, not a highlight re
   `get_logs()` pattern): every log matching the trader's filter in range, complete by
   construction, scaled via [SP1 proof aggregation](https://docs.succinct.xyz/docs/sp1/writing-programs/proof-aggregation).
 
-## 4. Bring your Bybit PnL on-chain (zkTLS, 1–2 weeks for a pilot)
-The same pattern [Brevis + Primus run in production for Binance proof-of-reserves](https://blog.brevis.network/2026/04/13/brevis-primus-and-perena-verifiable-proof-of-reserves-for-usd/)
-applies to trader history: a custom [Reclaim](https://docs.reclaimprotocol.org/) /
-[Primus](https://docs.primuslabs.xyz/) provider over Bybit's authenticated trade-history
-API feeds CEX records into the same Bukti attestation flow — extending proven track
-records beyond DeFi. (Stated honestly: zkTLS adds an MPC-notary/TEE assumption.)
+## 4. Bring your Bybit PnL on-chain (zkTLS, ~1 week pilot — sponsor-aligned)
+**Bybit is a hackathon sponsor**, which makes this the highest-value extension: prove a trader's
+*centralized-exchange* track record on-chain too. The same pattern
+[Brevis + Primus run in production for Binance proof-of-reserves](https://blog.brevis.network/2026/04/13/brevis-primus-and-perena-verifiable-proof-of-reserves-for-usd/)
+applies to trader history. Precise design: a [Reclaim](https://docs.reclaimprotocol.org/) /
+[Primus](https://docs.primuslabs.xyz/) zkTLS provider attests a Bybit trade-history export; the
+attested export is fed as a **signed input** into the *same* SP1 circuit that already computes
+Sharpe/drawdown/ROI for DeFi swaps — so the metric stays proven in-zkVM, only the data source
+changes. Effort is ~1 week for a pilot (Reclaim SDK + the attestor-sig check in-circuit).
+**Honest caveat:** Reclaim/Primus are attestor/MPC-TLS models, so this trades the relayer for an
+attestor-trust assumption — it is *not* a pure end-to-end SNARK. We'd state that plainly rather
+than overclaim. (Not built — scoped here; the DeFi path above is fully live.)
 
 ## 5. Productization
 Mainnet deployment → one design-partner integration (copy-trading or agent-vault on
