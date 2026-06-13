@@ -265,4 +265,11 @@ code.snippet { display: block; margin-top: 12px; padding: 11px 13px; background:
   .ds-rail-foot { margin: 0 0 0 auto; flex-direction: row; border: 0; padding: 0; gap: 12px; }
   .ds-content { padding: 20px 16px 40px; }
   .metrics, .xray { grid-template-columns: 1fr 1fr; }
+  .ds-page-title { font-size: 20px; }
+  /* wide tables scroll horizontally instead of crushing columns */
+  .card { overflow-x: auto; }
+  table.board { min-width: 460px; }
+  code.snippet { font-size: 10.5px; }
+  .cheat-claim { font-size: 18px; }
+  .dm-search, .row { flex-wrap: wrap; }
 }

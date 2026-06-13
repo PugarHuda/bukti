@@ -21,7 +21,7 @@ layer for ERC-8004 on Mantle. *Catch-a-cheater: two agents, same +312% — Bukti
 - 🌐 Live demo: https://bukti-smoky.vercel.app
 - 📦 Repo (open-source): https://github.com/PugarHuda/bukti
 - 🎬 Demo video: **[PASTE after recording]**
-- 📄 Pitch: [PITCH.md](PITCH.md) · Business: [docs/BUSINESS.md](docs/BUSINESS.md) · Architecture: [DEPLOYMENTS.md](DEPLOYMENTS.md) · [docs/](docs)
+- 📄 Pitch: [PITCH.md](PITCH.md) · Business: [docs/BUSINESS.md](docs/BUSINESS.md) · Judge run-through: [docs/JUDGE-RUNTHROUGH.md](docs/JUDGE-RUNTHROUGH.md) · Architecture: [DEPLOYMENTS.md](DEPLOYMENTS.md) · [docs/](docs)
 
 ## Description (paste into the form)
 Every AI trading agent claims a great track record; none can prove it. Dashboards are
