@@ -12,7 +12,8 @@
     "qa:completeness": "tsx src/qa-completeness.ts",
     "swaps-root": "tsx src/swaps-root.ts",
     "receipt-trie": "tsx src/receipt-trie.ts",
-    "log-inclusion": "tsx src/log-inclusion.ts"
+    "log-inclusion": "tsx src/log-inclusion.ts",
+    "header-hash": "tsx src/header-hash.ts"
   },
   "dependencies": {
     "@ethereumjs/rlp": "^10.1.2",
