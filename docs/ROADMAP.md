@@ -17,7 +17,12 @@ depositReceiptVersion** (it forked before OP's Canyon receipt-hashing change). W
 rebuild reproduces `receiptsRoot` **5/5 across live blocks**, and the in-circuit MPT verifier is
 tested in `provenance/log-proof/` (5/5). The trust anchor is solved too: **EIP-2935 is live on
 Mantle (Arsia)** — the historical block hash is readable on-chain, no relayer. Self-contained on
-Mantle, with no coprocessor dependency. Remaining: fold it into the batch metrics circuit + re-prove.
+Mantle, with no coprocessor dependency. **And it's now folded into a metric:** BuktiFullProof
+(`0xC16f221d…`) is a single Groth16 proof that a USD-volume metric was computed over 3 swaps EACH
+proven genuine chain data, with the notional decoded in-circuit from the proven log — live on-chain
+(`latest()` = 3 swaps, included=true). The metric's inputs are proven, not asserted. Scaling this
+to the full Sharpe over a 25-wallet batch (many inclusion proofs per wallet) is an engineering
+scale-up + the Pyth price half (§2); the construction is proven.
 
 ## 2. ✅ BUILT — First Pyth VAA verification inside SP1 (integration pending)
 **Done and tested:** `provenance/pyth-vaa/` parses a Pyth accumulator update + Wormhole VAA,

@@ -148,6 +148,25 @@ blocks (`npm --prefix indexer run receipt-trie`).
 Reproduce off-chain: `npm --prefix indexer run log-inclusion` (LOG_INCLUSION_OK) ·
 `npm --prefix indexer run header-hash` (5/5). In-circuit core tested in `provenance/log-proof/`.
 
+### 🧮 BuktiFullProof — a metric proven over genuine chain data, end-to-end in ONE proof (live, verified)
+The trust boundary, shut. A single SP1 Groth16 proof shows a USD-volume metric was computed
+**entirely over swaps EACH proven to be real Mantle chain data**: per swap →
+`keccak(header)==blockHash` → `receiptsRoot` → MPT inclusion → the Agni Swap log → the USD
+notional decoded **in-circuit** from that proven log (USDT/WMNT pool, so `|amount0|` = USD, no
+oracle). The metric's *inputs* are proven, not witness-asserted.
+
+| Item | Value |
+|---|---|
+| **BuktiFullProof** (Mantlescan-verified) | [`0xC16f221d8bae221A7B5B3ca74DCDCb892B9067FB`](https://sepolia.mantlescan.xyz/address/0xC16f221d8bae221A7B5B3ca74DCDCb892B9067FB#code) |
+| Program vkey (full-integration guest) | `0x00c64f5adcd2d72e5a77674d42c57f563ba996e951427e8d8ea704a8f9a1741d` |
+| **Proof submitted on-chain** (real Groth16, 1.92M cycles, in-circuit==host) | [`0x3b3fabc8…`](https://sepolia.mantlescan.xyz/tx/0x3b3fabc8bcbcfb7eb3cfd315b2e4ecb7297e91bbfe21762cda67e6991230c1b3) |
+| `latest()` | numSwaps **3**, totalVolumeUsdE6 **303245** ($0.303), allIncluded **true** |
+| Witness | 3 real Agni USDT/WMNT swaps, each with a receipt-trie inclusion proof (`indexer/src/full-witness.ts`) |
+
+This is the capstone: provenance + metric in one proof. Sharpe-grade PnL (cross-venue, with the
+Pyth price half folded in) is the same construction scaled — the hard part (proving the data is
+real, in-circuit, with the metric) is done and on-chain.
+
 *MI4 is proven-beta for institutions; BuktiAllocator is proven-alpha — an index whose
 constituents are admitted by a ZK proof of risk-adjusted skill.*
 

@@ -100,6 +100,8 @@ zero-knowledge proof. We use SP1 — the same zkVM securing Mantle — and Mantl
 - BuktiValidator (ERC-8004 ZK validator): `0xda0cEB552af13f5a096D8aA4E5A9FceB9cf6D8D0`
 - BuktiAllocator (capital routed by proof): `0x6DF2F45f9184346C175a94D783F37C77C8f3B8B2`
 - BuktiAttestation v3 (in-circuit completeness/anti-cherry-pick): `0x03fA99f0dE08F182b2880Ee12a2194DBF00a0Dbf` (25/25 roots verified vs witness)
+- BuktiProvenance (swap = genuine chain data): `0xa4d6d9932B19f9B03D0439264F1188F39F8522f0`
+- **BuktiFullProof** (metric proven over genuine chain data, end-to-end in ONE proof): `0xC16f221d8bae221A7B5B3ca74DCDCb892B9067FB`
 - ClawHack batch proof tx: `0xe478d52a6c5e312bf0a62b4dad0f944b784da3011649947770c96e00fb82dbc6`
 - Live ERC-8004 validation tx: `0x780bbaa851bd7789e349a878fd6a8a07410a6efc44e415d8ce9bf01971a0847f`
 - ERC-8004 agent #137 + reputation feedback; live demo + MCP server + ~70 automated tests.

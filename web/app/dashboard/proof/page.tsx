@@ -63,6 +63,7 @@ const CONTRACTS = [
   { label: "BuktiValidator (ERC-8004)", addr: "0xda0cEB552af13f5a096D8aA4E5A9FceB9cf6D8D0" },
   { label: "BuktiAllocator", addr: "0x6DF2F45f9184346C175a94D783F37C77C8f3B8B2" },
   { label: "BuktiProvenance (swap-log proof)", addr: "0xa4d6d9932B19f9B03D0439264F1188F39F8522f0" },
+  { label: "BuktiFullProof (metric over proven chain data)", addr: "0xC16f221d8bae221A7B5B3ca74DCDCb892B9067FB" },
 ];
 
 export default function ProofPage() {
