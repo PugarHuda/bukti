@@ -7,6 +7,8 @@ export default function Nav() {
         Bukti<span className="zk">zk</span>
       </Link>
       <div className="nav-links">
+        <Link href="/doc">Docs</Link>
+        <Link href="/dashboard">Dashboard</Link>
         <a href="https://github.com/PugarHuda/bukti" target="_blank" rel="noreferrer">
           GitHub ↗
         </a>

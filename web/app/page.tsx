@@ -62,7 +62,7 @@ export default function Landing() {
       .catch(() => {});
   }, []);
 
-  const s = stats ?? { scanned: 382, proven: 25, legs: 626 };
+  const s = stats ?? { scanned: 382, proven: 105, legs: 1818 };
 
   return (
     <>
@@ -185,6 +185,7 @@ export default function Landing() {
         <footer className="land-footer">
           Built on Mantle for The Turing Test Hackathon 2026 ·{" "}
           <a href={GH} target="_blank" rel="noreferrer">GitHub</a> ·{" "}
+          <Link href="/doc">Docs</Link> ·{" "}
           <Link href="/dashboard">Dashboard</Link>
         </footer>
       </div>
