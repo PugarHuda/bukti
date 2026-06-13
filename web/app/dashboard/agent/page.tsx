@@ -10,6 +10,19 @@ export default function AgentPage() {
   const [busy, setBusy] = useState(false);
   const volChamp = board ? [...board.rows].sort((a, b) => b.clawhackSwaps - a.clawhackSwaps)[0] : null;
 
+  const [gateAddr, setGateAddr] = useState("");
+  const [gateRes, setGateRes] = useState<{ status: number; body: unknown } | null>(null);
+  async function hitGate(addr: string) {
+    setGateRes(null);
+    setGateAddr(addr);
+    try {
+      const r = await fetch(`/api/gate/${addr}`);
+      setGateRes({ status: r.status, body: await r.json() });
+    } catch {
+      setGateRes({ status: 0, body: { error: "request failed" } });
+    }
+  }
+
   async function ask(wallet: string, label: string) {
     setBusy(true);
     setCopilot({ q: `Should I copy-trade ${label} (${short(wallet)})?`, a: "checking the proof layer on Mantle…" });
@@ -55,6 +68,25 @@ export default function AgentPage() {
           <div className="chat">
             <div className="bubble user">{copilot.q}</div>
             <div className="bubble agent">{copilot.a}</div>
+          </div>
+        )}
+      </div>
+
+      <div className="card card-pad">
+        <h2 className="card-title" style={{ marginBottom: 8 }}>Proof-gated endpoint (x402-style)</h2>
+        <p className="hint" style={{ marginTop: 0 }}>
+          Bukti is infrastructure: any paid endpoint or agent action can gate itself on a <strong>proven</strong> score. This API returns HTTP <code>402 Proof Required</code> unless the wallet clears the 0.5 gate — try a proven wallet vs. an unproven one.
+        </p>
+        <div className="copilot-btns" style={{ flexDirection: "row", flexWrap: "wrap" }}>
+          <button className="ghost" disabled={!board} onClick={() => board && hitGate(board.rows[0].wallet)}>Call gate with the proof champion</button>
+          <button className="ghost" onClick={() => hitGate("0x000000000000000000000000000000000000dEaD")}>Call gate with an unproven wallet</button>
+        </div>
+        {gateRes && (
+          <div style={{ marginTop: 12 }}>
+            <div className={`cheat-verdict ${gateRes.status === 200 ? "real" : "fake"}`} style={{ marginBottom: 8 }}>
+              HTTP {gateRes.status} {gateRes.status === 200 ? "· UNLOCKED" : gateRes.status === 402 ? "· PROOF REQUIRED" : ""}
+            </div>
+            <code className="snippet">{JSON.stringify(gateRes.body, null, 2)}</code>
           </div>
         )}
       </div>

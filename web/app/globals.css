@@ -247,6 +247,13 @@ code.snippet { display: block; margin-top: 12px; padding: 11px 13px; background:
 .cmp-good { color: var(--accent); font-family: var(--mono); margin-right: 6px; }
 .cmp-bad { color: var(--neg); font-family: var(--mono); margin-right: 6px; }
 
+/* ---------- Trust boundary ---------- */
+.trust-table td { vertical-align: top; }
+.tstat { font-family: var(--mono); font-size: 10px; padding: 3px 8px; border-radius: 5px; white-space: nowrap; }
+.tstat.proven, .tstat.trustless { background: var(--accent-dim); color: var(--accent); }
+.tstat.core-built { background: rgba(64, 120, 230, 0.12); color: #3b82f6; }
+.tstat.open { background: rgba(217, 119, 6, 0.12); color: #d97706; }
+
 @media (max-width: 760px) {
   .ds-shell { flex-direction: column; }
   .ds-rail { width: auto; height: auto; position: sticky; top: 0; z-index: 40; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px 14px; }

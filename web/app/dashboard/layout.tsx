@@ -11,6 +11,7 @@ const NAV = [
   { href: "/dashboard/allocate", label: "Capital by proof", icon: "coins" },
   { href: "/dashboard/verify", label: "Verify wallet", icon: "search" },
   { href: "/dashboard/agent", label: "Agent copilot", icon: "bot" },
+  { href: "/dashboard/trust", label: "Trust boundary", icon: "check" },
   { href: "/dashboard/proof", label: "Proof layer", icon: "shield" },
 ];
 
