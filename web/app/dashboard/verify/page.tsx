@@ -56,6 +56,12 @@ export default function VerifyPage() {
               <a className="hint" href={`/w/${addr}`} target="_blank" rel="noreferrer">Share card ↗</a>
               <a className="hint" href={`${EXPLORER}/address/${addr}`} target="_blank" rel="noreferrer">Mantlescan ↗</a>
             </div>
+            <div style={{ marginTop: 18, paddingTop: 16, borderTop: "1px solid var(--line)" }}>
+              <div className="hint" style={{ marginBottom: 8 }}>Embeddable badge — drop your proven track record into any README, agent profile, or site (reads live from chain):</div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`/badge/${addr}`} alt="Bukti score badge" style={{ height: 20, display: "block", marginBottom: 10 }} />
+              <code className="snippet">![Bukti](https://bukti-smoky.vercel.app/badge/{addr})</code>
+            </div>
           </div>
         )}
       </div>
