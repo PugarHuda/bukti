@@ -143,8 +143,12 @@ function tier(score: number): string {
 }
 
 function main() {
-  const batch = JSON.parse(readFileSync("../batch.json", "utf8")) as { entries: Entry[] };
-  const cohort = JSON.parse(readFileSync("clawhack-cohort.json", "utf8")) as {
+  // optional argv: [batchFile] [cohortFile] [outFile] — default to the original 25-cohort.
+  const batchFile = process.argv[2] ?? "../batch.json";
+  const cohortFile = process.argv[3] ?? "clawhack-cohort.json";
+  const outFile = process.argv[4] ?? "../web/public/board-data.json";
+  const batch = JSON.parse(readFileSync(batchFile, "utf8")) as { entries: Entry[] };
+  const cohort = JSON.parse(readFileSync(cohortFile, "utf8")) as {
     wallets: { wallet: string; swaps: number }[];
   };
   const swapCount = new Map(cohort.wallets.map((w) => [w.wallet.toLowerCase(), w.swaps]));
@@ -239,7 +243,7 @@ function main() {
     chain: "Mantle Sepolia (5003)",
     cohort: cohortStats,
   };
-  writeFileSync("../web/public/board-data.json", JSON.stringify({ meta, rows: out }));
+  writeFileSync(outFile, JSON.stringify({ meta, rows: out }));
   console.log("cohort X-ray:", JSON.stringify(cohortStats));
   console.log(`board-data.json: ${out.length} rows`);
   console.log("Top by PROOF:", out.slice(0, 3).map((r) => `${r.wallet.slice(0, 8)} s=${r.score} (vol-rank #${r.volRank})`).join(" | "));

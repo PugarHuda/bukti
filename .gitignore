@@ -34,3 +34,9 @@ provenance/pyth-vaa/target
 provenance/pyth-vaa/Cargo.lock
 provenance/log-proof/target
 provenance/log-proof/Cargo.lock
+
+batch-wide-state.json
+clawhack-cohort-wide.json
+batch-wide*.json
+indexer/wash-sybil-report.json
+indexer/mark-to-market-report.json
