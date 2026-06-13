@@ -1,6 +1,7 @@
 import { createPublicClient, http, parseAbi, isAddress } from "viem";
 import { ATTESTATION_ADDRESS } from "../../../lib/contract";
 
+
 // x402-style proof-gate: an agent endpoint that returns HTTP 402 ("Proof Required") unless the
 // caller's wallet has a zk-PROVEN trading score above the gate. Demonstrates Bukti as
 // infrastructure — any paid endpoint / agent action on Mantle can gate itself on a score that's

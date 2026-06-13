@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { fetchAttestation, mantleSepolia, ATTESTATION_ADDRESS } from "../../lib/contract";
 import Logo from "../../components/Logo";
 
+
 const EXPLORER = mantleSepolia.blockExplorers.default.url;
 const short = (a: string) => `${a.slice(0, 10)}…${a.slice(-8)}`;
 

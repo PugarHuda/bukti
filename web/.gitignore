@@ -1,1 +1,5 @@
 .vercel
+
+# Cloudflare
+.open-next/
+.wrangler/

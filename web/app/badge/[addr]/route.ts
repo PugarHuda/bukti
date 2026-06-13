@@ -1,6 +1,7 @@
 import { createPublicClient, http, parseAbi, isAddress } from "viem";
 import { ATTESTATION_ADDRESS } from "../../lib/contract";
 
+
 // Embeddable, live "Bukti score" badge (shields.io-style) — turns a zk-proven track record into
 // a composable artifact any agent profile / GitHub README / site can embed. Reads the on-chain
 // attestation live and renders an SVG. Self-contained colors so it works in any context.
