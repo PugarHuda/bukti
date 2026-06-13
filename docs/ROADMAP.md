@@ -18,9 +18,10 @@ rebuild reproduces `receiptsRoot` **5/5 across live blocks**, and the in-circuit
 tested in `provenance/log-proof/` (5/5). The trust anchor is solved too: **EIP-2935 is live on
 Mantle (Arsia)** — the historical block hash is readable on-chain, no relayer. Self-contained on
 Mantle, with no coprocessor dependency. **And it's now folded into a metric:** BuktiFullProof
-(`0xC16f221d…`) is a single Groth16 proof that a USD-volume metric was computed over 3 swaps EACH
+(`0xC16f221d…`) is a single Groth16 proof that a USD-volume metric was computed over N swaps EACH
 proven genuine chain data, with the notional decoded in-circuit from the proven log — live on-chain
-(`latest()` = 3 swaps, included=true). The metric's inputs are proven, not asserted. Scaling this
+across 2 distinct verified cases (`proofCount=2`: 3 swaps/$0.303 and 5 swaps/$1.297, `latest()` =
+5 swaps, included=true). The metric's inputs are proven, not asserted. Scaling this
 to the full Sharpe over a 25-wallet batch (many inclusion proofs per wallet) is an engineering
 scale-up + the Pyth price half (§2); the construction is proven.
 

@@ -25,7 +25,8 @@ metric was computed over swaps EACH proven genuine chain data. Read it:
 ```
 cast call 0xC16f221d8bae221A7B5B3ca74DCDCb892B9067FB "latest()(uint32,uint64,bytes32,bool)" \
   --rpc-url https://rpc.sepolia.mantle.xyz
-# -> 3, 303245, 0xa8fc58e1…, true   (3 swaps proven, $0.303 volume, allIncluded=true)
+# -> 5, 1296611, 0x33b15e6b…, true   (latest of proofCount=2 cases: 5 swaps, $1.297 volume, allIncluded=true)
+# case #1 was 3 swaps / $0.303 (tx 0x3b3fabc8…); case #2 is 5 swaps / $1.297 (tx 0x3c550cc1…) — both real, both verified on-chain
 ```
 
 ## Live contracts (all Mantlescan-verified — invalid proofs revert)
