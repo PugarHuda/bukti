@@ -74,6 +74,7 @@ export function Icon({ name }: { name: string }) {
     coins: <><ellipse cx="9" cy="7" rx="5" ry="2.5" {...p} /><path d="M4 7v5c0 1.4 2.2 2.5 5 2.5M14 11c2.8 0 5 1.1 5 2.5s-2.2 2.5-5 2.5-5-1.1-5-2.5" {...p} /><path d="M19 13.5v4c0 1.4-2.2 2.5-5 2.5s-5-1.1-5-2.5v-3" {...p} /></>,
     check: <><path d="M5 12.5l4.5 4.5L19 6.5" {...p} /></>,
     link: <><path d="M9 15l6-6M8.5 7.5l1-1a4 4 0 015.7 5.7l-1 1M15.5 16.5l-1 1a4 4 0 01-5.7-5.7l1-1" {...p} /></>,
+    alert: <><path d="M12 3l9 16H3l9-16zM12 10v4M12 17.5h.01" {...p} /></>,
   };
   return <svg viewBox="0 0 24 24" aria-hidden>{paths[name]}</svg>;
 }

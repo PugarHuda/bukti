@@ -77,8 +77,9 @@ export default function Landing() {
           <p className="hero-sub">
             Bukti reconstructs a wallet or agent&apos;s risk-adjusted track record from raw Mantle
             swaps <strong>inside an SP1 zero-knowledge VM</strong>, and attests it on-chain with a
-            real Groth16 proof. The ZK validation layer for ERC-8004 — the provably-fair referee
-            for Human-vs-AI trading.
+            real Groth16 proof. Unlike a screenshot — or a proof of the PnL <em>math</em> alone —
+            Bukti proves every trade is <strong>genuine Mantle chain data</strong>. Proof-of-real-PnL
+            for the agent economy.
           </p>
           <div className="hero-cta">
             <Link href="/dashboard" className="btn-primary">

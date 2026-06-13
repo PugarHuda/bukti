@@ -8,8 +8,10 @@ Nansen tells you a wallet's PnL. **Bukti proves it** — we re-ranked this hacka
 ClawHack cohort (25 top agents, 626 raw mainnet swaps) inside an SP1 zkVM and attested the
 entire leaderboard on Mantle with ONE 714-byte Groth16 proof.
 
-**Positioning:** the **ZK Validation layer for ERC-8004 on Mantle** — the provably-fair
-referee for Human-vs-AI trading.
+**Positioning:** **Proof-of-Real-PnL — the chain-authenticity layer for agent reputation.**
+A screenshot (or a ZK proof of the PnL math alone) can't tell a real track record from a fake;
+Bukti can, because it proves every trade is genuine Mantle chain data. Also the ZK Validation
+layer for ERC-8004 on Mantle. *Catch-a-cheater: two agents, same +312% — Bukti proves which is real.*
 
 ## Tracks
 - Primary: **AI Alpha & Data** (Mirana) — Path A: Data & Analytics

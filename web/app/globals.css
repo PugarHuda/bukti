@@ -222,6 +222,31 @@ table.board tr:last-child td { border-bottom: 0; }
 code.snippet { display: block; margin-top: 12px; padding: 11px 13px; background: var(--surface); border: 1px solid var(--line); border-radius: 7px; font-size: 11.5px; overflow-x: auto; color: var(--muted); }
 .ds-foot { color: var(--faint); font-size: 12px; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--line); }
 
+/* ---------- Catch a cheater ---------- */
+.cheat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+@media (max-width: 760px) { .cheat-grid { grid-template-columns: 1fr; } }
+.cheat-card { margin: 0; transition: border-color 0.15s; }
+.cheat-card.real { border-color: var(--accent); }
+.cheat-card.fake { border-color: var(--neg); }
+.cheat-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.cheat-name { font-size: 16px; font-weight: 600; }
+.cheat-sub { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+.cheat-claim { font-family: var(--mono); font-size: 22px; font-weight: 500; color: var(--text); }
+.cheat-addr { font-size: 12px; color: var(--faint); margin: 10px 0 16px; }
+.cheat-btn { width: 100%; padding: 11px 0; height: auto; }
+.cheat-verdict { font-family: var(--mono); font-size: 13px; font-weight: 500; padding: 9px 12px; border-radius: 7px; margin-bottom: 12px; }
+.cheat-verdict.real { background: var(--accent-dim); color: var(--accent); }
+.cheat-verdict.fake { background: var(--neg-dim); color: var(--neg); }
+.cheat-steps { list-style: none; margin: 0 0 10px; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.cheat-steps li { font-size: 12.5px; color: var(--muted); }
+.cheat-steps li.ok { color: var(--text); }
+.cheat-steps li.no { color: var(--neg); }
+.cheat-note { margin-top: 0; }
+.cheat-cmp { display: flex; flex-direction: column; gap: 10px; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
+.cheat-cmp strong { color: var(--text); font-weight: 600; }
+.cmp-good { color: var(--accent); font-family: var(--mono); margin-right: 6px; }
+.cmp-bad { color: var(--neg); font-family: var(--mono); margin-right: 6px; }
+
 @media (max-width: 760px) {
   .ds-shell { flex-direction: column; }
   .ds-rail { width: auto; height: auto; position: sticky; top: 0; z-index: 40; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px 14px; }

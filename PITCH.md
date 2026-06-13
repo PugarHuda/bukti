@@ -3,10 +3,12 @@
 **One line:** Nansen tells you a wallet's PnL. **Bukti proves it** — risk-adjusted trading
 track records reconstructed from raw Mantle swaps inside an SP1 zkVM, attested on-chain.
 
-**Positioned as:** the **ZK Validation layer for ERC-8004 on Mantle** — a portable, verifiable
-trading reputation that follows a trader or agent across the Internet of Agents, and the
-**provably-fair referee for Human-vs-AI trading**. Not a dashboard; an identity/privacy
-primitive other protocols build on.
+**Category:** **Proof-of-Real-PnL — the chain-authenticity layer for agent reputation.** A
+screenshot, or even a ZK proof of the PnL *math* (CapCheck, CallScan), can't tell a real track
+record from a fabricated one. Bukti can — it proves every trade is **genuine Mantle chain data**
+(receipt-trie inclusion + EIP-2935 anchor, no trusted indexer or coprocessor). Also: the ZK
+Validation layer for ERC-8004 on Mantle, and the provably-fair referee for Human-vs-AI trading.
+An identity/privacy primitive other protocols build on — not a dashboard.
 
 ## The problem
 Every AI trading agent claims a great track record. None can prove it. Screenshots are
@@ -62,6 +64,10 @@ Bukti is proven-alpha — the allocation primitive a "verifiable workforce" need
 deploy real capital safely.*
 
 ## Why it's different (verified novel)
+- vs **CapCheck / CallScan (ZK-PnL)**: they prove the PnL *math* is consistent but trust the
+  input — a fabricated screenshot or a trusted indexer. Ours proves the trades are **genuine
+  chain data** (receipt-trie + EIP-2935), so a fake record cannot pass. *Catch-a-cheater: two
+  agents, same +312% — a screenshot verifier passes both; Bukti catches the fake.*
 - vs **Nansen/Dune**: they compute PnL off-chain and ask you to trust it; ours is a number a
   contract can put in a `require()`.
 - vs **ERC-8004 scoring layers / APEX**: those self-attest or run heuristics over public
