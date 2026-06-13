@@ -117,11 +117,17 @@ Pick-and-shovel on the agent economy — Bukti gets paid when capital moves.
   re-proves in ~24 min); fees comfortably exceed cost from day one, and an optional staking
   layer (attesters stake, slashed on disputed scores) hardens trust as volume grows.
 
-## Roadmap (sourced, scoped — incl. an empirically-found blocker)
-In-circuit receipt proofs for full data provenance (we tested it; Mantle's modified OP-stack
-receipt encoding is the precise blocker — see provenance/), first-ever Pyth VAA verification
-in SP1, anti-cherry-picking completeness proofs, and a zkTLS "bring your Bybit PnL on-chain"
-extension (Bybit is a sponsor).
+## Roadmap (mostly cracked — see provenance/)
+The trust-boundary work is no longer hand-waving — the hard parts are built and tested:
+- **Data provenance: CRACKED.** We reverse-engineered Mantle's type-0x7e deposit-receipt
+  encoding (4-field, no nonce/version), reproduce its `receiptsRoot` 5/5 on live blocks, and
+  prove a real Agni swap log's MPT inclusion — verified by an in-circuit Rust verifier (5/5
+  tests). Anchored trustlessly via EIP-2935 (live on Mantle). See provenance/log-proof/.
+- **Price provenance: built.** In-zkVM Pyth/Wormhole guardian-signature verifier, 4/4 tests
+  against a real Hermes update (provenance/pyth-vaa/). To our knowledge a first.
+- **Anti-cherry-pick completeness: LIVE** (v3, 25/25 verified).
+Remaining: fold both verifiers into the live circuit behind SP1 precompiles + re-prove; plus a
+zkTLS "bring your Bybit PnL on-chain" extension (Bybit is a sponsor).
 
 ## Why this is a Mirana investment, not a feature
 The AI Alpha & Data track is sponsored by **Mirana Ventures** (the $100M Mantle EcoFund), whose
