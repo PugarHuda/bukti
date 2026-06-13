@@ -11,7 +11,7 @@
 > 🏆 **Flagship result — the Provable ClawHack Leaderboard.** This hackathon's Phase 1
 > ("ClawHack") ranked hundreds of AI trading agents with a leaderboard you had to trust.
 > Bukti re-ran that cohort *provably*: 382 wallets discovered in the Apr 15–30 window,
-> the top **25 scored from 626 raw mainnet swap legs inside the SP1 zkVM**, and the entire
+> the top **105 scored from 1,818 raw mainnet swap legs inside the SP1 zkVM**, and the entire
 > ranking attested on-chain with **ONE 714-byte Groth16 proof**
 > ([tx `0xe478d52a…`](https://sepolia.mantlescan.xyz/tx/0xe478d52a6c5e312bf0a62b4dad0f944b784da3011649947770c96e00fb82dbc6)).
 > Marginal cost per extra wallet in the proof: effectively zero.
@@ -80,7 +80,7 @@ flowchart LR
 | **SP1 Groth16 Verifier v6.1.0** (real) | [`0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A`](https://sepolia.mantlescan.xyz/address/0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A) |
 | GatedVault (capital gate) | [`0x851C251411Fe4F4bab586F775c7450f86A348EAD`](https://sepolia.mantlescan.xyz/address/0x851C251411Fe4F4bab586F775c7450f86A348EAD) |
 
-The **25-agent ClawHack leaderboard** was attested with **one real Groth16 proof** verified
+The **105-agent ClawHack leaderboard** was attested with **one real Groth16 proof** verified
 by the SP1 v6.1.0 verifier — junk proofs revert `WrongVerifierSelector`
 ([batch tx `0xe478d52a…`](https://sepolia.mantlescan.xyz/tx/0xe478d52a6c5e312bf0a62b4dad0f944b784da3011649947770c96e00fb82dbc6)).
 Several scored wallets *lost* money (negative scores stored faithfully) — the point is the

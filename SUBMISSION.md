@@ -47,9 +47,9 @@ without them doxxing their book?"
 
 Flagship result: this hackathon's Phase 1 ("ClawHack") ranked hundreds of agents with a
 leaderboard you had to trust. We re-ran the cohort provably — 382 wallets discovered, the top
-25 scored from 626 raw mainnet swaps, the **entire ranking attested on-chain with one
-714-byte Groth16 proof, for $0** on an 8 GB laptop. The insight: **volume crowns the wrong
-winners** — the cohort's volume champion (214 swaps) ranks only #17 by proven score.
+105 scored from 1,818 raw mainnet swaps, the **entire ranking attested on-chain with four
+714-byte Groth16 proofs, for $0** on an 8 GB laptop. The insight: **volume crowns the wrong
+winners** — the cohort's volume champion (77 swaps) ranks only #82 by proven score.
 
 ## Tell us (track answers)
 - **Data sources:** raw Mantle mainnet swap logs from Agni Finance (a PancakeSwap-V3 fork —
@@ -63,7 +63,7 @@ winners** — the cohort's volume champion (214 swaps) ranks only #17 by proven 
 - **Verifiable value on Mantle:** BuktiAttestation + GatedVault + **BuktiValidator** (the
   ERC-8004 ZK validator) deployed & source-verified on Mantle Sepolia; scores written into
   Mantle's ERC-8004 Reputation *and* Validation registries; one Groth16 proof attests a
-  25-agent leaderboard, verified by a real SP1 verifier on-chain.
+  105-agent leaderboard, verified by a real SP1 verifier on-chain.
 - **Surfaces (Telegram & Discord):** `bukti-bot` answers `/score`, `/validate`, `/leaderboard`
   on both Telegram and Discord — every reply read live from chain, backed by the proof.
 
@@ -114,9 +114,9 @@ The proof is the product — a number a smart contract can `require()`.
 We cracked Mantle's receipt encoding + anchor the block hash via EIP-2935 — so a fabricated
 record literally cannot pass. Live on-chain. That's why we catch the fake.
 
-**5/** We re-ran @0xMantle's own ClawHack cohort PROVABLY: 25 agents, 626 raw swaps, the whole
-leaderboard attested with ONE 714-byte Groth16 proof, for \$0. The insight VCs remember:
-**volume crowns the wrong winners** — the volume champion ranks #17 by proven skill.
+**5/** We re-ran @0xMantle's own ClawHack cohort PROVABLY: 105 agents, 1,818 raw swaps, the whole
+leaderboard attested with four 714-byte Groth16 proofs, for \$0. The insight VCs remember:
+**volume crowns the wrong winners** — the volume champion ranks #82 by proven skill.
 
 **6/** And a proof is useless until it moves money: BuktiAllocator routes capital by proven
 score — 81.8% to the champion, **0%** to the volume champion who actually lost money.

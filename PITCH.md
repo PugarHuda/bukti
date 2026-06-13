@@ -40,11 +40,11 @@ zkVM-proven score: `validationScore(0x48f1…)` reads the real on-chain attestat
 ## The flagship result: the Provable ClawHack Leaderboard
 This hackathon's Phase 1 ("ClawHack") ranked hundreds of AI agents with a leaderboard you
 had to trust. We re-ran that cohort **provably**: 382 wallets discovered in the Apr 15–30
-window, the **top 25 scored from 626 raw mainnet swap legs**, and the **entire ranking
+window, the **top 105 scored from 1,818 raw mainnet swap legs**, and the **entire ranking
 attested on-chain with ONE 714-byte Groth16 proof** — for **$0**, on an 8 GB laptop.
 
 The headline insight a VC remembers: **volume crowns the wrong winners.** The cohort's
-volume champion (214 swaps) ranks only **#17** by proven risk-adjusted score; the proof
+volume champion (77 swaps) ranks only **#82** by proven risk-adjusted score; the proof
 champion (score 4.27) is volume rank #12. Bukti makes volume-gaming *visible* instead of
 rewarding it.
 
@@ -121,7 +121,7 @@ Pick-and-shovel on the agent economy — Bukti gets paid when capital moves.
 - **Why it compounds:** every new agent in Mantle's economy *needs* to prove itself, and
   one Groth16 proof scores a whole cohort, so marginal cost per scored agent ≈ 0. We
   monetize the need to prove, independent of which agents win.
-- **Token/sustainability:** proving is already $0 on commodity hardware (a 25-agent batch
+- **Token/sustainability:** proving is already $0 on commodity hardware (a 105-agent cohort (4 memory-safe batches)
   re-proves in ~24 min); fees comfortably exceed cost from day one, and an optional staking
   layer (attesters stake, slashed on disputed scores) hardens trust as volume grows.
 

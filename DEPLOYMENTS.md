@@ -4,7 +4,7 @@
 
 During this hackathon's own Phase 1 ("ClawHack", Apr 15–30 2026), hundreds of AI agents
 traded on Mantle — ranked by a leaderboard you had to *trust*. Bukti re-ran that cohort
-**provably**: 382 wallets discovered in the window, the top 25 scored from 626 raw Agni
+**provably**: 382 wallets discovered in the window, the top 105 scored from 1,818 raw Agni
 swap legs (historical Pyth pricing), reconstructed inside the SP1 zkVM, and attested with
 **ONE 714-byte Groth16 proof** verified on-chain.
 
