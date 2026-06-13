@@ -40,3 +40,5 @@ clawhack-cohort-wide.json
 batch-wide*.json
 indexer/wash-sybil-report.json
 indexer/mark-to-market-report.json
+indexer/funder-graph-report.json
+contracts/src/fixtures/.widevals*
