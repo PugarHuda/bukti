@@ -1,18 +1,19 @@
 @import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap");
 
 :root {
-  --bg: #0a0b0d;
-  --surface: #101316;
-  --surface-2: #15191d;
-  --line: #1d2227;
-  --line-2: #2a3138;
-  --text: #e9edf1;
-  --muted: #7c8693;
-  --faint: #525a64;
-  --accent: #3fbf86;
-  --accent-dim: rgba(63, 191, 134, 0.1);
-  --neg: #e5484d;
-  --neg-dim: rgba(229, 72, 77, 0.1);
+  --bg: #ffffff;
+  --surface: #f5f6f8;
+  --surface-2: #edeff2;
+  --line: #e7e9ec;
+  --line-2: #d4d8dd;
+  --text: #14181d;
+  --muted: #5d6470;
+  --faint: #8b929c;
+  --accent: #0e9f6e;
+  --accent-dim: rgba(14, 159, 110, 0.1);
+  --neg: #dc2626;
+  --neg-dim: rgba(220, 38, 38, 0.08);
+  --btn-on: #ffffff;
   --font: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
@@ -35,7 +36,7 @@ code { font-family: var(--mono); }
 .nav {
   position: sticky; top: 0; z-index: 50;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 28px; background: rgba(10, 11, 13, 0.85);
+  padding: 16px 28px; background: rgba(255, 255, 255, 0.8);
   border-bottom: 1px solid var(--line); backdrop-filter: blur(8px);
 }
 .nav-brand { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; color: var(--text); display: inline-flex; align-items: center; gap: 8px; }
@@ -55,7 +56,7 @@ code { font-family: var(--mono); }
 .hero-sub { font-size: 15.5px; line-height: 1.65; color: var(--muted); max-width: 600px; margin: 0 0 30px; }
 .hero-sub strong { color: var(--text); font-weight: 500; }
 .hero-cta { display: flex; gap: 10px; flex-wrap: wrap; }
-.btn-primary { background: var(--accent); color: #06140d; padding: 11px 18px; border-radius: 8px; font-weight: 600; font-size: 14px; transition: opacity 0.13s; }
+.btn-primary { background: var(--accent); color: var(--btn-on); padding: 11px 18px; border-radius: 8px; font-weight: 600; font-size: 14px; transition: opacity 0.13s; }
 .btn-primary:hover { opacity: 0.88; }
 .btn-primary.big { padding: 13px 24px; }
 .btn-ghost { background: transparent; color: var(--text); padding: 11px 18px; border-radius: 8px; font-weight: 500; font-size: 14px; border: 1px solid var(--line-2); transition: border-color 0.13s; }
@@ -154,7 +155,7 @@ input[type="text"], .dm-search input {
   border-radius: 8px; padding: 11px 13px; font-size: 13px; font-family: var(--mono);
 }
 input[type="text"]:focus, .dm-search input:focus { outline: none; border-color: var(--accent); }
-button.go { background: var(--accent); color: #06140d; border: 0; border-radius: 8px; padding: 0 18px; font-weight: 600; font-size: 13px; cursor: pointer; }
+button.go { background: var(--accent); color: var(--btn-on); border: 0; border-radius: 8px; padding: 0 18px; font-weight: 600; font-size: 13px; cursor: pointer; }
 button.go:disabled { opacity: 0.45; cursor: default; }
 
 .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
