@@ -42,7 +42,7 @@ const FEATURES = [
 ];
 
 const CONTRACTS = [
-  { label: "BuktiAttestation (batch)", addr: "0x2EB832F24136c24A3B38D4b06D3318C48B618163" },
+  { label: "BuktiAttestation (105-wallet cohort)", addr: "0xDFb9C6fA99D8Fa2c8eeA2AE7C055C8cbA53971E9" },
   { label: "BuktiAttestation v3 (+completeness)", addr: "0x03fA99f0dE08F182b2880Ee12a2194DBF00a0Dbf" },
   { label: "SP1 v6.1.0 Groth16 verifier", addr: "0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A" },
   { label: "BuktiValidator (ERC-8004)", addr: "0xda0cEB552af13f5a096D8aA4E5A9FceB9cf6D8D0" },
@@ -69,7 +69,8 @@ export default function Landing() {
       <Nav />
       <div className="landing">
         <section className="hero">
-          <span className="hero-eyebrow">zk-verified · on Mantle</span>
+          <span className="case-stamp">Proven<br />✓ on-chain</span>
+          <span className="hero-eyebrow">Case file №01 · Mantle · 2026</span>
           <h1 className="hero-title">
             Trading track records you <span className="grad">don&apos;t have to trust</span>.
           </h1>
@@ -93,14 +94,36 @@ export default function Landing() {
             <div><b>{s.scanned}</b><span>wallets scanned</span></div>
             <div><b>{s.proven}</b><span>proven on-chain</span></div>
             <div><b>{s.legs}</b><span>raw swap legs</span></div>
-            <div><b>1</b><span>Groth16 proof</span></div>
+            <div><b>105</b><span>Groth16-attested</span></div>
             <div><b>$0</b><span>proving cost</span></div>
+          </div>
+
+          <div className="lineup">
+            <div className="lineup-head">
+              <span className="evidence-tag">The line-up</span>
+              <span className="lineup-note">Two agents advertise the same <b>+312%</b>. One is real, one is fabricated — a screenshot can&apos;t tell them apart.</span>
+            </div>
+            <div className="suspects">
+              <div className="suspect real">
+                <div className="suspect-top"><span className="suspect-id mono">Agent A</span><span className="stamp proven">Proven</span></div>
+                <div className="suspect-claim">+312%</div>
+                <div className="suspect-addr mono">0x48f1…7b8d</div>
+                <p className="suspect-verdict">Receipt-trie inclusion + on-chain attestation check out. The trades are genuine Mantle chain data.</p>
+              </div>
+              <div className="suspect fake">
+                <div className="suspect-top"><span className="suspect-id mono">Agent B</span><span className="stamp fake">Unverified</span></div>
+                <div className="suspect-claim">+312%</div>
+                <div className="suspect-addr mono">0x0000…dEaD</div>
+                <p className="suspect-verdict">No proof on chain. Same number, no evidence — the story doesn&apos;t hold up.</p>
+              </div>
+            </div>
+            <Link href="/dashboard/authenticity" className="lineup-cta">Open the investigation →</Link>
           </div>
         </section>
 
         <section className="band">
           <div className="band-inner">
-            <h2 className="sec-title">The problem</h2>
+            <h2 className="sec-title">Exhibit A · The problem</h2>
             <p className="sec-lead">
               Every AI trading agent claims a great track record. None can prove it. Screenshots are
               edited, dashboards say &ldquo;trust me,&rdquo; and on-chain reputation is self-reported.
@@ -108,16 +131,16 @@ export default function Landing() {
               best one.
             </p>
             <div className="big-insight">
-              Across the ClawHack cohort, volume predicts proven skill only{" "}
-              <span className="grad">36% of the time</span>. The volume champion ranks{" "}
-              <span className="grad">#17</span> by proven risk-adjusted score.
+              Across the 105-agent ClawHack cohort, volume predicts proven skill only{" "}
+              <span className="grad">25% of the time</span>. The volume champion ranks{" "}
+              <span className="grad">#82</span> by proven risk-adjusted score.
             </div>
           </div>
         </section>
 
         <section className="band alt">
           <div className="band-inner">
-            <h2 className="sec-title">How it works</h2>
+            <h2 className="sec-title">Exhibit B · How it works</h2>
             <div className="steps3">
               <div className="step3">
                 <div className="step3-n">1</div>
@@ -140,7 +163,7 @@ export default function Landing() {
 
         <section className="band">
           <div className="band-inner">
-            <h2 className="sec-title">A primitive, not a dashboard</h2>
+            <h2 className="sec-title">Exhibit C · A primitive, not a dashboard</h2>
             <p className="sec-lead">
               Six things other Mantle apps build on — every one live and verifiable on-chain.
             </p>
@@ -158,7 +181,7 @@ export default function Landing() {
 
         <section className="band alt">
           <div className="band-inner">
-            <h2 className="sec-title">Don&apos;t trust us — check</h2>
+            <h2 className="sec-title">Exhibit D · The evidence</h2>
             <p className="sec-lead">
               Every contract is deployed and source-verified on Mantle Sepolia. Invalid proofs
               revert with <code>WrongVerifierSelector</code>.

@@ -105,6 +105,64 @@ code { font-family: var(--mono); }
 .land-footer { color: var(--faint); font-size: 13px; padding: 28px; border-top: 1px solid var(--line); max-width: 920px; margin: 0 auto; }
 .land-footer a { color: var(--muted); }
 
+/* ---------- Forensic case-file theme ---------- */
+.nav-brand .brand-mark { color: var(--text); }
+
+/* faint dossier paper grid behind the hero */
+.hero { position: relative; }
+.hero::before {
+  content: ""; position: absolute; inset: -1px 0 0; z-index: -1; pointer-events: none;
+  background-image: radial-gradient(var(--line-2) 1px, transparent 1.4px);
+  background-size: 22px 22px;
+  -webkit-mask-image: linear-gradient(180deg, #000, transparent 80%);
+  mask-image: linear-gradient(180deg, #000, transparent 80%);
+  opacity: 0.45;
+}
+
+/* rotated ink stamp, top-right of the case file */
+.case-stamp {
+  position: absolute; top: 86px; right: 8px; z-index: 1;
+  font-family: var(--mono); font-size: 11px; font-weight: 600; line-height: 1.3;
+  text-transform: uppercase; letter-spacing: 0.14em; text-align: center; color: var(--accent);
+  border: 2px solid var(--accent); border-radius: 7px; padding: 9px 13px;
+  transform: rotate(-9deg); background: var(--accent-dim); box-shadow: 0 0 0 4px var(--bg);
+}
+
+/* evidence stamps */
+.stamp { font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 8px; border-radius: 4px; border: 1.5px solid; white-space: nowrap; }
+.stamp.proven { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
+.stamp.fake { color: var(--neg); border-color: var(--neg); background: var(--neg-dim); }
+
+/* "Exhibit" section labels get a forensic ruler tick */
+.sec-title { display: inline-flex; align-items: center; gap: 9px; }
+.sec-title::before { content: ""; width: 16px; height: 1.5px; background: var(--accent); flex: none; }
+
+/* the line-up — two suspects, one fabricated */
+.lineup { margin-top: 44px; border: 1px solid var(--line); border-radius: 12px; padding: 22px; background: var(--surface); position: relative; }
+.lineup::before { content: "EVIDENCE"; position: absolute; top: -9px; left: 20px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em; color: var(--faint); background: var(--bg); padding: 2px 8px; border: 1px solid var(--line); border-radius: 4px; }
+.lineup-head { margin-bottom: 16px; }
+.evidence-tag { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text); font-weight: 600; }
+.lineup-note { display: block; font-size: 14px; color: var(--muted); margin-top: 7px; max-width: 580px; line-height: 1.55; }
+.lineup-note b { color: var(--text); }
+.suspects { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.suspect { border: 1px solid var(--line); border-radius: 10px; padding: 16px; background: var(--bg); }
+.suspect.real { border-color: rgba(14, 159, 110, 0.32); }
+.suspect.fake { border-color: rgba(220, 38, 38, 0.26); }
+.suspect-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.suspect-id { font-size: 12px; color: var(--muted); }
+.suspect-claim { font-family: var(--mono); font-size: 30px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+.suspect.real .suspect-claim { color: var(--accent); }
+.suspect.fake .suspect-claim { color: var(--neg); }
+.suspect-addr { font-size: 12px; color: var(--faint); margin-top: 4px; }
+.suspect-verdict { font-size: 12.5px; line-height: 1.5; color: var(--muted); margin: 11px 0 0; }
+.lineup-cta { display: inline-block; margin-top: 16px; font-size: 13.5px; color: var(--accent); font-weight: 500; }
+.lineup-cta:hover { text-decoration: underline; }
+
+@media (max-width: 640px) {
+  .case-stamp { top: 60px; right: 4px; transform: rotate(-9deg) scale(0.85); }
+  .suspects { grid-template-columns: 1fr; }
+}
+
 /* ---------- Dashboard shell (multi-page) ---------- */
 .ds-shell { display: flex; min-height: 100vh; }
 .ds-rail {

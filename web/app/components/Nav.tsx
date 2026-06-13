@@ -1,9 +1,11 @@
 import Link from "next/link";
+import Logo from "./Logo";
 
 export default function Nav() {
   return (
     <nav className="nav">
       <Link href="/" className="nav-brand">
+        <Logo size={20} className="brand-mark" />
         Bukti<span className="zk">zk</span>
       </Link>
       <div className="nav-links">
