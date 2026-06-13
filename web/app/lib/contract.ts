@@ -23,9 +23,9 @@ export const client = createPublicClient({
   ),
 });
 
-/** BuktiAttestation v2 (batch) on Mantle Sepolia (overridable via NEXT_PUBLIC_ATTESTATION_ADDRESS). */
+/** BuktiAttestation for the live 105-wallet cohort (overridable via NEXT_PUBLIC_ATTESTATION_ADDRESS). */
 export const ATTESTATION_ADDRESS = (process.env.NEXT_PUBLIC_ATTESTATION_ADDRESS ??
-  "0x2EB832F24136c24A3B38D4b06D3318C48B618163") as `0x${string}`;
+  "0xDFb9C6fA99D8Fa2c8eeA2AE7C055C8cbA53971E9") as `0x${string}`;
 
 export const ATTESTATION_ABI = [
   {
@@ -46,6 +46,8 @@ export const ATTESTATION_ABI = [
           { name: "maxDrawdownBps", type: "uint32" },
           { name: "roiBps", type: "int64" },
           { name: "volumeUsdE6", type: "uint64" },
+          { name: "swapsRoot", type: "bytes32" },
+          { name: "numSwaps", type: "uint32" },
           { name: "attestedAt", type: "uint64" },
           { name: "attester", type: "address" },
           { name: "exists", type: "bool" },
@@ -64,6 +66,8 @@ export interface Attestation {
   maxDrawdownBps: number;
   roiBps: bigint;
   volumeUsdE6: bigint;
+  swapsRoot: `0x${string}`;
+  numSwaps: number;
   attestedAt: bigint;
   attester: `0x${string}`;
   exists: boolean;

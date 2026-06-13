@@ -45,6 +45,61 @@ export function download(name: string, obj: unknown) {
   URL.revokeObjectURL(url);
 }
 
+/** Print-to-PDF report for one wallet — opens a styled window and triggers the browser's
+ *  Save-as-PDF. No dependency; the report mirrors the on-chain attestation. */
+export function printReport(r: any, meta: any) {
+  const g = (v: number) => (v >= 0 ? "#0e9f6e" : "#dc2626");
+  const row = (k: string, v: string, c?: string) => `<tr><td>${k}</td><td style="text-align:right;font-family:monospace${c ? `;color:${c}` : ""}">${v}</td></tr>`;
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>Bukti report ${r.wallet.slice(0, 10)}</title>
+  <style>
+    @page { margin: 22mm; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; color: #14181d; margin: 0; }
+    .stamp { float: right; border: 2px solid #0e9f6e; color: #0e9f6e; border-radius: 7px; padding: 8px 13px; transform: rotate(6deg); font: 600 12px/1.3 monospace; text-transform: uppercase; letter-spacing: .12em; text-align: center; }
+    h1 { font-size: 22px; margin: 0 0 2px; letter-spacing: -.5px; }
+    .sub { color: #5d6470; font-size: 12px; margin-bottom: 22px; }
+    .addr { font-family: monospace; font-size: 13px; background: #f5f6f8; padding: 6px 10px; border-radius: 6px; display: inline-block; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    td { padding: 8px 4px; border-bottom: 1px solid #e7e9ec; }
+    td:first-child { color: #5d6470; }
+    .big { font-size: 40px; font-weight: 700; letter-spacing: -1px; color: ${g(r.score)}; }
+    .note { margin-top: 22px; font-size: 11px; color: #5d6470; line-height: 1.6; border-top: 1px solid #e7e9ec; padding-top: 14px; }
+    .note code { background: #f5f6f8; padding: 1px 5px; border-radius: 3px; }
+  </style></head><body>
+    <div class="stamp">Proven<br/>✓ on-chain</div>
+    <h1>Bukti — zk-proven track record</h1>
+    <div class="sub">Reconstructed from raw Mantle swaps inside an SP1 zkVM · attested on Mantle Sepolia</div>
+    <div class="addr">${r.wallet}</div>
+    <div class="big">${r.score.toFixed(3)}</div>
+    <div class="sub">risk-adjusted (Sharpe-style) score · tier ${r.tier ?? "—"} · ${r.quadrant ?? ""}</div>
+    <table>
+      ${row("ROI", `${r.roi.toFixed(2)}%`, g(r.roi))}
+      ${row("Realized PnL", `$${r.pnl.toFixed(2)}`, g(r.pnl))}
+      ${row("Max drawdown", `${(r.dd ?? 0).toFixed(2)}%`)}
+      ${row("Win rate", `${(r.winRate ?? 0).toFixed(0)}%`)}
+      ${row("Profit factor", r.profitFactor >= 999 ? "∞" : (r.profitFactor ?? 0).toFixed(2))}
+      ${row("Sortino", (r.sortino ?? 0).toFixed(2))}
+      ${row("Calmar", (r.calmar ?? 0).toFixed(2))}
+      ${row("ClawHack swaps", String(r.clawhackSwaps ?? r.legs ?? "—"))}
+      ${row("Volume (USD)", `$${(r.vol ?? 0).toFixed(2)}`)}
+      ${row("Proof rank", `#${r.proofRank}`)}
+      ${row("Volume rank", `#${r.volRank}`)}
+    </table>
+    <div class="note">
+      <strong>Verify this report yourself.</strong> Every number above is the output of a Groth16 proof
+      verified on-chain by the real SP1 verifier — not self-reported.<br/>
+      Attestation contract: <code>${meta?.attestationContract ?? ""}</code><br/>
+      Read it live: <code>cast call ${meta?.attestationContract ?? ""} "getSharpeMilli(address)(int64,bool)" ${r.wallet}</code><br/>
+      Batch proof tx: <code>${meta?.batchTx ?? ""}</code> · bukti-smoky.vercel.app
+    </div>
+    <script>window.onload=()=>{window.print();}</script>
+  </body></html>`;
+  const w = window.open("", "_blank");
+  if (!w) return;
+  w.document.write(html);
+  w.document.close();
+}
+
 export function Sparkline({ pts }: { pts: number[] }) {
   if (pts.length < 2) return null;
   const w = 560, h = 90, pad = 5;

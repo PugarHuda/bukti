@@ -8,8 +8,8 @@ const EXPLORER = mantleSepolia.blockExplorers.default.url;
 const PROVENANCE = "0xa4d6d9932B19f9B03D0439264F1188F39F8522f0";
 const PROV_TX = "0x92537a756a28692e5b084fcb751cac993fd1a0491fe7ce613880e00c989cf8e6";
 const BLOCKHASH = "0xd1772fd573f194e0def6c52cd6c8a411f164be15ff2e17dc0f87478cb794f581";
-// A genuinely-proven wallet vs. a self-reported claim with no on-chain proof.
-const REAL = "0x48f1142afa03a3b710f63c3d9ff56655a58f7b8d";
+// A genuinely-proven wallet (the cohort's proof champion, score 4.685) vs. a self-reported claim.
+const REAL = "0xe860d04da18b968efcbbbee4133ec12fe0f14dc3";
 const FAKE = "0x000000000000000000000000000000000000dEaD";
 const CLAIM = "+312%"; // the identical headline both "agents" advertise
 

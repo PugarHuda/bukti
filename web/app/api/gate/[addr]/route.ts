@@ -10,7 +10,7 @@ import { ATTESTATION_ADDRESS } from "../../../lib/contract";
 const GATE = 0.5; // minimum proven score (per-trade Sharpe-style)
 const client = createPublicClient({ transport: http("https://rpc.sepolia.mantle.xyz") });
 const ABI = parseAbi([
-  "function getAttestation(address wallet) view returns ((bytes32 anchorBlockHash, uint64 windowStart, uint64 windowEnd, uint32 numTrades, int64 sharpeMilli, uint32 maxDrawdownBps, int64 roiBps, uint64 volumeUsdE6, uint64 attestedAt, address attester, bool exists))",
+  "function getAttestation(address wallet) view returns ((bytes32 anchorBlockHash, uint64 windowStart, uint64 windowEnd, uint32 numTrades, int64 sharpeMilli, uint32 maxDrawdownBps, int64 roiBps, uint64 volumeUsdE6, bytes32 swapsRoot, uint32 numSwaps, uint64 attestedAt, address attester, bool exists))",
 ]);
 
 export async function GET(_req: Request, { params }: { params: Promise<{ addr: string }> }) {

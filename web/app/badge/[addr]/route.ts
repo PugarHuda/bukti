@@ -8,7 +8,7 @@ import { ATTESTATION_ADDRESS } from "../../lib/contract";
 
 const RPC = "https://rpc.sepolia.mantle.xyz";
 const ATT_ABI = parseAbi([
-  "function getAttestation(address wallet) view returns ((bytes32 anchorBlockHash, uint64 windowStart, uint64 windowEnd, uint32 numTrades, int64 sharpeMilli, uint32 maxDrawdownBps, int64 roiBps, uint64 volumeUsdE6, uint64 attestedAt, address attester, bool exists))",
+  "function getAttestation(address wallet) view returns ((bytes32 anchorBlockHash, uint64 windowStart, uint64 windowEnd, uint32 numTrades, int64 sharpeMilli, uint32 maxDrawdownBps, int64 roiBps, uint64 volumeUsdE6, bytes32 swapsRoot, uint32 numSwaps, uint64 attestedAt, address attester, bool exists))",
 ]);
 const client = createPublicClient({ transport: http(RPC) });
 
