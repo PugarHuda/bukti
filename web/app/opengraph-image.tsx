@@ -40,16 +40,16 @@ export default function OG() {
           The Provable ClawHack Leaderboard
         </div>
         <div style={{ fontSize: 28, color: "#8da2b8", marginTop: 16, lineHeight: 1.4, maxWidth: 1000 }}>
-          25 AI trading agents, re-ranked from raw Mantle swaps inside an SP1 zkVM — the whole
-          leaderboard attested on-chain with ONE 714-byte Groth16 proof.
+          105 AI trading agents across 49 Agni + FusionX pools, re-ranked from 1,818 raw Mantle
+          swaps inside an SP1 zkVM — every score attested on-chain with Groth16 proofs.
         </div>
 
         <div style={{ display: "flex", gap: 40, marginTop: "auto" }}>
           {[
             ["382", "scanned"],
-            ["25", "proven"],
-            ["1", "proof"],
-            ["714B", "size"],
+            ["105", "proven"],
+            ["1,818", "swaps"],
+            ["714B", "proof"],
             ["$0", "cost"],
           ].map(([v, k]) => (
             <div key={k} style={{ display: "flex", flexDirection: "column" }}>

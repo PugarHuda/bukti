@@ -2,7 +2,7 @@
 
 const ROWS = [
   { aspect: "Metric computed over PROVEN chain data — end-to-end, in ONE proof", status: "proven", how: "BuktiFullProof: a single Groth16 proof that a volume metric was computed over swaps EACH proven genuine Mantle chain data (notional decoded in-circuit from the proven log). On-chain, the contract has verified 2 distinct real cases (proofCount=2): 3 swaps / $0.303 and 5 swaps / $1.297 — latest() = 5 swaps, included=true. The metric's inputs are proven, not asserted." },
-  { aspect: "Risk-adjusted metric (Sharpe / drawdown / ROI from raw swaps)", status: "proven", how: "Reconstructed inside an SP1 zkVM; one Groth16 proof verified on-chain by the real SP1 v6.1.0 verifier." },
+  { aspect: "Risk-adjusted metric (Sharpe / drawdown / ROI from raw swaps)", status: "proven", how: "Reconstructed inside an SP1 zkVM; a Groth16 proof verified on-chain by the real SP1 v6.1.0 verifier (105 wallets attested across 4 memory-safe batch proofs)." },
   { aspect: "Completeness — the FULL swap set, no cherry-picking", status: "proven", how: "An in-circuit keccak commitment to every ordered leg (swapsRoot). 25/25 verified against the public witness." },
   { aspect: "Swap-log authenticity — the trades are genuine Mantle chain data", status: "proven", how: "Receipt-trie inclusion under the block's receiptsRoot, proven on-chain (BuktiProvenance, getProven = true)." },
   { aspect: "Block-hash anchor — the block is real, not relayer-asserted", status: "trustless", how: "EIP-2935 is live on Mantle (Arsia): the historical block hash is readable on-chain — no relayer." },

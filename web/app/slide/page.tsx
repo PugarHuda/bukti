@@ -100,13 +100,13 @@ const SLIDES: Slide[] = [
         <h2>We re-ranked this hackathon&apos;s own ClawHack cohort — <span className="accent">provably</span>.</h2>
         <div className="stat-row">
           <Stat n="382" l="agents discovered" />
-          <Stat n="25→100" l="re-ranked by proven score" />
-          <Stat n="714 B" l="one Groth16 proof" />
+          <Stat n="105" l="re-ranked by proven score" />
+          <Stat n="714 B" l="per Groth16 proof" />
           <Stat n="$0" l="proving cost · 8 GB laptop" />
         </div>
         <div className="insight-box">
           <div className="ib-h mono">The insight VCs remember</div>
-          <p><strong>Volume crowns the wrong winners.</strong> The cohort&apos;s volume champion ranks only <strong className="neg">#17</strong> by proven skill. Spearman(volume, proven score) = <span className="mono">−0.28</span> — volume is mildly <em>anti</em>-correlated with skill.</p>
+          <p><strong>Volume crowns the wrong winners.</strong> Across the 105-agent cohort the volume champion ranks only <strong className="neg">#82</strong> by proven skill, and volume agrees with proven skill just <strong className="neg">25%</strong> of the time — 97% of all volume came from net-losing wallets.</p>
         </div>
       </>
     ),
@@ -134,7 +134,7 @@ const SLIDES: Slide[] = [
         <div className="kicker mono">07 — A proof is useless until it moves money</div>
         <h2>One attestation, a whole ecosystem reads it.</h2>
         <div className="compose-grid">
-          <div className="cg"><b className="mono">BuktiAllocator</b><p>Routes capital by proven score — <span className="accent">81.8%</span> to the champion, <span className="neg">0%</span> to the volume champion who lost money.</p></div>
+          <div className="cg"><b className="mono">BuktiAllocator</b><p>Routes capital by proven score — <span className="accent">81.8%</span> to the proven leader of the set, <span className="neg">0%</span> to a high-volume wallet that lost money.</p></div>
           <div className="cg"><b className="mono">ERC-8004 validator</b><p>Fills Mantle&apos;s ZK Validation Registry for financial performance.</p></div>
           <div className="cg"><b className="mono">x402 proof-gate</b><p>HTTP 402 unless a wallet&apos;s proven score clears the bar.</p></div>
           <div className="cg"><b className="mono">MCP + badge + bot</b><p>Agents check proof, not promises — every reply read live from chain.</p></div>

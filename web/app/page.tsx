@@ -17,7 +17,7 @@ const FEATURES = [
   {
     icon: "coins",
     title: "Capital routed by proof",
-    body: "BuktiAllocator splits a deposit by zk-proven score. Live: 0.01 MNT routed 81.8% to the proof champion, 0% to the volume champion who actually lost money. MI4 for proven alpha.",
+    body: "BuktiAllocator splits a deposit by zk-proven score. Live demo: 0.01 MNT routed 81.8% to the proven leader of the set, 0% to a high-volume wallet that actually lost money. MI4 for proven alpha.",
   },
   {
     icon: "grid",
