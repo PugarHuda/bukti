@@ -32,3 +32,5 @@ provenance/check-trie/target
 provenance/check-trie/Cargo.lock
 provenance/pyth-vaa/target
 provenance/pyth-vaa/Cargo.lock
+provenance/log-proof/target
+provenance/log-proof/Cargo.lock
