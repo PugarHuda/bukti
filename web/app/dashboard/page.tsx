@@ -92,7 +92,7 @@ export default function Overview() {
           <div className="xstat"><div className="xv bad">{cohort.volumeScoreAgreementPct}%</div><div className="xk">volume ↔ proven-skill agreement</div></div>
           <div className="xstat"><div className="xv">{cohort.avgRankGap}</div><div className="xk">avg vol-vs-proof rank gap</div></div>
           <div className="xstat"><div className="xv bad">{cohort.pctVolumeFromLosers}%</div><div className="xk">volume from net-losing wallets</div></div>
-          <div className="xstat"><div className="xv"><span className="good">{cohort.profitable}</span> / <span className="bad">{cohort.unprofitable}</span></div><div className="xk">profitable vs unprofitable</div></div>
+          <div className="xstat"><div className="xv"><span className="good">{cohort.profitable}</span> / <span className="bad">{cohort.unprofitable}</span></div><div className="xk">profitable vs unprofitable (by realized PnL)</div></div>
         </div>
       )}
     </>
