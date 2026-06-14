@@ -205,6 +205,13 @@ code { font-family: var(--mono); }
 .wd-rank { font-size: 12px; color: var(--faint); font-family: var(--mono); }
 .wd-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
 @media (max-width: 560px) { .wd-hero { text-align: left; } .wd-v { font-size: 40px; } }
+.vw-conn { font-size: 12.5px; color: var(--accent); white-space: nowrap; font-weight: 500; }
+.vw-request, .vw-control { margin-top: 16px; padding: 16px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.vw-request p, .vw-control p { font-size: 13px; color: var(--muted); line-height: 1.55; margin: 0 0 10px; }
+.vw-request p strong, .vw-control p strong { color: var(--text); }
+.vw-steps { margin: 0 0 10px; padding-left: 20px; }
+.vw-steps li { font-size: 13px; color: var(--text); padding: 3px 0; }
+.vw-bound { font-size: 13px; color: var(--accent); background: var(--accent-dim); border: 1px solid rgba(14,159,110,.25); border-radius: 8px; padding: 10px 12px; }
 
 /* ---------- Dashboard shell (multi-page) ---------- */
 .ds-shell { display: flex; min-height: 100vh; }
