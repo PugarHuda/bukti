@@ -7,17 +7,17 @@ proof yourself**. Everything is a public read — no API key, no account.
 
 - **Chain:** Mantle Sepolia (chainId `5003`) · RPC `https://rpc.sepolia.mantle.xyz`
 - **Underlying data:** Mantle mainnet swaps (Agni/FusionX), historical Pyth prices
-- **Score unit:** `sharpeMilli` = risk-adjusted score × 1000 (int64). e.g. `4265` → 4.265
+- **Score unit:** `sharpeMilli` = risk-adjusted score × 1000 (int64). e.g. `4685` → 4.685
 
 ## Deployed contracts (all source-verified on Mantlescan)
 
 | Contract | Address | Read it for |
 |---|---|---|
-| BuktiAttestation v2 | `0x2EB832F24136c24A3B38D4b06D3318C48B618163` | a wallet's proven score |
+| BuktiAttestation (105-wallet cohort) | `0xDFb9C6fA99D8Fa2c8eeA2AE7C055C8cbA53971E9` | a wallet's proven score |
 | BuktiAttestation v3 (+completeness) | `0x03fA99f0dE08F182b2880Ee12a2194DBF00a0Dbf` | score + swapsRoot commitment |
 | BuktiProvenance | `0xa4d6d9932B19f9B03D0439264F1188F39F8522f0` | "is this swap genuine chain data?" |
 | BuktiFullProof | `0xC16f221d8bae221A7B5B3ca74DCDCb892B9067FB` | metric proven over genuine data |
-| BuktiAllocator | `0x6DF2F45f9184346C175a94D783F37C77C8f3B8B2` | capital split by proof |
+| BuktiAllocator | `0xa2D2E87367A5cEB1c10B02952fD1e5d375b4b5B9` | capital split by proof |
 | BuktiValidator (ERC-8004) | `0xda0cEB552af13f5a096D8aA4E5A9FceB9cf6D8D0` | ZK validation responses |
 | GatedVault (reference consumer) | `0x851C251411Fe4F4bab586F775c7450f86A348EAD` | proof-gated deposits |
 | SP1 Groth16 Verifier v6.1.0 | `0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A` | verify any Bukti proof |
@@ -32,7 +32,7 @@ interface IBukti {
 }
 
 // inside your protocol:
-(int64 score, bool proven) = IBukti(0x2EB832F24136c24A3B38D4b06D3318C48B618163).getSharpeMilli(agent);
+(int64 score, bool proven) = IBukti(0xDFb9C6fA99D8Fa2c8eeA2AE7C055C8cbA53971E9).getSharpeMilli(agent);
 require(proven && score >= 500, "Bukti: no proven track record"); // 500 == score 0.5
 ```
 
@@ -42,7 +42,7 @@ Full record (drawdown, ROI, volume, window, anchor):
 struct Attestation {
     bytes32 anchorBlockHash; uint64 windowStart; uint64 windowEnd; uint32 numTrades;
     int64 sharpeMilli; uint32 maxDrawdownBps; int64 roiBps; uint64 volumeUsdE6;
-    uint64 attestedAt; address attester; bool exists;
+    bytes32 swapsRoot; uint32 numSwaps; uint64 attestedAt; address attester; bool exists;
 }
 function getAttestation(address wallet) external view returns (Attestation memory);
 ```
@@ -53,18 +53,18 @@ function getAttestation(address wallet) external view returns (Attestation memor
 import { createPublicClient, http, parseAbi } from "viem";
 const client = createPublicClient({ transport: http("https://rpc.sepolia.mantle.xyz") });
 const [scoreMilli, proven] = await client.readContract({
-  address: "0x2EB832F24136c24A3B38D4b06D3318C48B618163",
+  address: "0xDFb9C6fA99D8Fa2c8eeA2AE7C055C8cbA53971E9",
   abi: parseAbi(["function getSharpeMilli(address) view returns (int64,bool)"]),
   functionName: "getSharpeMilli", args: [agent],
 });
-const score = Number(scoreMilli) / 1000; // e.g. 4.265
+const score = Number(scoreMilli) / 1000; // e.g. 4.685
 ```
 
 **cast (CLI):**
 
 ```bash
-cast call 0x2EB832F24136c24A3B38D4b06D3318C48B618163 \
-  "getSharpeMilli(address)(int64,bool)" 0x48f1142a... --rpc-url https://rpc.sepolia.mantle.xyz
+cast call 0xDFb9C6fA99D8Fa2c8eeA2AE7C055C8cbA53971E9 \
+  "getSharpeMilli(address)(int64,bool)" 0xe860d04da18b968efcbbbee4133ec12fe0f14dc3 --rpc-url https://rpc.sepolia.mantle.xyz
 ```
 
 See [`GatedVault.sol`](../contracts/src/GatedVault.sol) for a complete consumer (live on Sepolia:
@@ -168,7 +168,7 @@ these events.
 Base URL: `https://bukti-smoky.vercel.app`. Embed the badge in markdown:
 
 ```md
-![Bukti score](https://bukti-smoky.vercel.app/badge/0x48f1142a...)
+![Bukti score](https://bukti-smoky.vercel.app/badge/0xe860d04da18b968efcbbbee4133ec12fe0f14dc3)
 ```
 
 ---

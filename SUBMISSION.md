@@ -19,8 +19,9 @@ layer for ERC-8004 on Mantle. *Catch-a-cheater: two agents, same +312% — Bukti
 - Secondary: **AI Trading & Strategy** (BGA)
 
 ## Links
-- 🌐 Live demo: https://bukti-smoky.vercel.app
+- 🌐 Live demo: https://bukti-smoky.vercel.app  ·  backup (full app, Cloudflare): https://bukti.hudapugar.workers.dev
 - 📦 Repo (open-source): https://github.com/PugarHuda/bukti
+- 📖 Live API docs: https://bukti-smoky.vercel.app/doc  ·  Pitch deck: https://bukti-smoky.vercel.app/slide
 - 🎬 Demo video: **[PASTE after recording]**
 - 📄 Pitch: [PITCH.md](PITCH.md) · Business: [docs/BUSINESS.md](docs/BUSINESS.md) · Judge run-through: [docs/JUDGE-RUNTHROUGH.md](docs/JUDGE-RUNTHROUGH.md) · Architecture: [DEPLOYMENTS.md](DEPLOYMENTS.md) · [docs/](docs)
 
@@ -76,7 +77,7 @@ winners** — the cohort's volume champion (77 swaps) ranks only #82 by proven s
 | SP1 Groth16 Verifier v6.1.0 (real) | `0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A` |
 | GatedVault | `0x851C251411Fe4F4bab586F775c7450f86A348EAD` |
 | BuktiValidator (ERC-8004 ZK validator) | `0xda0cEB552af13f5a096D8aA4E5A9FceB9cf6D8D0` |
-| BuktiAllocator (capital routed by proof) | `0x6DF2F45f9184346C175a94D783F37C77C8f3B8B2` |
+| BuktiAllocator (capital routed by proof) | `0xa2D2E87367A5cEB1c10B02952fD1e5d375b4b5B9` |
 | **BuktiProvenance** (proves a swap log is genuine Mantle chain data) | `0xa4d6d9932B19f9B03D0439264F1188F39F8522f0` |
 | **BuktiFullProof** (metric proven over genuine chain data, in ONE proof) | `0xC16f221d8bae221A7B5B3ca74DCDCb892B9067FB` |
 | ReferenceValidationRegistry | `0x0954E50cBC85836C9E3FC6868d24b6118d974E9d` |
@@ -119,7 +120,7 @@ leaderboard attested with four 714-byte Groth16 proofs, for \$0. The insight VCs
 **volume crowns the wrong winners** — the volume champion ranks #82 by proven skill.
 
 **6/** And a proof is useless until it moves money: BuktiAllocator routes capital by proven
-score — 81.8% to the champion, **0%** to the volume champion who actually lost money.
+score — 82% to the champion, **0%** to the volume champion who actually lost money.
 Plus an ERC-8004 ZK validator, an x402 proof-gate, an embeddable score badge, an MCP server.
 
 **7/** Don't trust us — verify our real Groth16 proof yourself, live in your browser. ✅

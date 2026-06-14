@@ -56,7 +56,7 @@ Whoever wins, the scoreboard isn't something either side can fake.
 **Proof that moves capital: the BuktiAllocator.** A proof of skill is inert until it routes
 money. `BuktiAllocator` is an index/allocator vault that splits a deposit across agents
 **weighted by their zk-proven score** — capital physically cannot flow to an unproven or
-cherry-picked record. It's live: a 0.01 MNT deposit across the cohort routed **81.8% to the
+cherry-picked record. It's live: a 0.01 MNT deposit across the cohort routed **82% to the
 proof champion, 18.2% to the runner-up, and 0% to the volume champion** (proven score −1.316).
 This is the on-chain analog of Mantle's own MI4 index — but constituent eligibility is a
 Groth16 proof of risk-adjusted skill, not a committee. *MI4 is proven-beta for institutions;
@@ -98,7 +98,7 @@ zero-knowledge proof. We use SP1 — the same zkVM securing Mantle — and Mantl
 - Real SP1 v6.1.0 Groth16 verifier: `0xb5c7a7761221931ee15c8C70DdF4192a94C49a5A`
 - GatedVault (capital gate): `0x851C251411Fe4F4bab586F775c7450f86A348EAD`
 - BuktiValidator (ERC-8004 ZK validator): `0xda0cEB552af13f5a096D8aA4E5A9FceB9cf6D8D0`
-- BuktiAllocator (capital routed by proof): `0x6DF2F45f9184346C175a94D783F37C77C8f3B8B2`
+- BuktiAllocator (capital routed by proof): `0xa2D2E87367A5cEB1c10B02952fD1e5d375b4b5B9`
 - BuktiAttestation v3 (in-circuit completeness/anti-cherry-pick): `0x03fA99f0dE08F182b2880Ee12a2194DBF00a0Dbf` (25/25 roots verified vs witness)
 - BuktiProvenance (swap = genuine chain data): `0xa4d6d9932B19f9B03D0439264F1188F39F8522f0`
 - **BuktiFullProof** (metric proven over genuine chain data, end-to-end in ONE proof): `0xC16f221d8bae221A7B5B3ca74DCDCb892B9067FB`

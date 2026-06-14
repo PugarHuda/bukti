@@ -39,7 +39,7 @@ skills, etc.) direct access to Bukti's zk-verified scores.
 > but its **zk-proven** risk-adjusted score is **−0.112** — below the 0.5 capital gate
 > (the vault contract would revert `SharpeBelowThreshold`). Volume isn't performance.
 > *(calls `bukti_leaderboard`)* The proven top performer in the same cohort is
-> `0x48f1142A…` with score **4.265** — and it's already vault-approved on-chain.
+> `0xe860d0…` with score **4.685** — and it's already vault-approved on-chain.
 
 That exchange is real: both facts come from the live chain, attested by one Groth16
 proof ([tx `0xe478d52a…`](https://sepolia.mantlescan.xyz/tx/0xe478d52a6c5e312bf0a62b4dad0f944b784da3011649947770c96e00fb82dbc6)).

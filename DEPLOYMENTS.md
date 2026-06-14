@@ -100,10 +100,10 @@ eligibility is a Groth16 proof, not a committee. Pull-payment design (recipients
 
 | Item | Value |
 |---|---|
-| **BuktiAllocator** (Mantlescan-verified, gate 0.5) | [`0x6DF2F45f9184346C175a94D783F37C77C8f3B8B2`](https://sepolia.mantlescan.xyz/address/0x6DF2F45f9184346C175a94D783F37C77C8f3B8B2#code) |
+| **BuktiAllocator** (Mantlescan-verified, gate 0.5) | [`0xa2D2E87367A5cEB1c10B02952fD1e5d375b4b5B9`](https://sepolia.mantlescan.xyz/address/0xa2D2E87367A5cEB1c10B02952fD1e5d375b4b5B9#code) |
 | `previewAllocation` of 1 MNT across champion / runner-up / volume-champion | weights `[4265, 949, 0]` → `[0.818, 0.182, 0.000]` MNT |
 | **Live allocation tx** (0.01 MNT routed by proof) | [`0x559503d3…`](https://sepolia.mantlescan.xyz/tx/0x559503d328df13df28ba8ee61564046307d69f9341af557a5be0db04f9011db0) |
-| Credited result | champion `0x48f1…` **81.8%**, runner-up `0x0a85…` **18.2%**, volume champion `0x4cf8…` (score −1.316) **0%** |
+| Credited result | champion `0x48f1…` **82%**, runner-up `0x0a85…` **18.2%**, volume champion `0x4cf8…` (score −1.316) **0%** |
 
 ### 🧾 BuktiAttestation v3 — in-circuit completeness commitment (anti-cherry-pick, live)
 The single biggest critique of any track-record proof is *"did they only prove their winning
